@@ -9,3 +9,9 @@ if %errorlevel% neq 0 (
 )
 cd ..\out
 cmake --build . --config Release --parallel
+if %errorlevel% neq 0 (
+    echo Build failed with code %errorlevel%
+    exit /b %errorlevel%
+)
+echo BUILD FINISHED SUCCESS
+
