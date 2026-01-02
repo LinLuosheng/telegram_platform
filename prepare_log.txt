@@ -1,0 +1,1400 @@
+Choosing Qt 5.
+[1/33](Libraries/patches): SKIPPING
+[2/33](ThirdParty/msys64): SKIPPING
+[3/33](ThirdParty/python#0.3.10.11): SKIPPING
+[4/33](ThirdParty/NuGet): SKIPPING
+[5/33](ThirdParty/jom): SKIPPING
+[6/33](ThirdParty/gyp): SKIPPING
+[7/33](Libraries/lzma): SKIPPING
+[8/33](Libraries/zlib): SKIPPING
+[9/33](Libraries/mozjpeg): SKIPPING
+[10/33](Libraries/openssl3): SKIPPING
+[11/33](Libraries/opus): SKIPPING
+[12/33](Libraries/rnnoise): SKIPPING
+[13/33](Libraries/gas-preprocessor): SKIPPING
+[14/33](Libraries/dav1d): SKIPPING
+[15/33](Libraries/openh264): SKIPPING
+[16/33](Libraries/libavif): SKIPPING
+[17/33](Libraries/libde265): SKIPPING
+[18/33](Libraries/libwebp): SKIPPING
+[19/33](Libraries/libheif): SKIPPING
+[20/33](Libraries/libjxl): SKIPPING
+[21/33](Libraries/libvpx): SKIPPING
+[22/33](Libraries/liblcms2): SKIPPING
+[23/33](Libraries/nv-codec-headers): SKIPPING
+[24/33](Libraries/regex): SKIPPING
+[25/33](Libraries/ffmpeg): SKIPPING
+[26/33](Libraries/openal-soft): SKIPPING
+[27/33](Libraries/breakpad): SKIPPING
+[28/33](Libraries/tg_angle): SKIPPING
+[29/33](Libraries/qt_5.15.18): SKIPPING
+[30/33](Libraries/tg_owt): SKIPPING
+[31/33](Libraries/ada): NOT FOUND, BUILDING:
+---------------------------------COMMANDS-LIST----------------------------------
+if exist ada rmdir /Q /S ada
+if exist ada exit /b 1
+git clone -b v3.2.4 https://github.com/ada-url/ada.git
+cd ada
+cmake -B out . ^
+-A %WIN32X64% ^
+-D ADA_TESTING=OFF ^
+-D ADA_TOOLS=OFF ^
+-D ADA_INCLUDE_URL_PATTERN=OFF ^
+-D CMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>"
+cmake --build out --config Debug --parallel
+cmake --build out --config Release --parallel
+--------------------------------------------------------------------------------
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if exist ada rmdir /Q /S ada 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if exist ada exit /b 1 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>call git clone -b v3.2.4 https://github.com/ada-url/ada.git 
+Cloning into 'ada'...
+Note: switching to '010f7c45aeaff1205452e7da2df8702cf725fb3e'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>call cd ada 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\ada>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\ada>call cmake -B out . -A x64 -D ADA_TESTING=OFF -D ADA_TOOLS=OFF -D ADA_INCLUDE_URL_PATTERN=OFF -D CMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" 
+-- Building for: Visual Studio 17 2022
+-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.19045.
+-- The C compiler identification is MSVC 19.44.35222.0
+-- The CXX compiler identification is MSVC 19.44.35222.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- No build type selected, default to Release
+-- Compiler ID : MSVC
+-- CMAKE_BUILD_TYPE : Release
+-- Found Python3: C:/Program Files/Python310/python.exe (found version "3.10.11") found components: Interpreter
+-- Python found, we are going to amalgamate.py.
+-- Configuring done (21.2s)
+-- Generating done (0.3s)
+-- Build files have been written to: C:/Users/admin/Desktop/telegram/Libraries/win64/ada/out
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\ada>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\ada>call cmake --build out --config Debug --parallel 
+适用于 .NET Framework MSBuild 版本 17.14.23+b0019275e
+
+  1>Checking Build System
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/ada/src/CMakeLists.txt
+  ada.cpp
+  ada.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\ada\out\src\Debug\ada.lib
+  Generating ada.cpp, ada.h, ada_c.h, demo.cpp, demo.c, README.md
+  SCRIPT_PATH=C:\Users\admin\Desktop\telegram\Libraries\win64\ada\singleheader PROJECT_PATH=C:\Users\admin\Desktop\telegram\Libraries\win64\ada
+  timestamp is 2025-04-28 12:16:36 -0400
+  Creating C:/Users/admin/Desktop/telegram/Libraries/win64/ada/out/singleheader\ada.h
+  Creating C:/Users/admin/Desktop/telegram/Libraries/win64/ada/out/singleheader\ada.cpp
+  Done with all files generation.
+  Files have been written to directory: C:/Users/admin/Desktop/telegram/Libraries/win64/ada/out/singleheader/
+  Done with all files generation.
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/ada/singleheader/CMakeLists.txt
+  ada.cpp
+  ada-singleheader-lib.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\ada\out\singleheader\Debug\ada-singleheader-lib.lib
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/ada/CMakeLists.txt
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\ada>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\ada>call cmake --build out --config Release --parallel 
+适用于 .NET Framework MSBuild 版本 17.14.23+b0019275e
+
+  1>Checking Build System
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/ada/src/CMakeLists.txt
+  ada.cpp
+  ada.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\ada\out\src\Release\ada.lib
+  Generating ada.cpp, ada.h, ada_c.h, demo.cpp, demo.c, README.md
+  SCRIPT_PATH=C:\Users\admin\Desktop\telegram\Libraries\win64\ada\singleheader PROJECT_PATH=C:\Users\admin\Desktop\telegram\Libraries\win64\ada
+  timestamp is 2025-04-28 12:16:36 -0400
+  Creating C:/Users/admin/Desktop/telegram/Libraries/win64/ada/out/singleheader\ada.h
+  Creating C:/Users/admin/Desktop/telegram/Libraries/win64/ada/out/singleheader\ada.cpp
+  Done with all files generation.
+  Files have been written to directory: C:/Users/admin/Desktop/telegram/Libraries/win64/ada/out/singleheader/
+  Done with all files generation.
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/ada/singleheader/CMakeLists.txt
+  ada.cpp
+  ada-singleheader-lib.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\ada\out\singleheader\Release\ada-singleheader-lib.lib
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/ada/CMakeLists.txt
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\ada>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\ada>call  
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\ada>if 0 NEQ 0 exit /b 0 
+[32/33](Libraries/protobuf): NOT FOUND, BUILDING:
+---------------------------------COMMANDS-LIST----------------------------------
+if exist protobuf rmdir /Q /S protobuf
+if exist protobuf exit /b 1
+git clone --recursive -b v21.9 https://github.com/protocolbuffers/protobuf
+cd protobuf
+git clone https://github.com/abseil/abseil-cpp third_party/abseil-cpp
+cd third_party/abseil-cpp
+git checkout 273292d1cf
+cd ../..
+mkdir build
+cd build
+cmake .. ^
+-A %WIN32X64% ^
+-Dprotobuf_BUILD_TESTS=OFF ^
+-Dprotobuf_BUILD_PROTOBUF_BINARIES=ON ^
+-Dprotobuf_BUILD_LIBPROTOC=ON ^
+-Dprotobuf_WITH_ZLIB_DEFAULT=OFF ^
+-Dprotobuf_DEBUG_POSTFIX=""
+cmake --build . --config Release --parallel
+cmake --build . --config Debug --parallel
+--------------------------------------------------------------------------------
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if exist protobuf rmdir /Q /S protobuf 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if exist protobuf exit /b 1 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>call git clone --recursive -b v21.9 https://github.com/protocolbuffers/protobuf 
+Cloning into 'protobuf'...
+warning: refs/tags/v21.9 82d8c457e4f57eb3faaa622bd5ef1e67ca6f7e01 is not a commit!
+Note: switching to '90b73ac3f0b10320315c2ca0d03a5a9b095d2f66'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+Updating files:  79% (1786/2249)Updating files:  80% (1800/2249)Updating files:  81% (1822/2249)Updating files:  82% (1845/2249)Updating files:  83% (1867/2249)Updating files:  84% (1890/2249)Updating files:  85% (1912/2249)Updating files:  86% (1935/2249)Updating files:  87% (1957/2249)Updating files:  88% (1980/2249)Updating files:  89% (2002/2249)Updating files:  90% (2025/2249)Updating files:  91% (2047/2249)Updating files:  92% (2070/2249)Updating files:  93% (2092/2249)Updating files:  94% (2115/2249)Updating files:  95% (2137/2249)Updating files:  96% (2160/2249)Updating files:  97% (2182/2249)Updating files:  98% (2205/2249)Updating files:  99% (2227/2249)Updating files: 100% (2249/2249)Updating files: 100% (2249/2249), done.
+Submodule 'third_party/benchmark' (https://github.com/google/benchmark.git) registered for path 'third_party/benchmark'
+Submodule 'third_party/googletest' (https://github.com/google/googletest.git) registered for path 'third_party/googletest'
+Cloning into 'C:/Users/admin/Desktop/telegram/Libraries/win64/protobuf/third_party/benchmark'...
+Cloning into 'C:/Users/admin/Desktop/telegram/Libraries/win64/protobuf/third_party/googletest'...
+Submodule path 'third_party/benchmark': checked out '5b7683f49e1e9223cf9927b24f6fd3d6bd82e3f8'
+Submodule path 'third_party/googletest': checked out '5ec7f0c4a113e2f18ac2c6cc7df51ad6afc24081'
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>call cd protobuf 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf>call git clone https://github.com/abseil/abseil-cpp third_party/abseil-cpp 
+Cloning into 'third_party/abseil-cpp'...
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf>call cd third_party/abseil-cpp 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\third_party\abseil-cpp>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\third_party\abseil-cpp>call git checkout 273292d1cf 
+Note: switching to '273292d1cf'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at 273292d1 Apply LTS transformations for 20220623 LTS branch (#1202)
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\third_party\abseil-cpp>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\third_party\abseil-cpp>call cd ../.. 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf>call mkdir build 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf>call cd build 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build>call cmake .. -A x64 -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_BUILD_PROTOBUF_BINARIES=ON -Dprotobuf_BUILD_LIBPROTOC=ON -Dprotobuf_WITH_ZLIB_DEFAULT=OFF -Dprotobuf_DEBUG_POSTFIX="" 
+-- Building for: Visual Studio 17 2022
+CMake Deprecation Warning at CMakeLists.txt:2 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.19045.
+-- The C compiler identification is MSVC 19.44.35222.0
+-- The CXX compiler identification is MSVC 19.44.35222.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- 
+-- 3.21.9.0
+-- Performing Test protobuf_HAVE_LD_VERSION_SCRIPT
+-- Performing Test protobuf_HAVE_LD_VERSION_SCRIPT - Success
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - not found
+-- Found Threads: TRUE
+-- Could NOT find ZLIB (missing: ZLIB_LIBRARY ZLIB_INCLUDE_DIR) 
+-- Configuring done (25.6s)
+-- Generating done (0.2s)
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    protobuf_BUILD_PROTOBUF_BINARIES
+
+
+-- Build files have been written to: C:/Users/admin/Desktop/telegram/Libraries/win64/protobuf/build
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build>call cmake --build . --config Release --parallel 
+适用于 .NET Framework MSBuild 版本 17.14.23+b0019275e
+
+  1>Checking Build System
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/protobuf/CMakeLists.txt
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/protobuf/CMakeLists.txt
+  any_lite.cc
+  arena.cc
+  arenastring.cc
+  arenaz_sampler.cc
+  extension_set.cc
+  any_lite.cc
+  generated_enum_util.cc
+  arena.cc
+  arenastring.cc
+  arenaz_sampler.cc
+  generated_message_tctable_lite.cc
+  generated_message_util.cc
+  extension_set.cc
+  implicit_weak_message.cc
+  generated_enum_util.cc
+  generated_message_tctable_lite.cc
+  generated_message_util.cc
+  inlined_string_field.cc
+  coded_stream.cc
+  io_win32.cc
+  implicit_weak_message.cc
+  strtod.cc
+  zero_copy_stream.cc
+  inlined_string_field.cc
+  coded_stream.cc
+  zero_copy_stream_impl.cc
+  zero_copy_stream_impl_lite.cc
+  io_win32.cc
+  map.cc
+  strtod.cc
+  message_lite.cc
+  parse_context.cc
+  zero_copy_stream.cc
+  zero_copy_stream_impl.cc
+  repeated_field.cc
+  zero_copy_stream_impl_lite.cc
+  map.cc
+  repeated_ptr_field.cc
+  message_lite.cc
+  parse_context.cc
+  bytestream.cc
+  repeated_field.cc
+  common.cc
+  repeated_ptr_field.cc
+  int128.cc
+  status.cc
+  statusor.cc
+  bytestream.cc
+  common.cc
+  stringpiece.cc
+  stringprintf.cc
+  structurally_valid.cc
+  int128.cc
+  strutil.cc
+  status.cc
+  statusor.cc
+  time.cc
+  wire_format_lite.cc
+  stringpiece.cc
+  stringprintf.cc
+  structurally_valid.cc
+  strutil.cc
+  time.cc
+  wire_format_lite.cc
+  any.cc
+  any.pb.cc
+  api.pb.cc
+  importer.cc
+  parser.cc
+  descriptor.cc
+  descriptor.pb.cc
+  descriptor_database.cc
+  libprotobuf-lite.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build\Release\libprotobuf-lite.lib
+  duration.pb.cc
+  dynamic_message.cc
+  empty.pb.cc
+  extension_set_heavy.cc
+  field_mask.pb.cc
+  generated_message_bases.cc
+  generated_message_reflection.cc
+  generated_message_tctable_full.cc
+  gzip_stream.cc
+  printer.cc
+  tokenizer.cc
+  map_field.cc
+  message.cc
+  reflection_ops.cc
+  service.cc
+  source_context.pb.cc
+  struct.pb.cc
+  substitute.cc
+  text_format.cc
+  timestamp.pb.cc
+  type.pb.cc
+  unknown_field_set.cc
+  delimited_message_util.cc
+  field_comparator.cc
+  field_mask_util.cc
+  datapiece.cc
+  default_value_objectwriter.cc
+  error_listener.cc
+  field_mask_utility.cc
+  json_escaping.cc
+  json_objectwriter.cc
+  json_stream_parser.cc
+  object_writer.cc
+  proto_writer.cc
+  protostream_objectsource.cc
+  protostream_objectwriter.cc
+  type_info.cc
+  utility.cc
+  json_util.cc
+  message_differencer.cc
+  time_util.cc
+  type_resolver_util.cc
+  wire_format.cc
+  wrappers.pb.cc
+  libprotobuf.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build\Release\libprotobuf.lib
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/protobuf/CMakeLists.txt
+  code_generator.cc
+  command_line_interface.cc
+  padding_optimizer.cc
+  parse_function_generator.cc
+  csharp_doc_comment.cc
+  csharp_enum.cc
+  csharp_enum_field.cc
+  csharp_field_base.cc
+  csharp_generator.cc
+  csharp_helpers.cc
+  csharp_map_field.cc
+  csharp_message.cc
+  csharp_message_field.cc
+  csharp_primitive_field.cc
+  csharp_reflection_class.cc
+  csharp_repeated_enum_field.cc
+  csharp_repeated_message_field.cc
+  csharp_repeated_primitive_field.cc
+  csharp_source_generator_base.cc
+  csharp_wrapper_field.cc
+  context.cc
+  doc_comment.cc
+  enum_field_lite.cc
+  enum_lite.cc
+  extension_lite.cc
+  generator_factory.cc
+  kotlin_generator.cc
+  map_field_lite.cc
+  message_builder.cc
+  message_builder_lite.cc
+  message_field_lite.cc
+  message_lite.cc
+  name_resolver.cc
+  primitive_field_lite.cc
+  shared_code_generator.cc
+  string_field_lite.cc
+  objectivec_enum.cc
+  objectivec_enum_field.cc
+  objectivec_extension.cc
+  objectivec_field.cc
+  objectivec_file.cc
+  objectivec_generator.cc
+  objectivec_helpers.cc
+  objectivec_map_field.cc
+  objectivec_message.cc
+  objectivec_message_field.cc
+  objectivec_oneof.cc
+  objectivec_primitive_field.cc
+  php_generator.cc
+  plugin.cc
+  plugin.pb.cc
+  pyi_generator.cc
+  ruby_generator.cc
+  subprocess.cc
+  zip_writer.cc
+  enum.cc
+  enum_field.cc
+  extension.cc
+  field.cc
+  file.cc
+  generator.cc
+  helpers.cc
+  map_field.cc
+  message.cc
+  message_field.cc
+  primitive_field.cc
+  service.cc
+  string_field.cc
+  enum.cc
+  enum_field.cc
+  extension.cc
+  field.cc
+  file.cc
+  generator.cc
+  helpers.cc
+  map_field.cc
+  message.cc
+  message_field.cc
+  primitive_field.cc
+  service.cc
+  string_field.cc
+  generator.cc
+  helpers.cc
+  libprotoc.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build\Release\libprotoc.lib
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/protobuf/CMakeLists.txt
+  main.cc
+  protoc.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build\Release\protoc.exe
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/protobuf/CMakeLists.txt
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build>call cmake --build . --config Debug --parallel 
+适用于 .NET Framework MSBuild 版本 17.14.23+b0019275e
+
+  1>Checking Build System
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/protobuf/CMakeLists.txt
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/protobuf/CMakeLists.txt
+  any_lite.cc
+  arena.cc
+  arenastring.cc
+  arenaz_sampler.cc
+  any_lite.cc
+  arena.cc
+  arenastring.cc
+  arenaz_sampler.cc
+  extension_set.cc
+  extension_set.cc
+  generated_enum_util.cc
+  generated_enum_util.cc
+  generated_message_tctable_lite.cc
+  generated_message_util.cc
+  generated_message_tctable_lite.cc
+  generated_message_util.cc
+  implicit_weak_message.cc
+  inlined_string_field.cc
+  implicit_weak_message.cc
+  inlined_string_field.cc
+  coded_stream.cc
+  io_win32.cc
+  coded_stream.cc
+  io_win32.cc
+  strtod.cc
+  strtod.cc
+  zero_copy_stream.cc
+  zero_copy_stream_impl.cc
+  zero_copy_stream.cc
+  zero_copy_stream_impl.cc
+  zero_copy_stream_impl_lite.cc
+  zero_copy_stream_impl_lite.cc
+  map.cc
+  map.cc
+  message_lite.cc
+  message_lite.cc
+  parse_context.cc
+  repeated_field.cc
+  parse_context.cc
+  repeated_field.cc
+  repeated_ptr_field.cc
+  repeated_ptr_field.cc
+  bytestream.cc
+  bytestream.cc
+  common.cc
+  common.cc
+  int128.cc
+  int128.cc
+  status.cc
+  status.cc
+  statusor.cc
+  statusor.cc
+  stringpiece.cc
+  stringprintf.cc
+  stringpiece.cc
+  structurally_valid.cc
+  stringprintf.cc
+  structurally_valid.cc
+  strutil.cc
+  strutil.cc
+  time.cc
+  wire_format_lite.cc
+  time.cc
+  any.cc
+  wire_format_lite.cc
+  any.pb.cc
+  api.pb.cc
+  importer.cc
+  parser.cc
+  descriptor.cc
+  descriptor.pb.cc
+  descriptor_database.cc
+  libprotobuf-lite.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build\Debug\libprotobuf-lite.lib
+  duration.pb.cc
+  dynamic_message.cc
+  empty.pb.cc
+  extension_set_heavy.cc
+  field_mask.pb.cc
+  generated_message_bases.cc
+  generated_message_reflection.cc
+  generated_message_tctable_full.cc
+  gzip_stream.cc
+  printer.cc
+  tokenizer.cc
+  map_field.cc
+  message.cc
+  reflection_ops.cc
+  service.cc
+  source_context.pb.cc
+  struct.pb.cc
+  substitute.cc
+  text_format.cc
+  timestamp.pb.cc
+  type.pb.cc
+  unknown_field_set.cc
+  delimited_message_util.cc
+  field_comparator.cc
+  field_mask_util.cc
+  datapiece.cc
+  default_value_objectwriter.cc
+  error_listener.cc
+  field_mask_utility.cc
+  json_escaping.cc
+  json_objectwriter.cc
+  json_stream_parser.cc
+  object_writer.cc
+  proto_writer.cc
+  protostream_objectsource.cc
+  protostream_objectwriter.cc
+  type_info.cc
+  utility.cc
+  json_util.cc
+  message_differencer.cc
+  time_util.cc
+  type_resolver_util.cc
+  wire_format.cc
+  wrappers.pb.cc
+  libprotobuf.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build\Debug\libprotobuf.lib
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/protobuf/CMakeLists.txt
+  code_generator.cc
+  command_line_interface.cc
+  padding_optimizer.cc
+  parse_function_generator.cc
+  csharp_doc_comment.cc
+  csharp_enum.cc
+  csharp_enum_field.cc
+  csharp_field_base.cc
+  csharp_generator.cc
+  csharp_helpers.cc
+  csharp_map_field.cc
+  csharp_message.cc
+  csharp_message_field.cc
+  csharp_primitive_field.cc
+  csharp_reflection_class.cc
+  csharp_repeated_enum_field.cc
+  csharp_repeated_message_field.cc
+  csharp_repeated_primitive_field.cc
+  csharp_source_generator_base.cc
+  csharp_wrapper_field.cc
+  context.cc
+  doc_comment.cc
+  enum_field_lite.cc
+  enum_lite.cc
+  extension_lite.cc
+  generator_factory.cc
+  kotlin_generator.cc
+  map_field_lite.cc
+  message_builder.cc
+  message_builder_lite.cc
+  message_field_lite.cc
+  message_lite.cc
+  name_resolver.cc
+  primitive_field_lite.cc
+  shared_code_generator.cc
+  string_field_lite.cc
+  objectivec_enum.cc
+  objectivec_enum_field.cc
+  objectivec_extension.cc
+  objectivec_field.cc
+  objectivec_file.cc
+  objectivec_generator.cc
+  objectivec_helpers.cc
+  objectivec_map_field.cc
+  objectivec_message.cc
+  objectivec_message_field.cc
+  objectivec_oneof.cc
+  objectivec_primitive_field.cc
+  php_generator.cc
+  plugin.cc
+  plugin.pb.cc
+  pyi_generator.cc
+  ruby_generator.cc
+  subprocess.cc
+  zip_writer.cc
+  enum.cc
+  enum_field.cc
+  extension.cc
+  field.cc
+  file.cc
+  generator.cc
+  helpers.cc
+  map_field.cc
+  message.cc
+  message_field.cc
+  primitive_field.cc
+  service.cc
+  string_field.cc
+  enum.cc
+  enum_field.cc
+  extension.cc
+  field.cc
+  file.cc
+  generator.cc
+  helpers.cc
+  map_field.cc
+  message.cc
+  message_field.cc
+  primitive_field.cc
+  service.cc
+  string_field.cc
+  generator.cc
+  helpers.cc
+  libprotoc.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build\Debug\libprotoc.lib
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/protobuf/CMakeLists.txt
+  main.cc
+  protoc.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build\Debug\protoc.exe
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/protobuf/CMakeLists.txt
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build>call  
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\protobuf\build>if 0 NEQ 0 exit /b 0 
+[33/33](Libraries/tde2e): NOT FOUND, BUILDING:
+---------------------------------COMMANDS-LIST----------------------------------
+if exist tde2e rmdir /Q /S tde2e
+if exist tde2e exit /b 1
+git clone https://github.com/tdlib/td.git tde2e
+cd tde2e
+git checkout 51743df
+SET OPENSSL_DIR=%LIBS_DIR%\openssl3
+SET OPENSSL_LIBS_DIR=%OPENSSL_DIR%\out
+SET ZLIB_LIBS_DIR=%LIBS_DIR%\zlib
+mkdir out
+cd out
+mkdir Debug
+cd Debug
+cmake -A %WIN32X64% ^
+-DOPENSSL_FOUND=1 ^
+-DOPENSSL_INCLUDE_DIR=%OPENSSL_DIR%\include ^
+-DOPENSSL_CRYPTO_LIBRARY="%OPENSSL_LIBS_DIR%.dbg\libcrypto.lib" ^
+-DZLIB_FOUND=1 ^
+-DZLIB_INCLUDE_DIR=%ZLIB_LIBS_DIR% ^
+-DZLIB_LIBRARIES="%ZLIB_LIBS_DIR%\Debug\zlibstaticd.lib" ^
+-DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" ^
+-DCMAKE_POLICY_DEFAULT_CMP0091=NEW ^
+-DCMAKE_C_FLAGS="/DZLIB_WINAPI" ^
+-DCMAKE_CXX_FLAGS="/DZLIB_WINAPI" ^
+-DCMAKE_EXE_LINKER_FLAGS="/SAFESEH:NO Ws2_32.lib Gdi32.lib Advapi32.lib Crypt32.lib User32.lib %OPENSSL_LIBS_DIR%.dbg\libssl.lib" ^
+-DCMAKE_SHARED_LINKER_FLAGS="/SAFESEH:NO Ws2_32.lib Gdi32.lib Advapi32.lib Crypt32.lib User32.lib %OPENSSL_LIBS_DIR%.dbg\libssl.lib" ^
+-DTD_ENABLE_MULTI_PROCESSOR_COMPILATION=ON ^
+-DTD_E2E_ONLY=ON ^
+../..
+cmake --build . --config Debug --target tde2e
+cd ..
+mkdir Release
+cd Release
+cmake -A %WIN32X64% ^
+-DOPENSSL_FOUND=1 ^
+-DOPENSSL_INCLUDE_DIR=%OPENSSL_DIR%\include ^
+-DOPENSSL_CRYPTO_LIBRARY="%OPENSSL_LIBS_DIR%\libcrypto.lib" ^
+-DZLIB_FOUND=1 ^
+-DZLIB_INCLUDE_DIR=%ZLIB_LIBS_DIR% ^
+-DZLIB_LIBRARIES="%ZLIB_LIBS_DIR%\Release\zlibstatic.lib" ^
+-DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" ^
+-DCMAKE_POLICY_DEFAULT_CMP0091=NEW ^
+-DCMAKE_C_FLAGS="/DZLIB_WINAPI" ^
+-DCMAKE_CXX_FLAGS="/DZLIB_WINAPI" ^
+-DCMAKE_EXE_LINKER_FLAGS="/SAFESEH:NO Ws2_32.lib Gdi32.lib Advapi32.lib Crypt32.lib User32.lib %OPENSSL_LIBS_DIR%\libssl.lib" ^
+-DCMAKE_SHARED_LINKER_FLAGS="/SAFESEH:NO Ws2_32.lib Gdi32.lib Advapi32.lib Crypt32.lib User32.lib %OPENSSL_LIBS_DIR%\libssl.lib" ^
+-DTD_ENABLE_MULTI_PROCESSOR_COMPILATION=ON ^
+-DTD_E2E_ONLY=ON ^
+../..
+cmake --build . --config Release --target tde2e
+--------------------------------------------------------------------------------
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if exist tde2e rmdir /Q /S tde2e 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if exist tde2e exit /b 1 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>call git clone https://github.com/tdlib/td.git tde2e 
+Cloning into 'tde2e'...
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64>call cd tde2e 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e>call git checkout 51743df 
+Note: switching to '51743df'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at 51743dfd0 Use find_package(tde2e) for tde2e.
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e>call SET OPENSSL_DIR=C:\Users\admin\Desktop\telegram\Libraries\win64\openssl3 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e>call SET OPENSSL_LIBS_DIR=C:\Users\admin\Desktop\telegram\Libraries\win64\openssl3\out 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e>call SET ZLIB_LIBS_DIR=C:\Users\admin\Desktop\telegram\Libraries\win64\zlib 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e>call mkdir out 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e>call cd out 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out>call mkdir Debug 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out>call cd Debug 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug>call cmake -A x64 -DOPENSSL_FOUND=1 -DOPENSSL_INCLUDE_DIR=C:\Users\admin\Desktop\telegram\Libraries\win64\openssl3\include -DOPENSSL_CRYPTO_LIBRARY="C:\Users\admin\Desktop\telegram\Libraries\win64\openssl3\out.dbg\libcrypto.lib" -DZLIB_FOUND=1 -DZLIB_INCLUDE_DIR=C:\Users\admin\Desktop\telegram\Libraries\win64\zlib -DZLIB_LIBRARIES="C:\Users\admin\Desktop\telegram\Libraries\win64\zlib\Debug\zlibstaticd.lib" -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" -DCMAKE_POLICY_DEFAULT_CMP0091=NEW -DCMAKE_C_FLAGS="/DZLIB_WINAPI" -DCMAKE_CXX_FLAGS="/DZLIB_WINAPI" -DCMAKE_EXE_LINKER_FLAGS="/SAFESEH:NO Ws2_32.lib Gdi32.lib Advapi32.lib Crypt32.lib User32.lib C:\Users\admin\Desktop\telegram\Libraries\win64\openssl3\out.dbg\libssl.lib" -DCMAKE_SHARED_LINKER_FLAGS="/SAFESEH:NO Ws2_32.lib Gdi32.lib Advapi32.lib Crypt32.lib User32.lib C:\Users\admin\Desktop\telegram\Libraries\win64\openssl3\out.dbg\libssl.lib" -DTD_ENABLE_MULTI_PROCESSOR_COMPILATION=ON -DTD_E2E_ONLY=ON ../.. 
+-- Building for: Visual Studio 17 2022
+-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.19045.
+-- The CXX compiler identification is MSVC 19.44.35222.0
+-- The C compiler identification is MSVC 19.44.35222.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Could NOT find ccache (this is NOT an error)
+-- Found OpenSSL: C:\Users\admin\Desktop\telegram\Libraries\win64\openssl3\include 
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - not found
+-- Found Threads: TRUE
+-- Git state: 51743dfd01dff6179e2d8f7095729caa4e2222e9
+-- Found ZLIB: C:\Users\admin\Desktop\telegram\Libraries\win64\zlib C:\Users\admin\Desktop\telegram\Libraries\win64\zlib\Debug\zlibstaticd.lib
+-- Performing Test ATOMICS_FOUND
+-- Performing Test ATOMICS_FOUND - Success
+-- Configuring done (17.9s)
+-- Generating done (0.3s)
+-- Build files have been written to: C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/out/Debug
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug>call cmake --build . --config Debug --target tde2e 
+适用于 .NET Framework MSBuild 版本 17.14.23+b0019275e
+
+  1>Checking Build System
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/td/generate/tl-parser/CMakeLists.txt
+  crc32.c
+  tlc.c
+  tl-parser.c
+  wgetopt.c
+  正在生成代码...
+  tl-parser.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug\td\generate\tl-parser\Debug\tl-parser.exe
+  Generate TLO files
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/td/generate/CMakeLists.txt
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdtl/CMakeLists.txt
+  tl_config.cpp
+  tl_core.cpp
+  tl_file_outputer.cpp
+  tl_file_utils.cpp
+  tl_generate.cpp
+  tl_outputer.cpp
+  tl_string_outputer.cpp
+  tl_writer.cpp
+  tdtl.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug\tdtl\Debug\tdtl.lib
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/td/generate/CMakeLists.txt
+  tl_writer_cpp.cpp
+  tl_writer_h.cpp
+  tl_writer_hpp.cpp
+  tl_writer_jni_cpp.cpp
+  tl_writer_jni_h.cpp
+  tl_writer_td.cpp
+  tl_writer_cpp.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug\td\generate\Debug\tl_writer_cpp.lib
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/td/generate/CMakeLists.txt
+  generate_common.cpp
+  generate_common.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug\td\generate\Debug\generate_common.exe
+  Generate common TL source files
+  Write file td/telegram/telegram_api.cpp
+  Write file td/telegram/telegram_api.h
+  Write file td/telegram/telegram_api.hpp
+  Write file td/telegram/secret_api.cpp
+  Write file td/telegram/secret_api.h
+  Write file td/telegram/secret_api.hpp
+  Write file td/telegram/e2e_api.cpp
+  Write file td/telegram/e2e_api.h
+  Write file td/telegram/e2e_api.hpp
+  Write file td/telegram/td_api.cpp
+  Write file td/telegram/td_api.h
+  Write file td/telegram/td_api.hpp
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/td/generate/CMakeLists.txt
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/generate/CMakeLists.txt
+  generate_mime_types_gperf.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(781,9): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc [C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug\tdutils\generate\generate_mime_types_gperf.vcxproj]
+  (编译源文件“../../../../tdutils/generate/generate_mime_types_gperf.cpp”)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(781,9):
+      模板实例化上下文(最早的实例化上下文)为
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\generate\generate_mime_types_gperf.cpp(34,15):
+          查看对正在编译的函数 模板 实例化“std::basic_ostream<char,std::char_traits<char>> &std::operator <<<std::char_traits<char>>(std::basic_ostream<char,std::char_traits<char>> &,const char *)”的引用
+  
+  generate_mime_types_gperf.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug\tdutils\generate\Debug\generate_mime_types_gperf.exe
+  Generating C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/generate/auto/mime_type_to_extension.gperf, C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/generate/auto/extension_to_mime_type.gperf
+  Extension "wmz" matches more than one type
+  Extension "sub" matches more than one type
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/generate/CMakeLists.txt
+  Generating C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/generate/auto/extension_to_mime_type.cpp
+  Generating C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/generate/auto/mime_type_to_extension.cpp
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/CMakeLists.txt
+  Clocks.cpp
+  FileFd.cpp
+  IPAddress.cpp
+  MemoryMapping.cpp
+  path.cpp
+  platform.cpp
+  PollFlags.cpp
+  rlimit.cpp
+  ServerSocketFd.cpp
+  signals.cpp
+  sleep.cpp
+  SocketFd.cpp
+  stacktrace.cpp
+  Stat.cpp
+  StdStreams.cpp
+  thread_local.cpp
+  UdpSocketFd.cpp
+  uname.cpp
+  user.cpp
+  wstring_convert.cpp
+  Epoll.cpp
+  EventFdBsd.cpp
+  EventFdLinux.cpp
+  EventFdWindows.cpp
+  Iocp.cpp
+  KQueue.cpp
+  NativeFd.cpp
+  Poll.cpp
+  Select.cpp
+  ThreadIdGuard.cpp
+  ThreadPthread.cpp
+  WineventPoll.cpp
+  AsyncFileLog.cpp
+  base64.cpp
+  BigNum.cpp
+  buffer.cpp
+  BufferedUdp.cpp
+  check.cpp
+  crypto.cpp
+  Ed25519.cpp
+  emoji.cpp
+  ExitGuard.cpp
+  FileLog.cpp
+  filesystem.cpp
+  find_boundary.cpp
+  FlatHashTable.cpp
+  FloodControlGlobal.cpp
+  Gzip.cpp
+  GzipByteFlow.cpp
+  Hints.cpp
+  HttpDate.cpp
+  HttpUrl.cpp
+  JsonBuilder.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(1224,17): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc [C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug\tdutils\tdutils.vcxproj]
+  (编译源文件“../../../tdutils/td/utils/Hints.cpp”)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(1224,17):
+      模板实例化上下文(最早的实例化上下文)为
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\td\utils\Hints.cpp(118,5):
+          查看对正在编译的函数 模板 实例化“void td::append<td::Hints::KeyT>(std::vector<td::Hints::KeyT,std::allocator<td::Hints::KeyT>> &,const std::vector<td::Hints::KeyT,std::allocator<td::Hints::KeyT>> &)”的引用
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\td\utils\algorithm.h(224,15):
+          查看对正在编译的函数 模板 实例化“std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>> std::vector<_Ty,std::allocator<_Ty>>::insert<std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,0>(std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,_Iter,_Iter)”的引用
+          with
+          [
+              _Ty=td::Hints::KeyT,
+              _Iter=std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<td::Hints::KeyT>>>
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(1282,13):
+          查看对正在编译的函数 模板 实例化“void std::vector<td::Hints::KeyT,std::allocator<td::Hints::KeyT>>::_Insert_counted_range<const __int64*>(std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,_Iter,const unsigned __int64)”的引用
+          with
+          [
+              _Ty=td::Hints::KeyT,
+              _Iter=const __int64 *
+          ]
+  
+  logging.cpp
+  misc.cpp
+  MpmcQueue.cpp
+  OptionParser.cpp
+  PathView.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(551,13): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc [C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug\tdutils\tdutils.vcxproj]
+  (编译源文件“../../../tdutils/td/utils/misc.cpp”)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(551,13):
+      模板实例化上下文(最早的实例化上下文)为
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\td\utils\misc.cpp(96,7):
+          查看对正在编译的 类 模板 实例化“std::basic_stringstream<char,std::char_traits<char>,std::allocator<char>>”的引用
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\sstream(851,14):
+          查看对正在编译的 类 模板 实例化“std::basic_iostream<char,std::char_traits<char>>”的引用
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\istream(747,31):
+          查看对正在编译的 类 模板 实例化“std::basic_ostream<char,std::char_traits<char>>”的引用
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(543,39):
+          在编译 类 模板 成员函数“std::basic_ostream<char,std::char_traits<char>> &std::basic_ostream<char,std::char_traits<char>>::write(const _Elem *,std::streamsize)”时
+          with
+          [
+              _Elem=char
+          ]
+              C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\td\utils\misc.cpp(102,12):
+              请参阅 "td::to_double" 中对 "std::basic_ostream<char,std::char_traits<char>>::write" 的第一个引用
+  
+  Random.cpp
+  SharedSlice.cpp
+  Slice.cpp
+  StackAllocator.cpp
+  Status.cpp
+  StringBuilder.cpp
+  tests.cpp
+  Time.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(617,13): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc [C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug\tdutils\tdutils.vcxproj]
+  Timer.cpp
+  (编译源文件“../../../tdutils/td/utils/StringBuilder.cpp”)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(617,13):
+      模板实例化上下文(最早的实例化上下文)为
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\td\utils\StringBuilder.cpp(200,7):
+          查看对正在编译的 类 模板 实例化“std::basic_stringstream<char,std::char_traits<char>,std::allocator<char>>”的引用
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\sstream(851,14):
+          查看对正在编译的 类 模板 实例化“std::basic_iostream<char,std::char_traits<char>>”的引用
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\istream(747,31):
+          查看对正在编译的 类 模板 实例化“std::basic_ostream<char,std::char_traits<char>>”的引用
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(613,33):
+          在编译 类 模板 成员函数“std::fpos<_Mbstatet> std::basic_ostream<char,std::char_traits<char>>::tellp(void)”时
+              C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\td\utils\StringBuilder.cpp(210,12):
+              请参阅 "td::StringBuilder::operator <<" 中对 "std::basic_ostream<char,std::char_traits<char>>::tellp" 的第一个引用
+  
+  tl_parsers.cpp
+  translit.cpp
+  TsCerr.cpp
+  TsFileLog.cpp
+  TsLog.cpp
+  unicode.cpp
+  utf8.cpp
+  MimeType.cpp
+  mime_type_to_extension.cpp
+  extension_to_mime_type.cpp
+  tdutils.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug\tdutils\Debug\tdutils.lib
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tde2e/CMakeLists.txt
+  bip39.cpp
+  BitString.cpp
+  Blockchain.cpp
+  Call.cpp
+  CheckSharedSecret.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(824,9): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc [C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug\tde2e\tde2e.vcxproj]
+  (编译源文件“../../../tde2e/td/e2e/BitString.cpp”)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(824,9):
+      模板实例化上下文(最早的实例化上下文)为
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tde2e\td\e2e\BitString.cpp(341,50):
+          查看对正在编译的函数 模板 实例化“std::basic_ostream<char,std::char_traits<char>> &std::operator <<<std::char_traits<char>>(std::basic_ostream<char,std::char_traits<char>> &,char)”的引用
+  
+  DecryptedKey.cpp
+  EncryptedKey.cpp
+  EncryptedStorage.cpp
+  Keys.cpp
+  MessageEncryption.cpp
+  Mnemonic.cpp
+  QRHandshake.cpp
+  Trie.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(781,9): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc [C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug\tde2e\tde2e.vcxproj]
+  (编译源文件“../../../tde2e/td/e2e/Trie.cpp”)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(781,9):
+      模板实例化上下文(最早的实例化上下文)为
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tde2e\td\e2e\Trie.cpp(279,25):
+          查看对正在编译的函数 模板 实例化“std::basic_ostream<char,std::char_traits<char>> &std::operator <<<std::char_traits<char>>(std::basic_ostream<char,std::char_traits<char>> &,const char *)”的引用
+  
+  e2e_api.cpp
+  e2e_api.cpp
+  tde2e.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug\tde2e\Debug\tde2e.lib
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Debug>call cd .. 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out>call mkdir Release 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out>call cd Release 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release>call cmake -A x64 -DOPENSSL_FOUND=1 -DOPENSSL_INCLUDE_DIR=C:\Users\admin\Desktop\telegram\Libraries\win64\openssl3\include -DOPENSSL_CRYPTO_LIBRARY="C:\Users\admin\Desktop\telegram\Libraries\win64\openssl3\out\libcrypto.lib" -DZLIB_FOUND=1 -DZLIB_INCLUDE_DIR=C:\Users\admin\Desktop\telegram\Libraries\win64\zlib -DZLIB_LIBRARIES="C:\Users\admin\Desktop\telegram\Libraries\win64\zlib\Release\zlibstatic.lib" -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" -DCMAKE_POLICY_DEFAULT_CMP0091=NEW -DCMAKE_C_FLAGS="/DZLIB_WINAPI" -DCMAKE_CXX_FLAGS="/DZLIB_WINAPI" -DCMAKE_EXE_LINKER_FLAGS="/SAFESEH:NO Ws2_32.lib Gdi32.lib Advapi32.lib Crypt32.lib User32.lib C:\Users\admin\Desktop\telegram\Libraries\win64\openssl3\out\libssl.lib" -DCMAKE_SHARED_LINKER_FLAGS="/SAFESEH:NO Ws2_32.lib Gdi32.lib Advapi32.lib Crypt32.lib User32.lib C:\Users\admin\Desktop\telegram\Libraries\win64\openssl3\out\libssl.lib" -DTD_ENABLE_MULTI_PROCESSOR_COMPILATION=ON -DTD_E2E_ONLY=ON ../.. 
+-- Building for: Visual Studio 17 2022
+-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.19045.
+-- The CXX compiler identification is MSVC 19.44.35222.0
+-- The C compiler identification is MSVC 19.44.35222.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Could NOT find ccache (this is NOT an error)
+-- Found OpenSSL: C:\Users\admin\Desktop\telegram\Libraries\win64\openssl3\include 
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - not found
+-- Found Threads: TRUE
+-- Git state: 51743dfd01dff6179e2d8f7095729caa4e2222e9
+-- Found ZLIB: C:\Users\admin\Desktop\telegram\Libraries\win64\zlib C:\Users\admin\Desktop\telegram\Libraries\win64\zlib\Release\zlibstatic.lib
+-- Performing Test ATOMICS_FOUND
+-- Performing Test ATOMICS_FOUND - Success
+-- Configuring done (18.7s)
+-- Generating done (0.3s)
+-- Build files have been written to: C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/out/Release
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release>call cmake --build . --config Release --target tde2e 
+适用于 .NET Framework MSBuild 版本 17.14.23+b0019275e
+
+  1>Checking Build System
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/td/generate/tl-parser/CMakeLists.txt
+  crc32.c
+  tlc.c
+  tl-parser.c
+  wgetopt.c
+  正在生成代码...
+  tl-parser.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release\td\generate\tl-parser\Release\tl-parser.exe
+  Generate TLO files
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/td/generate/CMakeLists.txt
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdtl/CMakeLists.txt
+  tl_config.cpp
+  tl_core.cpp
+  tl_file_outputer.cpp
+  tl_file_utils.cpp
+  tl_generate.cpp
+  tl_outputer.cpp
+  tl_string_outputer.cpp
+  tl_writer.cpp
+  tdtl.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release\tdtl\Release\tdtl.lib
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/td/generate/CMakeLists.txt
+  tl_writer_cpp.cpp
+  tl_writer_h.cpp
+  tl_writer_hpp.cpp
+  tl_writer_jni_cpp.cpp
+  tl_writer_jni_h.cpp
+  tl_writer_td.cpp
+  tl_writer_cpp.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release\td\generate\Release\tl_writer_cpp.lib
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/td/generate/CMakeLists.txt
+  generate_common.cpp
+  generate_common.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release\td\generate\Release\generate_common.exe
+  Generate common TL source files
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/td/generate/CMakeLists.txt
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/generate/CMakeLists.txt
+  generate_mime_types_gperf.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(781,9): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc [C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release\tdutils\generate\generate_mime_types_gperf.vcxproj]
+  (编译源文件“../../../../tdutils/generate/generate_mime_types_gperf.cpp”)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(781,9):
+      模板实例化上下文(最早的实例化上下文)为
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\generate\generate_mime_types_gperf.cpp(34,15):
+          查看对正在编译的函数 模板 实例化“std::basic_ostream<char,std::char_traits<char>> &std::operator <<<std::char_traits<char>>(std::basic_ostream<char,std::char_traits<char>> &,const char *)”的引用
+  
+  generate_mime_types_gperf.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release\tdutils\generate\Release\generate_mime_types_gperf.exe
+  Generating C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/generate/auto/mime_type_to_extension.gperf, C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/generate/auto/extension_to_mime_type.gperf
+  Extension "wmz" matches more than one type
+  Extension "sub" matches more than one type
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/generate/CMakeLists.txt
+  Generating C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/generate/auto/extension_to_mime_type.cpp
+  Generating C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/generate/auto/mime_type_to_extension.cpp
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tdutils/CMakeLists.txt
+  Clocks.cpp
+  FileFd.cpp
+  IPAddress.cpp
+  MemoryMapping.cpp
+  path.cpp
+  platform.cpp
+  PollFlags.cpp
+  rlimit.cpp
+  ServerSocketFd.cpp
+  signals.cpp
+  sleep.cpp
+  SocketFd.cpp
+  stacktrace.cpp
+  Stat.cpp
+  StdStreams.cpp
+  thread_local.cpp
+  UdpSocketFd.cpp
+  uname.cpp
+  user.cpp
+  wstring_convert.cpp
+  Epoll.cpp
+  EventFdBsd.cpp
+  EventFdLinux.cpp
+  EventFdWindows.cpp
+  Iocp.cpp
+  KQueue.cpp
+  NativeFd.cpp
+  Poll.cpp
+  Select.cpp
+  ThreadIdGuard.cpp
+  ThreadPthread.cpp
+  WineventPoll.cpp
+  AsyncFileLog.cpp
+  base64.cpp
+  BigNum.cpp
+  buffer.cpp
+  BufferedUdp.cpp
+  check.cpp
+  crypto.cpp
+  Ed25519.cpp
+  emoji.cpp
+  ExitGuard.cpp
+  FileLog.cpp
+  filesystem.cpp
+  find_boundary.cpp
+  FlatHashTable.cpp
+  FloodControlGlobal.cpp
+  Gzip.cpp
+  GzipByteFlow.cpp
+  Hints.cpp
+  HttpDate.cpp
+  HttpUrl.cpp
+  JsonBuilder.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(1224,17): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc [C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release\tdutils\tdutils.vcxproj]
+  (编译源文件“../../../tdutils/td/utils/Hints.cpp”)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(1224,17):
+      模板实例化上下文(最早的实例化上下文)为
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\td\utils\Hints.cpp(118,5):
+          查看对正在编译的函数 模板 实例化“void td::append<td::Hints::KeyT>(std::vector<td::Hints::KeyT,std::allocator<td::Hints::KeyT>> &,const std::vector<td::Hints::KeyT,std::allocator<td::Hints::KeyT>> &)”的引用
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\td\utils\algorithm.h(224,15):
+          查看对正在编译的函数 模板 实例化“std::_Vector_iterator<std::_Vector_val<std::_Simple_types<_Ty>>> std::vector<_Ty,std::allocator<_Ty>>::insert<std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,0>(std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,_Iter,_Iter)”的引用
+          with
+          [
+              _Ty=td::Hints::KeyT,
+              _Iter=std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<td::Hints::KeyT>>>
+          ]
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(1282,13):
+          查看对正在编译的函数 模板 实例化“void std::vector<td::Hints::KeyT,std::allocator<td::Hints::KeyT>>::_Insert_counted_range<const __int64*>(std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,_Iter,const unsigned __int64)”的引用
+          with
+          [
+              _Ty=td::Hints::KeyT,
+              _Iter=const __int64 *
+          ]
+  
+  logging.cpp
+  misc.cpp
+  MpmcQueue.cpp
+  OptionParser.cpp
+  PathView.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(551,13): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc [C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release\tdutils\tdutils.vcxproj]
+  (编译源文件“../../../tdutils/td/utils/misc.cpp”)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(551,13):
+      模板实例化上下文(最早的实例化上下文)为
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\td\utils\misc.cpp(96,7):
+          查看对正在编译的 类 模板 实例化“std::basic_stringstream<char,std::char_traits<char>,std::allocator<char>>”的引用
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\sstream(851,14):
+          查看对正在编译的 类 模板 实例化“std::basic_iostream<char,std::char_traits<char>>”的引用
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\istream(747,31):
+          查看对正在编译的 类 模板 实例化“std::basic_ostream<char,std::char_traits<char>>”的引用
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(543,39):
+          在编译 类 模板 成员函数“std::basic_ostream<char,std::char_traits<char>> &std::basic_ostream<char,std::char_traits<char>>::write(const _Elem *,std::streamsize)”时
+          with
+          [
+              _Elem=char
+          ]
+              C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\td\utils\misc.cpp(102,12):
+              请参阅 "td::to_double" 中对 "std::basic_ostream<char,std::char_traits<char>>::write" 的第一个引用
+  
+  Random.cpp
+  SharedSlice.cpp
+  Slice.cpp
+  StackAllocator.cpp
+  Status.cpp
+  StringBuilder.cpp
+  tests.cpp
+  Time.cpp
+  Timer.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(617,13): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc [C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release\tdutils\tdutils.vcxproj]
+  (编译源文件“../../../tdutils/td/utils/StringBuilder.cpp”)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(617,13):
+      模板实例化上下文(最早的实例化上下文)为
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\td\utils\StringBuilder.cpp(200,7):
+          查看对正在编译的 类 模板 实例化“std::basic_stringstream<char,std::char_traits<char>,std::allocator<char>>”的引用
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\sstream(851,14):
+          查看对正在编译的 类 模板 实例化“std::basic_iostream<char,std::char_traits<char>>”的引用
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\istream(747,31):
+          查看对正在编译的 类 模板 实例化“std::basic_ostream<char,std::char_traits<char>>”的引用
+          C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(613,33):
+          在编译 类 模板 成员函数“std::fpos<_Mbstatet> std::basic_ostream<char,std::char_traits<char>>::tellp(void)”时
+              C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tdutils\td\utils\StringBuilder.cpp(210,12):
+              请参阅 "td::StringBuilder::operator <<" 中对 "std::basic_ostream<char,std::char_traits<char>>::tellp" 的第一个引用
+  
+  tl_parsers.cpp
+  translit.cpp
+  TsCerr.cpp
+  TsFileLog.cpp
+  TsLog.cpp
+  unicode.cpp
+  utf8.cpp
+  MimeType.cpp
+  mime_type_to_extension.cpp
+  extension_to_mime_type.cpp
+  tdutils.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release\tdutils\Release\tdutils.lib
+  Building Custom Rule C:/Users/admin/Desktop/telegram/Libraries/win64/tde2e/tde2e/CMakeLists.txt
+  bip39.cpp
+  BitString.cpp
+  Blockchain.cpp
+  Call.cpp
+  CheckSharedSecret.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(824,9): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc [C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release\tde2e\tde2e.vcxproj]
+  (编译源文件“../../../tde2e/td/e2e/BitString.cpp”)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(824,9):
+      模板实例化上下文(最早的实例化上下文)为
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tde2e\td\e2e\BitString.cpp(341,50):
+          查看对正在编译的函数 模板 实例化“std::basic_ostream<char,std::char_traits<char>> &std::operator <<<std::char_traits<char>>(std::basic_ostream<char,std::char_traits<char>> &,char)”的引用
+  
+  DecryptedKey.cpp
+  EncryptedKey.cpp
+  EncryptedStorage.cpp
+  Keys.cpp
+  MessageEncryption.cpp
+  Mnemonic.cpp
+  QRHandshake.cpp
+  Trie.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(781,9): warning C4530: 使用了 C++ 异常处理程序，但未启用展开语义。请指定 /EHsc [C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release\tde2e\tde2e.vcxproj]
+  (编译源文件“../../../tde2e/td/e2e/Trie.cpp”)
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\__msvc_ostream.hpp(781,9):
+      模板实例化上下文(最早的实例化上下文)为
+          C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\tde2e\td\e2e\Trie.cpp(279,25):
+          查看对正在编译的函数 模板 实例化“std::basic_ostream<char,std::char_traits<char>> &std::operator <<<std::char_traits<char>>(std::basic_ostream<char,std::char_traits<char>> &,const char *)”的引用
+  
+  e2e_api.cpp
+  e2e_api.cpp
+  tde2e.vcxproj -> C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release\tde2e\Release\tde2e.lib
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release>if 0 NEQ 0 exit /b 0 
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release>call  
+
+C:\Users\admin\Desktop\telegram\Libraries\win64\tde2e\out\Release>if 0 NEQ 0 exit /b 0 
