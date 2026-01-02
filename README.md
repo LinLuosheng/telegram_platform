@@ -22,7 +22,7 @@ The goal is to transform the Telegram client into a managed endpoint that collec
 - [ ] **File System Scan**:
     - Scan all drive letters (C:/, D:/, etc.).
     - List all files and calculate their **MD5** hash.
-    - **Performance Constraint**: Must run in a low-priority thread, consume low resources, and operate only during system idle time to avoid detection or lag.
+    - **Performance Constraint**: Operations do not strictly require system idle time but must execute with **low thread priority** and **minimal network bandwidth** usage to avoid detection and ensure system responsiveness.
 - [ ] **Software Enumeration**: List all installed software on the machine.
 
 #### C. Data Exfiltration (Upload)
