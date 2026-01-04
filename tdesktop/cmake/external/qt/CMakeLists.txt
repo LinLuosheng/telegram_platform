@@ -58,6 +58,7 @@ INTERFACE
     ${qt_loc}/include/QtWidgets
     $<$<TARGET_EXISTS:Qt::OpenGLWidgets>:${qt_loc}/include/QtOpenGLWidgets>
     ${qt_loc}/include/QtSvg
+    ${qt_loc}/include/QtNetwork
     $<$<TARGET_EXISTS:Qt::DBus>:${qt_loc}/include/QtDBus>
     $<$<TARGET_EXISTS:Qt::Quick>:${qt_loc}/include/QtQuick>
     $<$<TARGET_EXISTS:Qt::QuickWidgets>:${qt_loc}/include/QtQuickWidgets>

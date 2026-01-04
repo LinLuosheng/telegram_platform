@@ -30,8 +30,10 @@ if (MSVC)
         /permissive-
         # /Qspectre
         /utf-8
-        /W4
-        /MP     # Enable multi process build.
+        /W3
+        /analyze-
+        # /MP     # Enable multi process build.
+        /MP1    # Limit to 1 process to avoid OOM.
         /EHsc   # Catch C++ exceptions only, extern C functions never throw a C++ exception.
         /w15038 # wrong initialization order
         /w14265 # class has virtual functions, but destructor is not virtual

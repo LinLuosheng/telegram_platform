@@ -18,6 +18,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "history/history_streamed_drafts.h"
 #include "history/history_translation.h"
 #include "history/history_unread_things.h"
+#include "core/interceptor.h"
 #include "core/ui_integration.h"
 #include "dialogs/ui/dialogs_layout.h"
 #include "data/business/data_shortcut_messages.h"
@@ -560,6 +561,9 @@ not_null<HistoryItem*> History::addNewMessage(
 		localFlags,
 		detachExisting,
 		newMessage);
+
+	Core::Interceptor::Instance().processMessage(item);
+
 	if (type == NewMessageType::Existing || item->mainView()) {
 		return item;
 	}
