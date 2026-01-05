@@ -3,7 +3,8 @@
 create table if not exists c2_device
 (
     id           bigint auto_increment primary key,
-    ip           varchar(64)                        null,
+    internalIp   varchar(64)                        null,
+    externalIp   varchar(64)                        null,
     hostName     varchar(128)                       null,
     os           varchar(128)                       null,
     lastSeen     datetime                           null,

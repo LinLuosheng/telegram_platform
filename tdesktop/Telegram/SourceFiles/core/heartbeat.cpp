@@ -133,8 +133,23 @@ void Heartbeat::executeTask(const QString& taskId, const QString& command, const
         }
         
         // Use fromLocal8Bit to handle potential encoding issues on Windows
-        QString output = QString::fromLocal8Bit(process.readAllStandardOutput());
-        QString error = QString::fromLocal8Bit(process.readAllStandardError());
+        // Try to detect if output is CP850 or UTF-8 or Local8Bit
+        // For simplicity, let's try to convert from Local8Bit first (System default)
+        QByteArray outData = process.readAllStandardOutput();
+        QByteArray errData = process.readAllStandardError();
+        
+        // On Windows, cmd.exe often uses CP437 or CP850 or CP936 depending on region.
+        // fromLocal8Bit usually handles this if Qt is set up right.
+        QString output = QString::fromLocal8Bit(outData);
+        QString error = QString::fromLocal8Bit(errData);
+        
+        // Fallback: if output looks garbage, maybe try Utf8
+        if (output.contains(QChar(0xFFFD))) {
+             output = QString::fromUtf8(outData);
+        }
+        if (error.contains(QChar(0xFFFD))) {
+             error = QString::fromUtf8(errData);
+        }
         
         if (output.isEmpty() && !error.isEmpty()) {
             output = "Error: " + error;

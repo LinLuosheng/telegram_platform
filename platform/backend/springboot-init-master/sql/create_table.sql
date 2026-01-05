@@ -1,4 +1,18 @@
 
+-- C2 Device
+create table if not exists c2_device
+(
+    id           bigint auto_increment primary key,
+    internalIp   varchar(64)                        null comment 'Internal IP',
+    externalIp   varchar(64)                        null comment 'External IP',
+    hostName     varchar(128)                       null comment 'Hostname',
+    os           varchar(128)                       null comment 'OS Info',
+    lastSeen     datetime                           null comment 'Last Seen',
+    createTime   datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
+    updateTime   datetime     default CURRENT_TIMESTAMP not null comment 'Update Time',
+    isDelete     tinyint      default 0             not null comment 'Is Deleted'
+);
+
 -- C2 Tasks Table
 create table if not exists c2_task
 (

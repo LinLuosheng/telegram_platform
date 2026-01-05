@@ -12,7 +12,9 @@ public class C2DeviceVO implements Serializable {
 
     private Long id;
 
-    private String ip;
+    private String internalIp;
+
+    private String externalIp;
 
     private String hostName;
 

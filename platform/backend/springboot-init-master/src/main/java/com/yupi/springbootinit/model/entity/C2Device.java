@@ -14,7 +14,9 @@ public class C2Device implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private String ip;
+    private String internalIp;
+
+    private String externalIp;
 
     private String hostName;
 

