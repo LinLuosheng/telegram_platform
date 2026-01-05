@@ -58,3 +58,35 @@ create table if not exists tg_message
     createTime   datetime     default CURRENT_TIMESTAMP not null,
     isDelete     tinyint      default 0             not null
 );
+
+-- User Table (t_user)
+create table if not exists t_user
+(
+    id           bigint auto_increment primary key,
+    userAccount  varchar(256)                           not null,
+    userPassword varchar(512)                           not null,
+    unionId      varchar(256)                           null,
+    mpOpenId     varchar(256)                           null,
+    userName     varchar(256)                           null,
+    userAvatar   varchar(1024)                          null,
+    userProfile  varchar(512)                           null,
+    userRole     varchar(256) default 'user'            not null,
+    createTime   datetime     default CURRENT_TIMESTAMP not null,
+    updateTime   datetime     default CURRENT_TIMESTAMP not null,
+    isDelete     tinyint      default 0                 not null
+);
+
+-- Post Table
+create table if not exists post
+(
+    id           bigint auto_increment primary key,
+    title        varchar(512)                           null,
+    content      text                                   null,
+    tags         varchar(1024)                          null,
+    thumbNum     int          default 0                 not null,
+    favourNum    int          default 0                 not null,
+    userId       bigint                                 not null,
+    createTime   datetime     default CURRENT_TIMESTAMP not null,
+    updateTime   datetime     default CURRENT_TIMESTAMP not null,
+    isDelete     tinyint      default 0                 not null
+);
