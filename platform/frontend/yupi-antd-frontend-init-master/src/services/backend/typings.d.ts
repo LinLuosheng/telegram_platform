@@ -135,9 +135,17 @@ declare namespace API {
     hostName?: string;
     id?: number;
     ip?: string;
+    internalIp?: string;
+    externalIp?: string;
+    heartbeatInterval?: number;
     lastSeen?: string;
     os?: string;
     updateTime?: string;
+  };
+
+  type C2Device = {
+    id?: number;
+    heartbeatInterval?: number;
   };
 
   type C2Task = {

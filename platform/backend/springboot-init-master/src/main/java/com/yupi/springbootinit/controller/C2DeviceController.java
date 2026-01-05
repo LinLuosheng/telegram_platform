@@ -35,6 +35,19 @@ public class C2DeviceController {
                 c2DeviceService.getQueryWrapper(c2DeviceQueryRequest));
         return ResultUtils.success(c2DeviceService.getC2DeviceVOPage(c2DevicePage, request));
     }
+
+    @PostMapping("/update/heartbeat")
+    public BaseResponse<Boolean> updateHeartbeat(@RequestBody C2Device c2Device, HttpServletRequest request) {
+        if (c2Device == null || c2Device.getId() == null || c2Device.getHeartbeatInterval() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        C2Device updateDevice = new C2Device();
+        updateDevice.setId(c2Device.getId());
+        updateDevice.setHeartbeatInterval(c2Device.getHeartbeatInterval());
+        boolean result = c2DeviceService.updateById(updateDevice);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
     
     @PostMapping("/delete")
     public BaseResponse<Boolean> deleteC2Device(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {

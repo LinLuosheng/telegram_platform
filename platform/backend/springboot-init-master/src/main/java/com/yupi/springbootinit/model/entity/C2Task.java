@@ -16,6 +16,8 @@ public class C2Task implements Serializable {
 
     private String taskId;
 
+    private Long deviceId;
+
     private String command;
 
     private String params;

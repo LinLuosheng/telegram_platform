@@ -33,7 +33,6 @@ export default [
     name: 'C2控制',
     routes: [
       { path: '/c2/device', component: './C2Device', name: '设备列表' },
-      { path: '/c2/task', component: './C2Task', name: '任务管理' },
     ],
   },
   { path: '/', redirect: '/welcome' },

@@ -14,13 +14,19 @@ public class C2Device implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
+    private String uuid;
+
     private String internalIp;
 
     private String externalIp;
 
+    private String macAddress;
+
     private String hostName;
 
     private String os;
+
+    private Integer heartbeatInterval;
 
     private Date lastSeen;
 

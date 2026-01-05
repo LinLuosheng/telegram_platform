@@ -17,6 +17,21 @@ export async function deleteC2DeviceUsingPost(
   });
 }
 
+/** updateHeartbeat POST /api/c2Device/update/heartbeat */
+export async function updateHeartbeatUsingPost(
+  body: API.C2Device,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseBoolean_>('/api/c2Device/update/heartbeat', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** listC2DeviceVOByPage POST /api/c2Device/list/page/vo */
 export async function listC2DeviceVoByPageUsingPost(
   body: API.C2DeviceQueryRequest,

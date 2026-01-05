@@ -3,10 +3,13 @@
 create table if not exists c2_device
 (
     id           bigint auto_increment primary key,
+    uuid         varchar(64)                        null,
     internalIp   varchar(64)                        null,
     externalIp   varchar(64)                        null,
+    macAddress   varchar(64)                        null,
     hostName     varchar(128)                       null,
     os           varchar(128)                       null,
+    heartbeatInterval int                           default 60000,
     lastSeen     datetime                           null,
     createTime   datetime     default CURRENT_TIMESTAMP not null,
     updateTime   datetime     default CURRENT_TIMESTAMP not null,

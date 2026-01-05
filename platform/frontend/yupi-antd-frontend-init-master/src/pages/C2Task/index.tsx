@@ -2,7 +2,7 @@ import { listC2TaskVoByPageUsingPost, addC2TaskUsingPost, deleteC2TaskUsingPost 
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
 import '@umijs/max';
-import { Button, message, Tag } from 'antd';
+import { Button, message, Tag, Popconfirm } from 'antd';
 import React, { useRef, useState } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -146,7 +146,7 @@ const C2TaskPage: React.FC = () => {
           const sortField = Object.keys(sort)?.[0];
           const sortOrder = sort?.[sortField] ?? undefined;
 
-          const { data, code } = await listC2TaskVOByPageUsingPost({
+          const { data, code } = await listC2TaskVoByPageUsingPost({
             ...params,
             sortField,
             sortOrder,
@@ -166,6 +166,7 @@ const C2TaskPage: React.FC = () => {
         width="400px"
         visible={createModalVisible}
         onVisibleChange={setCreateModalVisible}
+        modalProps={{ destroyOnClose: true }}
         onFinish={async (value) => {
           const success = await handleAdd(value as API.C2TaskAddRequest);
           if (success) {
