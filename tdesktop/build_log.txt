@@ -1,0 +1,937 @@
+适用于 .NET Framework MSBuild 版本 17.14.23+b0019275e
+生成启动时间为 2026/1/4 19:17:01。
+
+节点 1 上的项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram.sln”(默认目标)。
+ValidateSolutionConfiguration:
+  正在生成解决方案配置“Release|x64”。
+ValidateProjects:
+  在解决方案配置“Release|x64”中未选定生成项目“ALL_BUILD”。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram.sln”(1)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram.vcxproj.metaproj”(2) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram.vcxproj.metaproj”(2)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_midl.vcxproj.metaproj”(4) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_midl.vcxproj.metaproj”(4)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\ZERO_CHECK.vcxproj”(5) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“x64\Release\ZERO_CHECK\ZERO_CHECK.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“x64\Release\ZERO_CHECK\ZERO_CHECK.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+FinalizeBuildStatus:
+  正在删除文件“x64\Release\ZERO_CHECK\ZERO_CHECK.tlog\unsuccessfulbuild”。
+  正在对“x64\Release\ZERO_CHECK\ZERO_CHECK.tlog\ZERO_CHECK.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\ZERO_CHECK.vcxproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_midl.vcxproj.metaproj”(4)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_midl.vcxproj”(6) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“x64\Release\Telegram_midl\Telegram_midl.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“x64\Release\Telegram_midl\Telegram_midl.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  1>
+FinalizeBuildStatus:
+  正在删除文件“x64\Release\Telegram_midl\Telegram_midl.tlog\unsuccessfulbuild”。
+  正在对“x64\Release\Telegram_midl\Telegram_midl.tlog\Telegram_midl.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_midl.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_midl.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\external_qt_static_plugins.vcxproj.metaproj”(7) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\external_qt_static_plugins.vcxproj.metaproj”(7)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats\external_qt_static_plugins_kimageformats.vcxproj.metaproj”(8) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats\external_qt_static_plugins_kimageformats.vcxproj.metaproj”(8)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\win_directx_helper\win_directx_helper.vcxproj.metaproj”(9) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\win_directx_helper\win_directx_helper.vcxproj.metaproj”(9)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\win_directx_helper\win_directx_helper.vcxproj”(10) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“win_directx_helper.dir\Release\win_dire.03346BD1.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“win_directx_helper.dir\Release\win_dire.03346BD1.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  win_directx_helper.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\win_directx_helper\Release\win_directx_helper.lib
+FinalizeBuildStatus:
+  正在删除文件“win_directx_helper.dir\Release\win_dire.03346BD1.tlog\unsuccessfulbuild”。
+  正在对“win_directx_helper.dir\Release\win_dire.03346BD1.tlog\win_directx_helper.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\win_directx_helper\win_directx_helper.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\win_directx_helper\win_directx_helper.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats\external_qt_static_plugins_kimageformats.vcxproj.metaproj”(8)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats\external_qt_static_plugins_kimageformats.vcxproj”(11) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“external_qt_static_plugins_kimageformats.dir\Release\external.00100A35.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“external_qt_static_plugins_kimageformats.dir\Release\external.00100A35.tlog\unsuccessfulbuild”执行 Touch 任务。
+PreBuildEvent:
+  Automatic MOC for target external_qt_static_plugins_kimageformats
+  setlocal
+  cd C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats
+  if %errorlevel% neq 0 goto :cmEnd
+  C:
+  if %errorlevel% neq 0 goto :cmEnd
+  "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E cmake_autogen C:/Users/admin/Desktop/telegram/tdesktop/out/cmake/external/qt/qt_static_plugins/kimageformats/CMakeFiles/external_qt_static_plugins_kimageformats_autogen.dir/AutogenInfo.json Release
+  if %errorlevel% neq 0 goto :cmEnd
+  :cmEnd
+  endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+  :cmErrorLevel
+  exit /b %1
+  :cmDone
+  if %errorlevel% neq 0 goto :VCEnd
+  :VCEnd
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  external_qt_static_plugins_kimageformats.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats\Release\external_qt_static_plugins_kimageformats.lib
+FinalizeBuildStatus:
+  正在删除文件“external_qt_static_plugins_kimageformats.dir\Release\external.00100A35.tlog\unsuccessfulbuild”。
+  正在对“external_qt_static_plugins_kimageformats.dir\Release\external.00100A35.tlog\external_qt_static_plugins_kimageformats.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats\external_qt_static_plugins_kimageformats.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats\external_qt_static_plugins_kimageformats.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\external_qt_static_plugins.vcxproj.metaproj”(7)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats\external_qt_static_plugins_kimageformats_init.vcxproj.metaproj”(12) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats\external_qt_static_plugins_kimageformats_init.vcxproj.metaproj”(12)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats\external_qt_static_plugins_kimageformats_init.vcxproj”(13) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“external_qt_static_plugins_kimageformats_init.dir\Release\external.6CD7B300.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“external_qt_static_plugins_kimageformats_init.dir\Release\external.6CD7B300.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  external_qt_static_plugins_kimageformats_init.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats\external_qt_static_plugins_kimageformats_init.dir\Release\external_qt_static_plugins_kimageformats_init.lib
+FinalizeBuildStatus:
+  正在删除文件“external_qt_static_plugins_kimageformats_init.dir\Release\external.6CD7B300.tlog\unsuccessfulbuild”。
+  正在对“external_qt_static_plugins_kimageformats_init.dir\Release\external.6CD7B300.tlog\external_qt_static_plugins_kimageformats_init.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats\external_qt_static_plugins_kimageformats_init.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\kimageformats\external_qt_static_plugins_kimageformats_init.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\external_qt_static_plugins.vcxproj.metaproj”(7)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\external_qt_static_plugins.vcxproj”(14) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“external_qt_static_plugins.dir\Release\external.3F5AD11A.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“external_qt_static_plugins.dir\Release\external.3F5AD11A.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  external_qt_static_plugins.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\external_qt_static_plugins.dir\Release\external_qt_static_plugins.lib
+FinalizeBuildStatus:
+  正在删除文件“external_qt_static_plugins.dir\Release\external.3F5AD11A.tlog\unsuccessfulbuild”。
+  正在对“external_qt_static_plugins.dir\Release\external.3F5AD11A.tlog\external_qt_static_plugins.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\external_qt_static_plugins.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qt\qt_static_plugins\external_qt_static_plugins.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_base\lib_base.vcxproj.metaproj”(15) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_base\lib_base.vcxproj.metaproj”(15)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_crl\lib_crl.vcxproj.metaproj”(16) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_crl\lib_crl.vcxproj.metaproj”(16)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_crl\lib_crl.vcxproj”(17) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_crl.dir\Release\lib_crl.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_crl.dir\Release\lib_crl.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_crl.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_crl\lib_crl.dir\Release\lib_crl.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_crl.dir\Release\lib_crl.tlog\unsuccessfulbuild”。
+  正在对“lib_crl.dir\Release\lib_crl.tlog\lib_crl.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_crl\lib_crl.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_crl\lib_crl.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_base\lib_base.vcxproj.metaproj”(15)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_base\lib_base.vcxproj”(18) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_base.dir\Release\lib_base.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_base.dir\Release\lib_base.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_base.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_base\Release\lib_base.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_base.dir\Release\lib_base.tlog\unsuccessfulbuild”。
+  正在对“lib_base.dir\Release\lib_base.tlog\lib_base.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_base\lib_base.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_base\lib_base.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ffmpeg.vcxproj.metaproj”(19) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ffmpeg.vcxproj.metaproj”(19)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\lz4\external_lz4_bundled.vcxproj.metaproj”(20) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\lz4\external_lz4_bundled.vcxproj.metaproj”(20)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\lz4\external_lz4_bundled.vcxproj”(21) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“external_lz4_bundled.dir\Release\external.7B08928D.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“external_lz4_bundled.dir\Release\external.7B08928D.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  external_lz4_bundled.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\lz4\Release\external_lz4_bundled.lib
+FinalizeBuildStatus:
+  正在删除文件“external_lz4_bundled.dir\Release\external.7B08928D.tlog\unsuccessfulbuild”。
+  正在对“external_lz4_bundled.dir\Release\external.7B08928D.tlog\external_lz4_bundled.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\lz4\external_lz4_bundled.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\lz4\external_lz4_bundled.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ffmpeg.vcxproj.metaproj”(19)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui.vcxproj.metaproj”(22) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui.vcxproj.metaproj”(22)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\style\codegen_style.vcxproj.metaproj”(23) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\style\codegen_style.vcxproj.metaproj”(23)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\common\codegen_common.vcxproj.metaproj”(24) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\common\codegen_common.vcxproj.metaproj”(24)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\common\codegen_common.vcxproj”(25) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“codegen_common.dir\Release\codegen_common.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“codegen_common.dir\Release\codegen_common.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  codegen_common.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\common\codegen_common.dir\Release\codegen_common.lib
+FinalizeBuildStatus:
+  正在删除文件“codegen_common.dir\Release\codegen_common.tlog\unsuccessfulbuild”。
+  正在对“codegen_common.dir\Release\codegen_common.tlog\codegen_common.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\common\codegen_common.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\common\codegen_common.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\style\codegen_style.vcxproj.metaproj”(23)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\style\codegen_style.vcxproj”(26) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“codegen_style.dir\Release\codegen_style.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“codegen_style.dir\Release\codegen_style.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Link:
+  所有输出均为最新。
+  codegen_style.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\style\Release\codegen_style.exe
+FinalizeBuildStatus:
+  正在删除文件“codegen_style.dir\Release\codegen_style.tlog\unsuccessfulbuild”。
+  正在对“codegen_style.dir\Release\codegen_style.tlog\codegen_style.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\style\codegen_style.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\style\codegen_style.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui.vcxproj.metaproj”(22)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_autogen.vcxproj.metaproj”(27) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_autogen.vcxproj.metaproj”(27)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_emoji.vcxproj.metaproj”(28) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_emoji.vcxproj.metaproj”(28)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\emoji\codegen_emoji.vcxproj.metaproj”(29) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\emoji\codegen_emoji.vcxproj.metaproj”(29)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\emoji\codegen_emoji.vcxproj”(30) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“codegen_emoji.dir\Release\codegen_emoji.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“codegen_emoji.dir\Release\codegen_emoji.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Link:
+  所有输出均为最新。
+  codegen_emoji.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\emoji\Release\codegen_emoji.exe
+FinalizeBuildStatus:
+  正在删除文件“codegen_emoji.dir\Release\codegen_emoji.tlog\unsuccessfulbuild”。
+  正在对“codegen_emoji.dir\Release\codegen_emoji.tlog\codegen_emoji.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\emoji\codegen_emoji.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\emoji\codegen_emoji.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_emoji.vcxproj.metaproj”(28)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_emoji.vcxproj”(31) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“x64\Release\lib_ui_emoji\lib_ui_emoji.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“x64\Release\lib_ui_emoji\lib_ui_emoji.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  1>
+FinalizeBuildStatus:
+  正在删除文件“x64\Release\lib_ui_emoji\lib_ui_emoji.tlog\unsuccessfulbuild”。
+  正在对“x64\Release\lib_ui_emoji\lib_ui_emoji.tlog\lib_ui_emoji.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_emoji.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_emoji.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_autogen.vcxproj.metaproj”(27)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_palette.vcxproj.metaproj”(32) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_palette.vcxproj.metaproj”(32)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_palette.vcxproj”(33) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“x64\Release\lib_ui_palette\lib_ui_palette.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“x64\Release\lib_ui_palette\lib_ui_palette.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  1>
+FinalizeBuildStatus:
+  正在删除文件“x64\Release\lib_ui_palette\lib_ui_palette.tlog\unsuccessfulbuild”。
+  正在对“x64\Release\lib_ui_palette\lib_ui_palette.tlog\lib_ui_palette.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_palette.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_palette.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_autogen.vcxproj.metaproj”(27)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_styles.vcxproj.metaproj”(34) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_styles.vcxproj.metaproj”(34)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_styles.vcxproj”(35) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“x64\Release\lib_ui_styles\lib_ui_styles.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“x64\Release\lib_ui_styles\lib_ui_styles.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  1>
+FinalizeBuildStatus:
+  正在删除文件“x64\Release\lib_ui_styles\lib_ui_styles.tlog\unsuccessfulbuild”。
+  正在对“x64\Release\lib_ui_styles\lib_ui_styles.tlog\lib_ui_styles.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_styles.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_styles.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_autogen.vcxproj.metaproj”(27)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_autogen.vcxproj”(36) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“x64\Release\lib_ui_autogen\lib_ui_autogen.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“x64\Release\lib_ui_autogen\lib_ui_autogen.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  1>Automatic MOC for target lib_ui
+FinalizeBuildStatus:
+  正在删除文件“x64\Release\lib_ui_autogen\lib_ui_autogen.tlog\unsuccessfulbuild”。
+  正在对“x64\Release\lib_ui_autogen\lib_ui_autogen.tlog\lib_ui_autogen.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_autogen.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui_autogen.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui.vcxproj.metaproj”(22)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui.vcxproj”(37) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_ui.dir\Release\lib_ui.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_ui.dir\Release\lib_ui.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_ui.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\Release\lib_ui.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_ui.dir\Release\lib_ui.tlog\unsuccessfulbuild”。
+  正在对“lib_ui.dir\Release\lib_ui.tlog\lib_ui.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ui\lib_ui.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ffmpeg.vcxproj.metaproj”(19)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ffmpeg.vcxproj”(38) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_ffmpeg.dir\Release\lib_ffmpeg.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_ffmpeg.dir\Release\lib_ffmpeg.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_ffmpeg.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ffmpeg.dir\Release\lib_ffmpeg.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_ffmpeg.dir\Release\lib_ffmpeg.tlog\unsuccessfulbuild”。
+  正在对“lib_ffmpeg.dir\Release\lib_ffmpeg.tlog\lib_ffmpeg.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ffmpeg.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_ffmpeg.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_lottie\lib_lottie.vcxproj.metaproj”(39) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_lottie\lib_lottie.vcxproj.metaproj”(39)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\rlottie\external_rlottie_bundled.vcxproj.metaproj”(40) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\rlottie\external_rlottie_bundled.vcxproj.metaproj”(40)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\rlottie\external_rlottie_bundled.vcxproj”(41) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“external_rlottie_bundled.dir\Release\external.5C210F0A.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“external_rlottie_bundled.dir\Release\external.5C210F0A.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  external_rlottie_bundled.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\rlottie\Release\external_rlottie_bundled.lib
+FinalizeBuildStatus:
+  正在删除文件“external_rlottie_bundled.dir\Release\external.5C210F0A.tlog\unsuccessfulbuild”。
+  正在对“external_rlottie_bundled.dir\Release\external.5C210F0A.tlog\external_rlottie_bundled.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\rlottie\external_rlottie_bundled.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\rlottie\external_rlottie_bundled.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_lottie\lib_lottie.vcxproj.metaproj”(39)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_lottie\lib_lottie.vcxproj”(42) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_lottie.dir\Release\lib_lottie.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_lottie.dir\Release\lib_lottie.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_lottie.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_lottie\lib_lottie.dir\Release\lib_lottie.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_lottie.dir\Release\lib_lottie.tlog\unsuccessfulbuild”。
+  正在对“lib_lottie.dir\Release\lib_lottie.tlog\lib_lottie.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_lottie\lib_lottie.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_lottie\lib_lottie.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_qr\lib_qr.vcxproj.metaproj”(43) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_qr\lib_qr.vcxproj.metaproj”(43)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qr_code_generator\external_qr_code_generator_bundled.vcxproj.metaproj”(44) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qr_code_generator\external_qr_code_generator_bundled.vcxproj.metaproj”(44)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qr_code_generator\external_qr_code_generator_bundled.vcxproj”(45) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“external_qr_code_generator_bundled.dir\Release\external.555470D7.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“external_qr_code_generator_bundled.dir\Release\external.555470D7.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  external_qr_code_generator_bundled.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qr_code_generator\Release\external_qr_code_generator_bundled.lib
+FinalizeBuildStatus:
+  正在删除文件“external_qr_code_generator_bundled.dir\Release\external.555470D7.tlog\unsuccessfulbuild”。
+  正在对“external_qr_code_generator_bundled.dir\Release\external.555470D7.tlog\external_qr_code_generator_bundled.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qr_code_generator\external_qr_code_generator_bundled.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\qr_code_generator\external_qr_code_generator_bundled.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_qr\lib_qr.vcxproj.metaproj”(43)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_qr\lib_qr.vcxproj”(46) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_qr.dir\Release\lib_qr.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_qr.dir\Release\lib_qr.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_qr.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_qr\lib_qr.dir\Release\lib_qr.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_qr.dir\Release\lib_qr.tlog\unsuccessfulbuild”。
+  正在对“lib_qr.dir\Release\lib_qr.tlog\lib_qr.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_qr\lib_qr.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_qr\lib_qr.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_spellcheck\lib_spellcheck.vcxproj.metaproj”(47) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_spellcheck\lib_spellcheck.vcxproj.metaproj”(47)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled.vcxproj.metaproj”(48) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled.vcxproj.metaproj”(48)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_feature_extractor.proto.vcxproj.metaproj”(49) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_feature_extractor.proto.vcxproj.metaproj”(49)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_feature_extractor.proto.vcxproj”(50) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“x64\Release\external_cld3_bundled_feature_extractor.proto\external.D61177AE.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“x64\Release\external_cld3_bundled_feature_extractor.proto\external.D61177AE.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  1>
+FinalizeBuildStatus:
+  正在删除文件“x64\Release\external_cld3_bundled_feature_extractor.proto\external.D61177AE.tlog\unsuccessfulbuild”。
+  正在对“x64\Release\external_cld3_bundled_feature_extractor.proto\external.D61177AE.tlog\external_cld3_bundled_feature_extractor.proto.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_feature_extractor.proto.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_feature_extractor.proto.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled.vcxproj.metaproj”(48)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_sentence.proto.vcxproj.metaproj”(51) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_sentence.proto.vcxproj.metaproj”(51)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_sentence.proto.vcxproj”(52) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“x64\Release\external_cld3_bundled_sentence.proto\external.3D8C3DF2.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“x64\Release\external_cld3_bundled_sentence.proto\external.3D8C3DF2.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  1>
+FinalizeBuildStatus:
+  正在删除文件“x64\Release\external_cld3_bundled_sentence.proto\external.3D8C3DF2.tlog\unsuccessfulbuild”。
+  正在对“x64\Release\external_cld3_bundled_sentence.proto\external.3D8C3DF2.tlog\external_cld3_bundled_sentence.proto.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_sentence.proto.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_sentence.proto.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled.vcxproj.metaproj”(48)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_task_spec.proto.vcxproj.metaproj”(53) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_task_spec.proto.vcxproj.metaproj”(53)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_task_spec.proto.vcxproj”(54) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“x64\Release\external_cld3_bundled_task_spec.proto\external.79E00E54.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“x64\Release\external_cld3_bundled_task_spec.proto\external.79E00E54.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  1>
+FinalizeBuildStatus:
+  正在删除文件“x64\Release\external_cld3_bundled_task_spec.proto\external.79E00E54.tlog\unsuccessfulbuild”。
+  正在对“x64\Release\external_cld3_bundled_task_spec.proto\external.79E00E54.tlog\external_cld3_bundled_task_spec.proto.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_task_spec.proto.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled_task_spec.proto.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled.vcxproj.metaproj”(48)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled.vcxproj”(55) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“external_cld3_bundled.dir\Release\external.0AAFBF1E.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“external_cld3_bundled.dir\Release\external.0AAFBF1E.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  external_cld3_bundled.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\Release\external_cld3_bundled.lib
+FinalizeBuildStatus:
+  正在删除文件“external_cld3_bundled.dir\Release\external.0AAFBF1E.tlog\unsuccessfulbuild”。
+  正在对“external_cld3_bundled.dir\Release\external.0AAFBF1E.tlog\external_cld3_bundled.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\cld3\external_cld3_bundled.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_spellcheck\lib_spellcheck.vcxproj.metaproj”(47)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\hunspell\external_hunspell_bundled.vcxproj.metaproj”(56) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\hunspell\external_hunspell_bundled.vcxproj.metaproj”(56)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\hunspell\external_hunspell_bundled.vcxproj”(57) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“external_hunspell_bundled.dir\Release\external.026A4802.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“external_hunspell_bundled.dir\Release\external.026A4802.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  external_hunspell_bundled.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\hunspell\Release\external_hunspell_bundled.lib
+FinalizeBuildStatus:
+  正在删除文件“external_hunspell_bundled.dir\Release\external.026A4802.tlog\unsuccessfulbuild”。
+  正在对“external_hunspell_bundled.dir\Release\external.026A4802.tlog\external_hunspell_bundled.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\hunspell\external_hunspell_bundled.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\hunspell\external_hunspell_bundled.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_spellcheck\lib_spellcheck.vcxproj.metaproj”(47)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_prisma.vcxproj.metaproj”(58) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_prisma.vcxproj.metaproj”(58)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_prisma.vcxproj”(59) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_prisma.dir\Release\lib_prisma.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_prisma.dir\Release\lib_prisma.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_prisma.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Release\lib_prisma.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_prisma.dir\Release\lib_prisma.tlog\unsuccessfulbuild”。
+  正在对“lib_prisma.dir\Release\lib_prisma.tlog\lib_prisma.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_prisma.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_prisma.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_spellcheck\lib_spellcheck.vcxproj.metaproj”(47)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_spellcheck\lib_spellcheck.vcxproj”(60) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_spellcheck.dir\Release\lib_spellcheck.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_spellcheck.dir\Release\lib_spellcheck.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_spellcheck.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_spellcheck\Release\lib_spellcheck.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_spellcheck.dir\Release\lib_spellcheck.tlog\unsuccessfulbuild”。
+  正在对“lib_spellcheck.dir\Release\lib_spellcheck.tlog\lib_spellcheck.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_spellcheck\lib_spellcheck.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_spellcheck\lib_spellcheck.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_storage\lib_storage.vcxproj.metaproj”(61) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_storage\lib_storage.vcxproj.metaproj”(61)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_storage\lib_storage.vcxproj”(62) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_storage.dir\Release\lib_storage.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_storage.dir\Release\lib_storage.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_storage.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_storage\lib_storage.dir\Release\lib_storage.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_storage.dir\Release\lib_storage.tlog\unsuccessfulbuild”。
+  正在对“lib_storage.dir\Release\lib_storage.tlog\lib_storage.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_storage\lib_storage.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_storage\lib_storage.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_stripe.vcxproj.metaproj”(63) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_stripe.vcxproj.metaproj”(63)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_stripe.vcxproj”(64) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_stripe.dir\Release\lib_stripe.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_stripe.dir\Release\lib_stripe.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_stripe.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_stripe.dir\Release\lib_stripe.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_stripe.dir\Release\lib_stripe.tlog\unsuccessfulbuild”。
+  正在对“lib_stripe.dir\Release\lib_stripe.tlog\lib_stripe.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_stripe.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_stripe.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_tgcalls.vcxproj.metaproj”(65) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_tgcalls.vcxproj.metaproj”(65)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_tgcalls.vcxproj”(66) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_tgcalls.dir\Release\lib_tgcalls.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_tgcalls.dir\Release\lib_tgcalls.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_tgcalls.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Release\lib_tgcalls.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_tgcalls.dir\Release\lib_tgcalls.tlog\unsuccessfulbuild”。
+  正在对“lib_tgcalls.dir\Release\lib_tgcalls.tlog\lib_tgcalls.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_tgcalls.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_tgcalls.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_tl\lib_tl.vcxproj.metaproj”(67) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_tl\lib_tl.vcxproj.metaproj”(67)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_tl\lib_tl.vcxproj”(68) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_tl.dir\Release\lib_tl.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_tl.dir\Release\lib_tl.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_tl.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_tl\lib_tl.dir\Release\lib_tl.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_tl.dir\Release\lib_tl.tlog\unsuccessfulbuild”。
+  正在对“lib_tl.dir\Release\lib_tl.tlog\lib_tl.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_tl\lib_tl.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_tl\lib_tl.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_webrtc\lib_webrtc.vcxproj.metaproj”(69) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_webrtc\lib_webrtc.vcxproj.metaproj”(69)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_webrtc\lib_webrtc.vcxproj”(70) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_webrtc.dir\Release\lib_webrtc.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_webrtc.dir\Release\lib_webrtc.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_webrtc.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_webrtc\lib_webrtc.dir\Release\lib_webrtc.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_webrtc.dir\Release\lib_webrtc.tlog\unsuccessfulbuild”。
+  正在对“lib_webrtc.dir\Release\lib_webrtc.tlog\lib_webrtc.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_webrtc\lib_webrtc.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_webrtc\lib_webrtc.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_webview\lib_webview.vcxproj.metaproj”(71) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_webview\lib_webview.vcxproj.metaproj”(71)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_webview\lib_webview.vcxproj”(72) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“lib_webview.dir\Release\lib_webview.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“lib_webview.dir\Release\lib_webview.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  lib_webview.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_webview\Release\lib_webview.lib
+FinalizeBuildStatus:
+  正在删除文件“lib_webview.dir\Release\lib_webview.tlog\unsuccessfulbuild”。
+  正在对“lib_webview.dir\Release\lib_webview.tlog\lib_webview.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_webview\lib_webview.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\lib_webview\lib_webview.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_export.vcxproj.metaproj”(73) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_export.vcxproj.metaproj”(73)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_scheme.vcxproj.metaproj”(74) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_scheme.vcxproj.metaproj”(74)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_scheme_scheme.vcxproj.metaproj”(75) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_scheme_scheme.vcxproj.metaproj”(75)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_scheme_scheme.vcxproj”(76) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“x64\Release\td_scheme_scheme\td_scheme_scheme.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“x64\Release\td_scheme_scheme\td_scheme_scheme.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  1>
+FinalizeBuildStatus:
+  正在删除文件“x64\Release\td_scheme_scheme\td_scheme_scheme.tlog\unsuccessfulbuild”。
+  正在对“x64\Release\td_scheme_scheme\td_scheme_scheme.tlog\td_scheme_scheme.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_scheme_scheme.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_scheme_scheme.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_scheme.vcxproj.metaproj”(74)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_scheme.vcxproj”(77) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“td_scheme.dir\Release\td_scheme.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“td_scheme.dir\Release\td_scheme.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  td_scheme.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_scheme.dir\Release\td_scheme.lib
+FinalizeBuildStatus:
+  正在删除文件“td_scheme.dir\Release\td_scheme.tlog\unsuccessfulbuild”。
+  正在对“td_scheme.dir\Release\td_scheme.tlog\td_scheme.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_scheme.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_scheme.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_export.vcxproj.metaproj”(73)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_export.vcxproj”(78) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“td_export.dir\Release\td_export.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“td_export.dir\Release\td_export.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  td_export.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_export.dir\Release\td_export.lib
+FinalizeBuildStatus:
+  正在删除文件“td_export.dir\Release\td_export.tlog\unsuccessfulbuild”。
+  正在对“td_export.dir\Release\td_export.tlog\td_export.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_export.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_export.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_iv.vcxproj.metaproj”(79) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_iv.vcxproj.metaproj”(79)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\kcoreaddons\external_kcoreaddons_bundled.vcxproj.metaproj”(80) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\kcoreaddons\external_kcoreaddons_bundled.vcxproj.metaproj”(80)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\kcoreaddons\external_kcoreaddons_bundled.vcxproj”(81) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“external_kcoreaddons_bundled.dir\Release\external.CD15FF24.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“external_kcoreaddons_bundled.dir\Release\external.CD15FF24.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  external_kcoreaddons_bundled.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\kcoreaddons\Release\external_kcoreaddons_bundled.lib
+FinalizeBuildStatus:
+  正在删除文件“external_kcoreaddons_bundled.dir\Release\external.CD15FF24.tlog\unsuccessfulbuild”。
+  正在对“external_kcoreaddons_bundled.dir\Release\external.CD15FF24.tlog\external_kcoreaddons_bundled.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\kcoreaddons\external_kcoreaddons_bundled.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\kcoreaddons\external_kcoreaddons_bundled.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_iv.vcxproj.metaproj”(79)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_lang.vcxproj.metaproj”(82) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_lang.vcxproj.metaproj”(82)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_lang_lang.vcxproj.metaproj”(83) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_lang_lang.vcxproj.metaproj”(83)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\lang\codegen_lang.vcxproj.metaproj”(84) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\lang\codegen_lang.vcxproj.metaproj”(84)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\lang\codegen_lang.vcxproj”(85) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“codegen_lang.dir\Release\codegen_lang.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“codegen_lang.dir\Release\codegen_lang.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Link:
+  所有输出均为最新。
+  codegen_lang.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\lang\Release\codegen_lang.exe
+FinalizeBuildStatus:
+  正在删除文件“codegen_lang.dir\Release\codegen_lang.tlog\unsuccessfulbuild”。
+  正在对“codegen_lang.dir\Release\codegen_lang.tlog\codegen_lang.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\lang\codegen_lang.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\codegen\codegen\lang\codegen_lang.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_lang_lang.vcxproj.metaproj”(83)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_lang_lang.vcxproj”(86) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“x64\Release\td_lang_lang\td_lang_lang.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“x64\Release\td_lang_lang\td_lang_lang.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  1>
+FinalizeBuildStatus:
+  正在删除文件“x64\Release\td_lang_lang\td_lang_lang.tlog\unsuccessfulbuild”。
+  正在对“x64\Release\td_lang_lang\td_lang_lang.tlog\td_lang_lang.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_lang_lang.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_lang_lang.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_lang.vcxproj.metaproj”(82)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_lang.vcxproj”(87) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“td_lang.dir\Release\td_lang.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“td_lang.dir\Release\td_lang.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  td_lang.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_lang.dir\Release\td_lang.lib
+FinalizeBuildStatus:
+  正在删除文件“td_lang.dir\Release\td_lang.tlog\unsuccessfulbuild”。
+  正在对“td_lang.dir\Release\td_lang.tlog\td_lang.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_lang.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_lang.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_iv.vcxproj.metaproj”(79)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_ui.vcxproj.metaproj”(88) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_ui.vcxproj.metaproj”(88)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_ui_styles.vcxproj.metaproj”(89) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_ui_styles.vcxproj.metaproj”(89)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_ui_styles.vcxproj”(90) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“x64\Release\td_ui_styles\td_ui_styles.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“x64\Release\td_ui_styles\td_ui_styles.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  1>
+FinalizeBuildStatus:
+  正在删除文件“x64\Release\td_ui_styles\td_ui_styles.tlog\unsuccessfulbuild”。
+  正在对“x64\Release\td_ui_styles\td_ui_styles.tlog\td_ui_styles.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_ui_styles.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_ui_styles.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_ui.vcxproj.metaproj”(88)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_ui.vcxproj”(91) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“td_ui.dir\Release\td_ui.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“td_ui.dir\Release\td_ui.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  td_ui.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_ui.dir\Release\td_ui.lib
+FinalizeBuildStatus:
+  正在删除文件“td_ui.dir\Release\td_ui.tlog\unsuccessfulbuild”。
+  正在对“td_ui.dir\Release\td_ui.tlog\td_ui.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_ui.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_ui.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_iv.vcxproj.metaproj”(79)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_iv.vcxproj”(92) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“td_iv.dir\Release\td_iv.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“td_iv.dir\Release\td_iv.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  td_iv.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_iv.dir\Release\td_iv.lib
+FinalizeBuildStatus:
+  正在删除文件“td_iv.dir\Release\td_iv.tlog\unsuccessfulbuild”。
+  正在对“td_iv.dir\Release\td_iv.tlog\td_iv.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_iv.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_iv.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_mtproto.vcxproj.metaproj”(93) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_mtproto.vcxproj.metaproj”(93)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_mtproto.vcxproj”(94) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“td_mtproto.dir\Release\td_mtproto.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“td_mtproto.dir\Release\td_mtproto.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  td_mtproto.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_mtproto.dir\Release\td_mtproto.lib
+FinalizeBuildStatus:
+  正在删除文件“td_mtproto.dir\Release\td_mtproto.tlog\unsuccessfulbuild”。
+  正在对“td_mtproto.dir\Release\td_mtproto.tlog\td_mtproto.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_mtproto.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_mtproto.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_tde2e.vcxproj.metaproj”(95) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_tde2e.vcxproj.metaproj”(95)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_tde2e.vcxproj”(96) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“td_tde2e.dir\Release\td_tde2e.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“td_tde2e.dir\Release\td_tde2e.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  td_tde2e.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_tde2e.dir\Release\td_tde2e.lib
+FinalizeBuildStatus:
+  正在删除文件“td_tde2e.dir\Release\td_tde2e.tlog\unsuccessfulbuild”。
+  正在对“td_tde2e.dir\Release\td_tde2e.tlog\td_tde2e.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_tde2e.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\td_tde2e.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(3)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj”(97) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“x64\Release\Telegram_autogen\Telegram_autogen.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“x64\Release\Telegram_autogen\Telegram_autogen.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  1>Automatic MOC for target Telegram
+FinalizeBuildStatus:
+  正在删除文件“x64\Release\Telegram_autogen\Telegram_autogen.tlog\unsuccessfulbuild”。
+  正在对“x64\Release\Telegram_autogen\Telegram_autogen.tlog\Telegram_autogen.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram.vcxproj.metaproj”(2)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\minizip\external_minizip_bundled.vcxproj.metaproj”(98) (默认目标)。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\minizip\external_minizip_bundled.vcxproj.metaproj”(98)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\minizip\external_minizip_bundled.vcxproj”(99) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在创建“external_minizip_bundled.dir\Release\external.FA20BD68.tlog\unsuccessfulbuild”，因为已指定“AlwaysCreate”。
+  正在对“external_minizip_bundled.dir\Release\external.FA20BD68.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+Lib:
+  所有输出均为最新。
+  external_minizip_bundled.vcxproj -> C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\minizip\Release\external_minizip_bundled.lib
+FinalizeBuildStatus:
+  正在删除文件“external_minizip_bundled.dir\Release\external.FA20BD68.tlog\unsuccessfulbuild”。
+  正在对“external_minizip_bundled.dir\Release\external.FA20BD68.tlog\external_minizip_bundled.lastbuildstate”执行 Touch 任务。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\minizip\external_minizip_bundled.vcxproj”(默认目标)的操作。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\cmake\external\minizip\external_minizip_bundled.vcxproj.metaproj”(默认目标)的操作。
+项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram.vcxproj.metaproj”(2)正在节点 1 上生成“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram.vcxproj”(100) (默认目标)。
+PrepareForBuild:
+  已启用结构化输出。编译器诊断的格式设置将反映错误层次结构。有关详细信息，请参阅 https://aka.ms/cpp/structured-output。
+InitializeBuildStatus:
+  正在对“Telegram.dir\Release\Telegram.tlog\unsuccessfulbuild”执行 Touch 任务。
+CustomBuild:
+  所有输出均为最新。
+ClCompile:
+  所有输出均为最新。
+  所有输出均为最新。
+  C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\bin\HostX64\x64\CL.exe /c /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\ThirdParty\tgcalls /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\lib_base /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\lib_rpl /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\lib_crl /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\lib_tl /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\lib_ui /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\lib_ui\emoji_suggestions /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\lib_lottie /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\lib_webrtc /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\lib_spellcheck /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\lib_storage /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\lib_qr /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\ThirdParty\QR\cpp /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\lib_webview /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\payments /IC:\Users\admin\Desktop\telegram\tdesktop\Telegram\ThirdParty\rlottie\inc /Zi /nologo /W3 /WX- /diagnostics:column /MP1 /O2 /Ob2 /D _UNICODE /D UNICODE /D WIN32 /D _WINDOWS /D NDEBUG /D TDESKTOP_DISABLE_AUTOUPDATE /D TDESKTOP_DISABLE_CRASH_REPORTS /D TDESKTOP_API_ID=17349 /D TDESKTOP_API_HASH=344583e45741c457fe1862106095a5eb /D "G_LOG_DOMAIN=\"Telegram\"" /D QT_NO_KEYWORDS /D QT_NO_CAST_FROM_BYTEARRAY /D QT_DEPRECATED_WARNINGS_SINCE=0x051500 /D DESKTOP_APP_DISABLE_X11_INTEGRATION /D WIN32_LEAN_AND_MEAN /D _SCL_SECURE_NO_WARNINGS /D NOMINMAX /D NOSERVICE /D NOMCX /D NOIME /D NOSOUND /D NOCOMM /D NOKANJI /D NORPC /D NOPROXYSTUB /D NOIMAGE /D NOTAPE /D UNICODE /D _UNICODE /D TGCALLS_USE_STD_OPTIONAL /D _REENTRANT /D QT_STATICPLUGIN /D QT_PLUGIN /D QT_CORE_LIB /D QT_GUI_LIB /D QT_WIDGETS_LIB /D QT_NETWORK_LIB /D QT_SVG_LIB /D _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING /D KHRONOS_STATIC /D AL_LIBTYPE_STATIC /D LOT_BUILD /D ZLIB_WINAPI /D KCOREADDONS_EXPORT= /D XXH_INLINE_ALL /D "CMAKE_INTDIR=\"Release\"" /EHsc /MT /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++20 /permissive- /Yu"C:/Users/admin/Desktop/telegram/tdesktop/out/Telegram/CMakeFiles/Telegram.dir/Release/cmake_pch.hxx" /Fp"C:/Users/admin/Desktop/telegram/tdesktop/out/Telegram/Telegram.dir/Release/cmake_pch.pch" /Fo"Telegram.dir\Release\\" /Fd"Telegram.dir\Release\vc143.pdb" /external:W0 /Gd /TP /wd4018 /wd4100 /wd4242 /wd4244 /wd4245 /wd4267 /wd4305 /wd4324 /wd4389 /wd4456 /wd4457 /wd4458 /wd4459 /wd4611 /wd4702 /wd4310 /wd4127 /wd4996 /FIC:/Users/admin/Desktop/telegram/tdesktop/out/Telegram/CMakeFiles/Telegram.dir/Release/cmake_pch.hxx /analyze- /errorReport:queue  /external:I "C:/Users/admin/Desktop/telegram/tdesktop/out/Telegram/gen" /external:I "C:/Users/admin/Desktop/telegram/tdesktop/out/Telegram/Telegram_autogen/include_Release" /external:I "C:/Users/admin/Desktop/telegram/tdesktop/Telegram/ThirdParty/minizip" /external:I "C:/Users/admin/Desktop/telegram/tdesktop/Telegram/ThirdParty/GSL/include" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/Qt-5.15.18/include" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/Qt-5.15.18/include/QtCore" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/Qt-5.15.18/include/QtGui" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/Qt-5.15.18/include/QtWidgets" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/Qt-5.15.18/include/QtSvg" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/Qt-5.15.18/include/QtNetwork" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/Qt-5.15.18/include/QtCore/5.15.18" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/Qt-5.15.18/include/QtGui/5.15.18" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/Qt-5.15.18/include/QtWidgets/5.15.18" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/Qt-5.15.18/include/QtCore/5.15.18/QtCore" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/Qt-5.15.18/include/QtGui/5.15.18/QtGui" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/Qt-5.15.18/include/QtWidgets/5.15.18/QtWidgets" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/Qt-5.15.18/mkspecs/win32-msvc" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/tg_angle/include" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/openssl3/include" /external:I "C:/Users/admin/Desktop/telegram/tdesktop/Telegram/ThirdParty/range-v3/include" /external:I "C:/Users/admin/Desktop/telegram/tdesktop/Telegram/ThirdParty/expected/include" /external:I "C:/Users/admin/Desktop/telegram/tdesktop/out/Telegram/lib_ui/gen" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/ffmpeg" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/openal-soft/include" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/openal-soft/include/AL" /external:I "C:/Users/admin/Desktop/telegram/Libraries/win64/zlib" /external:I "C:/Users/admin/Desktop/telegram/tdesktop/Telegram/ThirdParty/kcoreaddons/src/lib/io" /external:I "C:/Users/admin/Desktop/telegram/tdesktop/Telegram/ThirdParty/kcoreaddons/src/lib/util" /external:I "C:/Users/admin/Desktop/telegram/tdesktop/cmake/external/kcoreaddons/headers/public" /external:I "C:/Users/admin/Desktop/telegram/tdesktop/Telegram/ThirdParty/xxHash" /utf-8 /w15038 /w14265 /Zc:__cplusplus /bigobj C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\apiwrap.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\boxes\abstract_box.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\boxes\moderate_messages_box.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\boxes\peers\edit_forum_topic_box.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\boxes\star_gift_preview_box.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\calls\calls_video_incoming.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\calls\group\calls_group_panel.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\chat_helpers\stickers_lottie.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\core\shortcuts.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\data\data_document_resolver.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\data\data_message_reactions.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\data\data_sparse_ids.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\data\notify\data_notify_settings.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\dialogs\ui\dialogs_video_userpic.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\editor\photo_editor_controls.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\history\view\controls\history_view_voice_record_bar.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\history\view\history_view_pinned_bar.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\history\view\history_view_view_button.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\history\view\media\history_view_media_unwrapped.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\history\view\reactions\history_view_reactions_selector.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\info\bot\starref\info_bot_starref_common.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\info\media\info_media_inner_widget.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\info\profile\info_profile_status_label.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\info\userpic\info_userpic_colors_editor.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\inline_bots\inline_bot_storage.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\logs.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\main\main_account.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\mainwidget.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\mainwindow.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\media\player\media_player_widget.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\media\streaming\media_streaming_loader_mtproto.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\menu\menu_item_download_files.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\passport\passport_form_controller.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\platform\win\webauthn_win.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\settings.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\settings\cloud_password\settings_cloud_password_email.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\settings\settings_experimental.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\storage\file_download.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\support\support_helper.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\ui\effects\send_action_animations.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\notifications_manager.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\notifications_manager_default.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\section_widget.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\themes\window_theme.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\themes\window_theme_editor.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\themes\window_theme_editor_block.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\themes\window_theme_editor_box.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\themes\window_theme_preview.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\themes\window_themes_cloud_list.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\themes\window_themes_embedded.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\window_adaptive.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\window_controller.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\window_filters_menu.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\window_history_hider.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\window_lock_widgets.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\window_main_menu.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\window_main_menu_helpers.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\window_media_preview.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\window_peer_menu.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\window_separate_id.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\window_session_controller.cpp C:\Users\admin\Desktop\telegram\tdesktop\Telegram\SourceFiles\window\window_setup_email.cpp C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen\U2UXUZ4CID\qrc_emoji_1.cpp C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram_autogen\U2UXUZ4CID\qrc_emoji_2.cpp
+  apiwrap.cpp
+  abstract_box.cpp
+  moderate_messages_box.cpp
+  edit_forum_topic_box.cpp
+  star_gift_preview_box.cpp
+  calls_video_incoming.cpp
+  calls_group_panel.cpp
+  stickers_lottie.cpp
+  shortcuts.cpp
+  data_document_resolver.cpp
+  data_message_reactions.cpp
+  data_sparse_ids.cpp
+  data_notify_settings.cpp
+  dialogs_video_userpic.cpp
+  photo_editor_controls.cpp
+  history_view_voice_record_bar.cpp
+正在尝试取消生成...
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram.vcxproj.metaproj”(默认目标)的操作 - 失败。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram.sln”(默认目标)的操作 - 失败。
+已完成生成项目“C:\Users\admin\Desktop\telegram\tdesktop\out\Telegram\Telegram.vcxproj”(默认目标)的操作 - 失败。
+
+生成失败。
+    0 个警告
+    0 个错误
+
+已用时间 00:03:56.32
