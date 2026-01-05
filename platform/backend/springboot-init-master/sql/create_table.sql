@@ -24,3 +24,35 @@ create table if not exists collected_data
     createTime   datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
     isDelete     tinyint      default 0                 not null comment 'Is Deleted'
 ) comment 'Collected Data' collate = utf8mb4_unicode_ci;
+
+-- TG Account Table
+create table if not exists tg_account
+(
+    id           bigint auto_increment comment 'id' primary key,
+    tgId         varchar(64)                        null comment 'Telegram ID',
+    username     varchar(128)                       null comment 'Username',
+    phone        varchar(32)                        null comment 'Phone',
+    firstName    varchar(128)                       null comment 'First Name',
+    lastName     varchar(128)                       null comment 'Last Name',
+    isBot        tinyint      default 0             comment 'Is Bot',
+    systemInfo   text                               null comment 'System Info',
+    createTime   datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
+    updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment 'Update Time',
+    isDelete     tinyint      default 0             not null comment 'Is Deleted'
+) comment 'TG Accounts' collate = utf8mb4_unicode_ci;
+
+-- TG Message Table
+create table if not exists tg_message
+(
+    id           bigint auto_increment comment 'id' primary key,
+    accountId    bigint                             not null comment 'Account ID',
+    msgId        bigint                             null comment 'Message ID',
+    chatId       varchar(64)                        null comment 'Chat ID',
+    senderId     varchar(64)                        null comment 'Sender ID',
+    content      text                               null comment 'Content',
+    msgType      varchar(32)                        null comment 'Message Type',
+    mediaPath    varchar(256)                       null comment 'Media Path',
+    msgDate      datetime                           null comment 'Message Date',
+    createTime   datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
+    isDelete     tinyint      default 0             not null comment 'Is Deleted'
+) comment 'TG Messages' collate = utf8mb4_unicode_ci;
