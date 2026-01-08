@@ -1,5 +1,8 @@
 package com.yupi.springbootinit.service.impl;
 
+import com.yupi.springbootinit.mapper.C2DeviceMapper;
+import com.yupi.springbootinit.model.entity.C2Device;
+import javax.annotation.Resource;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -22,6 +25,9 @@ import java.util.stream.Collectors;
 @Service
 public class C2TaskServiceImpl extends ServiceImpl<C2TaskMapper, C2Task> implements C2TaskService {
 
+    @Resource
+    private C2DeviceMapper c2DeviceMapper;
+
     @Override
     public QueryWrapper<C2Task> getQueryWrapper(C2TaskQueryRequest c2TaskQueryRequest) {
         QueryWrapper<C2Task> queryWrapper = new QueryWrapper<>();
@@ -31,7 +37,8 @@ public class C2TaskServiceImpl extends ServiceImpl<C2TaskMapper, C2Task> impleme
         Long id = c2TaskQueryRequest.getId();
         String searchText = c2TaskQueryRequest.getSearchText();
         String taskId = c2TaskQueryRequest.getTaskId();
-        Long deviceId = c2TaskQueryRequest.getDeviceId();
+        String deviceUuid = c2TaskQueryRequest.getDeviceUuid();
+
         String command = c2TaskQueryRequest.getCommand();
         String status = c2TaskQueryRequest.getStatus();
         String sortField = c2TaskQueryRequest.getSortField();
@@ -41,7 +48,7 @@ public class C2TaskServiceImpl extends ServiceImpl<C2TaskMapper, C2Task> impleme
             queryWrapper.and(qw -> qw.like("taskId", searchText).or().like("command", searchText));
         }
         queryWrapper.eq(StringUtils.isNotBlank(taskId), "taskId", taskId);
-        queryWrapper.eq(ObjectUtils.isNotEmpty(deviceId), "deviceId", deviceId);
+        queryWrapper.eq(StringUtils.isNotBlank(deviceUuid), "device_uuid", deviceUuid);
         queryWrapper.like(StringUtils.isNotBlank(command), "command", command);
         queryWrapper.eq(StringUtils.isNotBlank(status), "status", status);
         queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);

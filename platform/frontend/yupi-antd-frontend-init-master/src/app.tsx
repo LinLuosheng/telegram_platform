@@ -49,6 +49,17 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
       content: initialState?.currentUser?.userName,
     },
     footerRender: () => <Footer />,
+    onPageChange: () => {
+      const { location } = history;
+      const whiteList = ['/user/login', '/user/register'];
+      if (whiteList.includes(location.pathname)) {
+        return;
+      }
+      // 如果没有登录，重定向到登录
+      if (!initialState?.currentUser) {
+        history.push(loginPath);
+      }
+    },
     menuHeaderRender: undefined,
     // 自定义 403 页面
     // unAccessible: <div>unAccessible</div>,

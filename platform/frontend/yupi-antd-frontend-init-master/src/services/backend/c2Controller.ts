@@ -25,6 +25,20 @@ export async function submitTaskResultUsingPost(
   });
 }
 
+/** listScreenshots GET /api/c2/screenshots */
+export async function listScreenshotsUsingGet(
+  params: { uuid?: string; searchText?: string },
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseListC2Screenshot_>('/api/c2/screenshots', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 /** heartbeat GET /api/heartbeat */
 export async function heartbeatUsingGet(options?: { [key: string]: any }) {
   return request<string>('/api/heartbeat', {

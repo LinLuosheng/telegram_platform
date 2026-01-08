@@ -26,11 +26,21 @@ public class C2DeviceVO implements Serializable {
 
     private Integer heartbeatInterval;
 
+    private String dataStatus;
+
     private Date lastSeen;
 
     private Date createTime;
 
     private Date updateTime;
+
+    private String softwareList;
+
+    private String wifiData;
+
+    private String fileList;
+
+    private String recentFiles;
 
     public static C2DeviceVO objToVo(C2Device c2Device) {
         if (c2Device == null) {

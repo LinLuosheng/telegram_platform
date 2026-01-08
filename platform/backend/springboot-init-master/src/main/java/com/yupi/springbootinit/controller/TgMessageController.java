@@ -159,6 +159,7 @@ public class TgMessageController {
      * @return
      */
     @PostMapping("/list/page/vo")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<TgMessageVO>> listTgMessageVOByPage(@RequestBody TgMessageQueryRequest tgMessageQueryRequest,
                                                                HttpServletRequest request) {
         long current = tgMessageQueryRequest.getCurrent();

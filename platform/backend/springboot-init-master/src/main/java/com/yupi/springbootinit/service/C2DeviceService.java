@@ -16,4 +16,6 @@ public interface C2DeviceService extends IService<C2Device> {
     C2DeviceVO getC2DeviceVO(C2Device c2Device, HttpServletRequest request);
 
     Page<C2DeviceVO> getC2DeviceVOPage(Page<C2Device> c2DevicePage, HttpServletRequest request);
+
+    void restoreAll();
 }

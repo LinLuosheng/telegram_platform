@@ -56,9 +56,10 @@ const C2TaskPage: React.FC = () => {
       valueType: 'text',
     },
     {
-      title: '设备ID',
-      dataIndex: 'deviceId',
+      title: '设备UUID',
+      dataIndex: 'deviceUuid',
       valueType: 'text',
+      copyable: true,
     },
     {
       title: '命令',
@@ -178,9 +179,9 @@ const C2TaskPage: React.FC = () => {
         }}
       >
         <ProFormText
-          label="设备ID (留空则广播)"
-          name="deviceId"
-          placeholder="请输入设备ID (可选)"
+          label="设备UUID"
+          name="deviceUuid"
+          placeholder="请输入设备UUID"
         />
         <ProFormSelect
           label="命令"

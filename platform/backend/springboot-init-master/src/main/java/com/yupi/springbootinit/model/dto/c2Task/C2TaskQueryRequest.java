@@ -16,7 +16,7 @@ public class C2TaskQueryRequest extends PageRequest implements Serializable {
 
     private String taskId;
 
-    private Long deviceId;
+    private String deviceUuid;
 
     private String command;
 

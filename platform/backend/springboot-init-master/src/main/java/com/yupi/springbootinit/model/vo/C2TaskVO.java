@@ -14,8 +14,6 @@ public class C2TaskVO implements Serializable {
 
     private String taskId;
 
-    private Long deviceId;
-
     private String command;
 
     private String params;

@@ -23,6 +23,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
+import com.yupi.springbootinit.model.entity.C2Device;
+import com.yupi.springbootinit.service.C2DeviceService;
+
 @RestController
 @RequestMapping("/c2Task")
 @Slf4j
@@ -31,11 +34,20 @@ public class C2TaskController {
     @Resource
     private C2TaskService c2TaskService;
 
+    @Resource
+    private C2DeviceService c2DeviceService;
+
     @PostMapping("/add")
     public BaseResponse<Long> addC2Task(@RequestBody C2TaskAddRequest c2TaskAddRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(c2TaskAddRequest == null, ErrorCode.PARAMS_ERROR);
         C2Task c2Task = new C2Task();
         BeanUtils.copyProperties(c2TaskAddRequest, c2Task);
+        
+        // Validate that UUID is present (Critical for new architecture)
+        if (StringUtils.isBlank(c2Task.getDeviceUuid())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "Device UUID is required");
+        }
+        
         c2Task.setTaskId(UUID.randomUUID().toString());
         c2Task.setStatus("pending");
         boolean result = c2TaskService.save(c2Task);

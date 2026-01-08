@@ -134,24 +134,45 @@ declare namespace API {
     createTime?: string;
     hostName?: string;
     id?: number;
+    uuid?: string;
     ip?: string;
     internalIp?: string;
     externalIp?: string;
     heartbeatInterval?: number;
     lastSeen?: string;
     os?: string;
+    macAddress?: string;
     updateTime?: string;
+    wifiData?: string;
+    softwareList?: string;
+    isMonitorOn?: number;
   };
 
   type C2Device = {
     id?: number;
+    uuid?: string;
     heartbeatInterval?: number;
+  };
+
+  type C2Screenshot = {
+    id?: number;
+    deviceUuid?: string;
+    taskId?: string;
+    url?: string;
+    createTime?: string;
+  };
+
+  type BaseResponseListC2Screenshot_ = {
+    code?: number;
+    data?: C2Screenshot[];
+    message?: string;
   };
 
   type C2Task = {
     command?: string;
     createTime?: string;
     id?: number;
+    deviceUuid?: string;
     isDelete?: number;
     params?: string;
     result?: string;
@@ -162,14 +183,14 @@ declare namespace API {
 
   type C2TaskAddRequest = {
     command?: string;
-    deviceId?: number;
+    deviceUuid?: string;
     params?: string;
   };
 
   type C2TaskQueryRequest = {
     command?: string;
     current?: number;
-    deviceId?: number;
+    deviceUuid?: string;
     id?: number;
     pageSize?: number;
     searchText?: string;
@@ -182,7 +203,7 @@ declare namespace API {
   type C2TaskVO = {
     command?: string;
     createTime?: string;
-    deviceId?: number;
+    deviceUuid?: string;
     id?: number;
     params?: string;
     result?: string;

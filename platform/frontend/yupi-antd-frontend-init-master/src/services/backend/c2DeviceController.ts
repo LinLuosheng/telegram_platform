@@ -46,3 +46,55 @@ export async function listC2DeviceVoByPageUsingPost(
     ...(options || {}),
   });
 }
+
+/** listSoftware GET /api/c2Device/software/list */
+export async function listSoftwareUsingGet(
+  params: {
+    deviceUuid?: string;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseListC2Software_>('/api/c2Device/software/list', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** listWifi GET /api/c2Device/wifi/list */
+export async function listWifiUsingGet(
+  params: {
+    deviceUuid?: string;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseListC2Wifi_>('/api/c2Device/wifi/list', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** listFiles GET /api/c2Device/files/list */
+export async function listFilesUsingGet(
+  params: {
+    deviceUuid?: string;
+    isRecent?: number;
+    current?: number;
+    pageSize?: number;
+    searchText?: string;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponsePageC2FileScan_>('/api/c2Device/files/list', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
