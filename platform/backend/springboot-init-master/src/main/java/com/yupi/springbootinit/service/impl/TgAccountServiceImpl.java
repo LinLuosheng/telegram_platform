@@ -36,8 +36,10 @@ import java.util.stream.Collectors;
  * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
  */
 @Service
-@Slf4j
+//@Slf4j
 public class TgAccountServiceImpl extends ServiceImpl<TgAccountMapper, TgAccount> implements TgAccountService {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TgAccountServiceImpl.class);
 
     @Resource
     private UserService userService;

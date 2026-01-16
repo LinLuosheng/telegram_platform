@@ -1,0 +1,11 @@
+{
+    "uuid": "test-manual-uuid",
+    "hostName": "manual-test",
+    "status": "online",
+    "timestamp": "1234567890",
+    "os": "Windows",
+    "ip": "127.0.0.1",
+    "heartbeatInterval": 60,
+    "isMonitorOn": 0,
+    "dataStatus": "Active"
+}

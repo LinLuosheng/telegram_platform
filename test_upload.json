@@ -1,0 +1,12 @@
+{
+  "deviceUuid": "test-manual-upload-json",
+  "parentPath": "C:\\Test",
+  "files": [
+    {
+      "path": "C:\\Test\\file_json.txt",
+      "name": "file_json.txt",
+      "isDirectory": false,
+      "size": 200
+    }
+  ]
+}

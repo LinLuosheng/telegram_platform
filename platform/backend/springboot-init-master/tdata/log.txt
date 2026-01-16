@@ -1,0 +1,1585 @@
+[2026.01.11 13:27:15] Launched version: 6003010, install beta: [TRUE], alpha: 0, debug mode: [FALSE]
+[2026.01.11 13:27:15] Executable dir: C:/Users/admin/Desktop/telegram/tdesktop/out/Release/, name: Telegram.exe
+[2026.01.11 13:27:15] Initial working dir: C:/Users/admin/Desktop/telegram/platform/backend/springboot-init-master/
+[2026.01.11 13:27:15] Working dir: C:/Users/admin/Desktop/telegram/platform/backend/springboot-init-master/tdata/
+[2026.01.11 13:27:15] Command line: C:\Users\admin\Desktop\telegram\tdesktop\out\Release\Telegram.exe -workdir tdata
+[2026.01.11 13:27:15] Executable path before check: C:/Users/admin/Desktop/telegram/tdesktop/out/Release/Telegram.exe
+[2026.01.11 13:27:15] Logs started
+[2026.01.11 13:27:15] WinRT Supported: [TRUE]
+[2026.01.11 13:27:15] AppUserModelID: Telegram.TelegramDesktop.27e34d4e112138277f94e2918c3107b9
+[2026.01.11 13:27:15] Using DirectX compiler 'C:\Users\admin\Desktop\telegram\tdesktop\out\Release\modules\x64\d3d\d3dcompiler_47.dll'.
+[2026.01.11 13:27:15] Connecting local socket to Global\27e34d4e112138277f94e2918c3107b9-{87A94AB0-E370-4cde-98D3-ACC110C5967D}...
+[2026.01.11 13:27:15] This is the only instance of Telegram, starting server and app...
+[2026.01.11 13:27:15] Moved logging from 'C:/Users/admin/Desktop/telegram/platform/backend/springboot-init-master/tdata/log_start0.txt' to 'C:/Users/admin/Desktop/telegram/platform/backend/springboot-init-master/tdata/log.txt'!
+[2026.01.11 13:27:15] Global devicePixelRatio: 1
+[2026.01.11 13:27:15] QT_DPI_ADJUSTMENT_POLICY: AdjustDpi
+[2026.01.11 13:27:15] Primary screen DPI: 144, Base: 96.
+[2026.01.11 13:27:15] Computed screen scale: 150
+[2026.01.11 13:27:15] DevicePixelRatio: 1
+[2026.01.11 13:27:15] ScreenScale: 150
+[2026.01.11 13:27:15] Media Info: Type Playback, default: {0.0.0.00000000}.{b1b5eb81-48f6-4e7e-a7f2-cc2102e9f216}, list: { "扬声器 (High Definition Audio Device)" <{0.0.0.00000000}.{b1b5eb81-48f6-4e7e-a7f2-cc2102e9f216}> }, full list refresh: false
+[2026.01.11 13:27:15] Media Info: Type Capture, default: {0.0.1.00000000}.{1f97eb47-f822-4a7c-a482-b9a6387fecef}, list: { "Microphone (High Definition Audio Device)" <{0.0.1.00000000}.{1f97eb47-f822-4a7c-a482-b9a6387fecef}> }, full list refresh: false
+[2026.01.11 13:27:15] Media Error: Can't sync default device for type Camera, default: , list: {  }
+[2026.01.11 13:27:15] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 0,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768109235",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:27:15] Font: from ':/gui/fonts/OpenSans-Italic.ttf' loaded 'Open Sans'
+[2026.01.11 13:27:15] Font: from ':/gui/fonts/OpenSans-Regular.ttf' loaded 'Open Sans'
+[2026.01.11 13:27:15] Font: from ':/gui/fonts/OpenSans-SemiBold.ttf' loaded 'Open Sans Semibold'
+[2026.01.11 13:27:15] Font: from ':/gui/fonts/OpenSans-SemiBoldItalic.ttf' loaded 'Open Sans Semibold'
+[2026.01.11 13:27:15] Font: from ':/gui/fonts/Vazirmatn-UI-NL-Regular.ttf' loaded 'Vazirmatn UI NL'
+[2026.01.11 13:27:15] Font: from ':/gui/fonts/Vazirmatn-UI-NL-SemiBold.ttf' loaded 'Vazirmatn UI NL SemiBold'
+[2026.01.11 13:27:15] Checking...
+[2026.01.11 13:27:15] Checking C:\Users\admin\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\.
+[2026.01.11 13:27:15] Checking C:\Users\admin\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\..
+[2026.01.11 13:27:15] Checking C:\Users\admin\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\desktop.ini
+[2026.01.11 13:27:15] Checking C:\Users\admin\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\File Explorer.lnk
+[2026.01.11 13:27:15] Checking C:\Users\admin\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Microsoft Edge.lnk
+[2026.01.11 13:27:16] OpenAL Logging Level: (not set)
+[2026.01.11 13:27:16] Screen Reader: inactive
+[2026.01.11 13:27:17] OpenGL: Using custom 'gpu_driver_bug_list.json'.
+[2026.01.11 13:27:17] OpenGL Profile: OpenGLES.
+[2026.01.11 13:27:17] OpenGL Renderer: ANGLE (VMware, VMware SVGA 3D Direct3D11 vs_5_0 ps_5_0, D3D11-9.17.6.3)
+[2026.01.11 13:27:17] OpenGL Vendor: Google Inc. (VMware)
+[2026.01.11 13:27:17] OpenGL Version: OpenGL ES 3.0.0 (ANGLE 2.1.10 git hash: e3f59e8d0c3e)
+[2026.01.11 13:27:17] OpenGL Extensions: GL_ANGLE_shader_pixel_local_storage, GL_EXT_debug_marker, GL_EXT_texture_filter_anisotropic, GL_NV_framebuffer_blit, GL_ANGLE_get_tex_level_parameter, GL_EXT_read_format_bgra, GL_OES_fbo_render_mipmap, GL_OES_vertex_array_object, GL_OES_depth32, GL_ANGLE_get_serialized_context_string, GL_OVR_multiview2, GL_ANGLE_multiview_multisample, GL_EXT_multisampled_render_to_texture, GL_EXT_occlusion_query_boolean, GL_EXT_multi_draw_indirect, GL_NV_EGL_stream_consumer_external, GL_ANGLE_copy_texture_3d, GL_ANGLE_robust_client_memory, GL_ANGLE_texture_multisample, GL_OES_texture_half_float_linear, GL_EXT_depth_clamp, GL_OES_shader_multisample_interpolation, GL_OES_rgb8_rgba8, GL_EXT_sRGB, GL_OES_EGL_image_external_essl3, GL_ANGLE_stencil_texturing, GL_OES_surfaceless_context, GL_ANGLE_base_vertex_base_instance, GL_OES_compressed_ETC2_sRGB8_texture, GL_EXT_texture_storage, GL_OES_sample_variables, GL_NV_fence, GL_OES_compressed_EAC_RG11_signed_texture, GL_EXT_texture_compression_dxt1, GL_EXT_unpack_subimage, GL_ANGLE_translated_shader_source, GL_EXT_texture_rg, GL_OES_compressed_ETC2_RGBA8_texture, GL_ANGLE_clip_cull_distance, GL_KHR_debug, GL_ANGLE_request_extension, GL_EXT_instanced_arrays, GL_EXT_EGL_image_external_wrap_modes, GL_OES_compressed_ETC2_RGB8_texture, GL_ANGLE_program_cache_control, GL_CHROMIUM_bind_generates_resource, GL_CHROMIUM_copy_compressed_texture, GL_CHROMIUM_sync_query, GL_EXT_draw_elements_base_vertex, GL_EXT_clip_control, GL_OES_compressed_EAC_RG11_unsigned_texture, GL_OES_texture_stencil8, GL_ANGLE_framebuffer_multisample, GL_ANGLE_texture_compression_dxt3, GL_OES_compressed_EAC_R11_unsigned_texture, GL_OES_standard_derivatives, GL_EXT_draw_buffers_indexed, GL_WEBGL_video_texture, GL_EXT_color_buffer_half_float, GL_EXT_texture_compression_rgtc, GL_OES_mapbuffer, GL_ANGLE_client_arrays, GL_EXT_clip_cull_distance, GL_EXT_map_buffer_range, GL_NV_shader_noperspective_interpolation, GL_EXT_base_instance, GL_ANGLE_instanced_arrays, GL_ANGLE_provoking_vertex, GL_ANGLE_renderability_validation, GL_EXT_frag_depth, GL_OES_compressed_ETC2_punchthroughA_RGBA8_texture, GL_EXT_render_snorm, GL_NV_pack_subimage, GL_OES_draw_buffers_indexed, GL_EXT_discard_framebuffer, , GL_OES_compressed_EAC_R11_signed_texture, GL_ANGLE_base_vertex_base_instance_shader_builtin, GL_OES_texture_float, GL_EXT_robustness, GL_OES_draw_elements_base_vertex, GL_OES_compressed_ETC2_sRGB8_alpha8_texture, GL_ANGLE_lossy_etc_decode, GL_EXT_texture_compression_bptc, GL_OES_packed_depth_stencil, GL_EXT_texture_format_BGRA8888, GL_EXT_color_buffer_float, GL_OES_depth24, GL_APPLE_clip_distance, GL_OES_texture_half_float, GL_EXT_draw_buffers, GL_EXT_shader_texture_lod, GL_NV_pixel_buffer_object, GL_EXT_blend_func_extended, GL_OES_EGL_image, GL_ANGLE_framebuffer_blit, GL_EXT_blend_minmax, GL_EXT_texture_type_2_10_10_10_REV, GL_OES_compressed_ETC2_punchthroughA_sRGB8_alpha_texture, GL_EXT_conservative_depth, GL_OES_texture_border_clamp, GL_OVR_multiview, GL_EXT_float_blend, GL_OES_texture_float_linear, GL_CHROMIUM_lose_context, GL_ANGLE_depth_texture, GL_EXT_texture_compression_s3tc_srgb, GL_ANGLE_pack_reverse_row_order, GL_EXT_debug_label, GL_EXT_texture_norm16, GL_ANGLE_memory_size, GL_ANGLE_multi_draw, GL_EXT_texture_border_clamp, GL_EXT_texture_mirror_clamp_to_edge, GL_ANGLE_texture_usage, GL_KHR_parallel_shader_compile, GL_OES_get_program_binary, GL_OES_EGL_image_external, GL_OES_element_index_uint, GL_EXT_disjoint_timer_query, GL_ANGLE_texture_compression_dxt5, GL_ANGLE_polygon_mode, GL_AMD_performance_monitor, GL_CHROMIUM_bind_uniform_location, GL_EXT_polygon_offset_clamp, GL_CHROMIUM_copy_texture, GL_OES_texture_npot
+[2026.01.11 13:27:17] EGL Extensions: EGL_EXT_create_context_robustness, EGL_ANGLE_d3d_share_handle_client_buffer, EGL_ANGLE_d3d_texture_client_buffer, EGL_ANGLE_surface_d3d_texture_2d_share_handle, EGL_ANGLE_query_surface_pointer, EGL_ANGLE_window_fixed_size, EGL_ANGLE_keyed_mutex, EGL_ANGLE_surface_orientation, EGL_ANGLE_direct_composition, EGL_ANGLE_windows_ui_composition, EGL_NV_post_sub_buffer, EGL_KHR_create_context, EGL_KHR_image, EGL_KHR_image_base, EGL_KHR_gl_texture_2D_image, EGL_KHR_gl_texture_cubemap_image, EGL_KHR_gl_renderbuffer_image, EGL_KHR_get_all_proc_addresses, EGL_KHR_stream, EGL_KHR_stream_consumer_gltexture, EGL_NV_stream_consumer_gltexture_yuv, EGL_ANGLE_stream_producer_d3d_texture, EGL_ANGLE_create_context_webgl_compatibility, EGL_CHROMIUM_create_context_bind_generates_resource, EGL_CHROMIUM_sync_control, EGL_EXT_pixel_format_float, EGL_KHR_surfaceless_context, EGL_ANGLE_display_texture_share_group, EGL_ANGLE_display_semaphore_share_group, EGL_ANGLE_create_context_client_arrays, EGL_ANGLE_program_cache_control, EGL_ANGLE_robust_resource_initialization, EGL_ANGLE_create_context_extensions_enabled, EGL_ANDROID_blob_cache, EGL_ANDROID_recordable, EGL_ANGLE_image_d3d11_texture, EGL_ANGLE_create_context_backwards_compatible, EGL_KHR_no_config_context, EGL_KHR_create_context_no_error, EGL_KHR_reusable_sync, 
+[2026.01.11 13:27:17] OpenGL: QOpenGLContext created, version: 3.3.
+[2026.01.11 13:27:17] OpenGL: [TRUE] (Window)
+[2026.01.11 13:27:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:28:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768109296",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:28:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:29:15] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768109355",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:29:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:30:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768109416",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:30:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:31:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768109476",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:31:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:32:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768109536",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:32:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:33:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768109596",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:33:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:34:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768109656",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:34:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:35:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768109716",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:35:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:36:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768109776",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:36:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:37:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768109836",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:37:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:38:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768109896",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:38:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:39:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768109956",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:39:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:40:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110016",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:40:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:41:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110076",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:41:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:42:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110136",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:42:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:43:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110196",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:43:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:44:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110256",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:44:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:45:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110316",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:45:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:46:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110376",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:46:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:47:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110436",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:47:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:48:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110496",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:48:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:49:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110556",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:49:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:50:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110616",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:50:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:51:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110676",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:51:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:52:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110736",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:52:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:53:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110796",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:53:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:54:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110856",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:54:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:55:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110916",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:55:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:56:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768110976",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:56:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:57:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111036",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:57:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:58:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111096",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:58:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 13:59:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111156",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 13:59:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:00:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111216",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:00:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:01:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111276",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:01:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:02:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111336",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:02:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:03:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111396",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:03:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:04:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111456",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:04:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:05:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111516",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:05:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:06:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111576",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:06:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:07:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111636",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:07:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:08:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111696",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:08:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:09:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111756",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:09:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:10:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111816",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:10:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:11:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111876",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:11:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:12:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111936",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:12:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:13:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768111996",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:13:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:14:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112056",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:14:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:15:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112116",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:15:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:16:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112176",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:16:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:17:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112236",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:17:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:18:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112296",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:18:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:19:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112356",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:19:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:20:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112416",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:20:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:21:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112476",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:21:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:22:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112536",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:22:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:23:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112596",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:23:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:24:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112656",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:24:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:25:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112716",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:25:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:26:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112776",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:26:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:27:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112836",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:27:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:28:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112896",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:28:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:29:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768112956",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:29:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:30:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113016",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:30:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:31:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113076",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:31:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:32:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113136",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:32:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:33:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113196",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:33:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:34:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113256",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:34:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:35:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113316",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:35:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:36:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113377",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:36:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:37:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113436",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:37:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:38:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113496",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:38:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:39:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113557",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:39:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:40:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113616",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:40:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:41:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113676",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:41:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:42:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113737",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:42:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:43:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113797",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:43:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:44:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113857",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:44:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:45:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113917",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:45:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:46:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768113976",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:46:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:47:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114037",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:47:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:48:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114097",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:48:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:49:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114157",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:49:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:50:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114217",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:50:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:51:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114277",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:51:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:52:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114337",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:52:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:53:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114397",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:53:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:54:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114457",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:54:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:55:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114517",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:55:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:56:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114577",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:56:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:57:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114637",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:57:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:58:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114697",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:58:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 14:59:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114757",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 14:59:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:00:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114817",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:00:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:01:16] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114876",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:01:16] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:02:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114937",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:02:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:03:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768114997",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:03:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:04:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768115057",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:04:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:05:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768115117",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:05:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:06:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768115177",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:06:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:07:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768115237",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:07:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:08:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768115297",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:08:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:09:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768115357",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:09:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:10:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768115417",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:10:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:11:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768115477",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:11:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:12:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768115537",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:12:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:13:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768115597",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:13:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:14:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768115657",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:14:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:15:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768115717",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:15:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive
+[2026.01.11 15:16:17] HEARTBEAT_DEBUG: Sending heartbeat to http://localhost:8101/api/heartbeat: {
+    "dataStatus": "Active",
+    "heartbeatInterval": 60,
+    "hostName": "DESKTOP-6JNUBJN",
+    "ip": "192.168.32.128",
+    "isMonitorOn": 0,
+    "macAddress": "00:0C:29:52:C8:4C",
+    "os": "Windows 10 Version 2009",
+    "status": "online",
+    "timestamp": "1768115777",
+    "uuid": "1f9317c2-5ff4-74c0-1e48-d37a50c98e7e"
+}
+
+[2026.01.11 15:16:17] HEARTBEAT_DEBUG: Heartbeat success. Response: alive

@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 
 @Service
-@Slf4j
+// @Slf4j
 public class OcrServiceImpl implements OcrService {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OcrServiceImpl.class);
 
     @Override
     public String doOcr(File imageFile) {

@@ -50,8 +50,10 @@ import static com.yupi.springbootinit.service.impl.UserServiceImpl.SALT;
  */
 @RestController
 @RequestMapping("/user")
-@Slf4j
+// @Slf4j
 public class UserController {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(UserController.class);
 
     @Resource
     private UserService userService;

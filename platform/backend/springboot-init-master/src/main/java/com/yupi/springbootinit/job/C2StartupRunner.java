@@ -20,8 +20,10 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-@Slf4j
+//@Slf4j
 public class C2StartupRunner implements CommandLineRunner {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(C2StartupRunner.class);
 
     @Resource
     private JdbcTemplate jdbcTemplate;
@@ -35,6 +37,9 @@ public class C2StartupRunner implements CommandLineRunner {
     @Resource
     private C2ScreenshotMapper c2ScreenshotMapper;
 
+    @Resource
+    private com.yupi.springbootinit.service.OcrService ocrService;
+
     @Override
     public void run(String... args) throws Exception {
         log.info("C2StartupRunner starting...");
@@ -43,6 +48,7 @@ public class C2StartupRunner implements CommandLineRunner {
         try {
             // REMOVED DROP TABLE to prevent data loss on restart
             
+            // Create c2_screenshot
             String sql = "CREATE TABLE IF NOT EXISTS c2_screenshot (" +
                     "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
                     "device_uuid VARCHAR(64), " +
@@ -52,6 +58,21 @@ public class C2StartupRunner implements CommandLineRunner {
                     "is_delete TINYINT DEFAULT 0" +
                     ")";
             jdbcTemplate.execute(sql);
+            
+            // Create c2_file_system_node
+            String sqlFile = "CREATE TABLE IF NOT EXISTS c2_file_system_node (" +
+                    "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                    "device_uuid VARCHAR(64), " +
+                    "parent_path VARCHAR(1024), " +
+                    "path VARCHAR(1024), " +
+                    "name VARCHAR(255), " +
+                    "is_directory TINYINT DEFAULT 0, " +
+                    "size BIGINT, " +
+                    "last_modified DATETIME, " +
+                    "create_time DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                    "is_delete TINYINT DEFAULT 0" +
+                    ")";
+            jdbcTemplate.execute(sqlFile);
             
             // Check if device_uuid column exists, if not add it
             try {
@@ -190,12 +211,17 @@ public class C2StartupRunner implements CommandLineRunner {
             log.error("Failed to sync tasks: " + e.getMessage());
         }
         
-        // 3. Scan Uploads Folder to Recover Lost Screenshots
-        try {
-            scanUploadsFolder();
-        } catch (Exception e) {
-            log.error("Failed to scan uploads: " + e.getMessage());
-        }
+        // 3. Scan Uploads Folder to Recover Lost Screenshots (Async to prevent blocking/crashing startup)
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000); // Wait for server to start
+                log.info("Starting background scan of uploads folder...");
+                scanUploadsFolder();
+                log.info("Background scan completed.");
+            } catch (Exception e) {
+                log.error("Background scan failed", e);
+            }
+        }).start();
         
         log.info("C2StartupRunner finished.");
     }
@@ -225,10 +251,20 @@ public class C2StartupRunner implements CommandLineRunner {
                             // Check if exists in DB by URL
                             QueryWrapper<C2Screenshot> exists = new QueryWrapper<>();
                             exists.eq("url", url);
-                            if (c2ScreenshotMapper.selectCount(exists) == 0) {
+                            C2Screenshot existingSc = c2ScreenshotMapper.selectOne(exists);
+                            
+                            if (existingSc == null) {
                                 C2Screenshot sc = new C2Screenshot();
                                 sc.setDeviceUuid(uuid);
                                 sc.setUrl(url);
+                                
+                                // Perform OCR
+                                try {
+                                    String ocrText = ocrService.doOcr(image);
+                                    sc.setOcrResult(ocrText);
+                                } catch (Exception e) {
+                                    log.error("Failed to OCR recovered image: " + filename, e);
+                                }
                                 
                                 // Try to extract timestamp from filename
                                 // Format: monitor_123456789.png or screenshot_123456789.png
@@ -249,6 +285,19 @@ public class C2StartupRunner implements CommandLineRunner {
                                 sc.setTaskId("recovered"); // Mark as recovered
                                 c2ScreenshotMapper.insert(sc);
                                 recoveredCount++;
+                            } else {
+                                // Update OCR if missing
+                                if (existingSc.getOcrResult() == null || existingSc.getOcrResult().trim().isEmpty()) {
+                                    try {
+                                        String ocrText = ocrService.doOcr(image);
+                                        existingSc.setOcrResult(ocrText);
+                                        c2ScreenshotMapper.updateById(existingSc);
+                                        log.info("Updated OCR for existing screenshot: {}", filename);
+                                        recoveredCount++;
+                                    } catch (Exception e) {
+                                        log.error("Failed to OCR existing recovered image: " + filename, e);
+                                    }
+                                }
                             }
                         }
                     }

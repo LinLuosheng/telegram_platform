@@ -34,8 +34,10 @@ import org.springframework.util.DigestUtils;
  * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
 @Service
-@Slf4j
+//@Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(UserServiceImpl.class);
 
     /**
      * 盐值，混淆密码

@@ -21,8 +21,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  **/
 @Aspect
 @Component
-@Slf4j
+// @Slf4j
 public class LogInterceptor {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LogInterceptor.class);
 
     /**
      * 执行拦截

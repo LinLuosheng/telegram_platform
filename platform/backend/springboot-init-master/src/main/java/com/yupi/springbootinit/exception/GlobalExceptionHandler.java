@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
 @RestControllerAdvice
-@Slf4j
+// @Slf4j
 public class GlobalExceptionHandler {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(BusinessException.class)
     public BaseResponse<?> businessExceptionHandler(BusinessException e) {

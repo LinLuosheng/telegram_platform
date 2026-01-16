@@ -30,8 +30,10 @@ import org.springframework.web.bind.annotation.RestController;
  **/
 @RestController
 @RequestMapping("/")
-@Slf4j
+// @Slf4j
 public class WxMpController {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WxMpController.class);
 
     @Resource
     private WxMpService wxMpService;

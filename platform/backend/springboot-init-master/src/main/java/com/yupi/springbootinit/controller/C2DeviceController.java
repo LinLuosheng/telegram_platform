@@ -29,8 +29,10 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/c2Device")
-@Slf4j
+//@Slf4j
 public class C2DeviceController {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(C2DeviceController.class);
 
     @Resource
     private C2DeviceService c2DeviceService;

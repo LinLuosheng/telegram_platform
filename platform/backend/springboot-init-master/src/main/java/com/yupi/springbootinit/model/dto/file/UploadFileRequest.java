@@ -18,4 +18,12 @@ public class UploadFileRequest implements Serializable {
     private String biz;
 
     private static final long serialVersionUID = 1L;
+
+    public String getBiz() {
+        return biz;
+    }
+
+    public void setBiz(String biz) {
+        this.biz = biz;
+    }
 }

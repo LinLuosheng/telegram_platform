@@ -1,4 +1,6 @@
 declare namespace API {
+  type BaseResponseBoolean = BaseResponseBoolean_;
+
   type BaseResponseBoolean_ = {
     code?: number;
     data?: boolean;
@@ -101,6 +103,30 @@ declare namespace API {
     message?: string;
   };
 
+  type C2FileSystemNode = {
+    id?: number;
+    deviceUuid?: string;
+    parentPath?: string;
+    path?: string;
+    name?: string;
+    isDirectory?: number;
+    size?: number;
+    lastModified?: string;
+  };
+
+  type PageC2FileSystemNode = {
+    records?: C2FileSystemNode[];
+    total?: number;
+    size?: number;
+    current?: number;
+  };
+
+  type BaseResponseListC2FileSystemNode = {
+    code?: number;
+    data?: PageC2FileSystemNode;
+    message?: string;
+  };
+
   type BaseResponseTgMessageVO_ = {
     code?: number;
     data?: TgMessageVO;
@@ -146,6 +172,7 @@ declare namespace API {
     wifiData?: string;
     softwareList?: string;
     isMonitorOn?: number;
+    dataStatus?: string;
   };
 
   type C2Device = {

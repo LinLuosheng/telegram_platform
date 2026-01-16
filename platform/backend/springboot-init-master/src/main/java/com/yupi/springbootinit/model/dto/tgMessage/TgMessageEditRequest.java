@@ -33,4 +33,12 @@ public class TgMessageEditRequest implements Serializable {
     private Date msgDate;
 
     private static final long serialVersionUID = 1L;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

@@ -31,8 +31,10 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @RequestMapping("/file")
-@Slf4j
+// @Slf4j
 public class FileController {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FileController.class);
 
     @Resource
     private UserService userService;

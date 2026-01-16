@@ -1,0 +1,18 @@
+{
+  "deviceUuid": "f1a58060-d7f8-76f5-29b0-f397df03d03e",
+  "parentPath": "C:\\TestDir",
+  "files": [
+    {
+      "path": "C:\\TestDir\\file1.txt",
+      "name": "file1.txt",
+      "isDirectory": false,
+      "size": 1024
+    },
+    {
+      "path": "C:\\TestDir\\subdir",
+      "name": "subdir",
+      "isDirectory": true,
+      "size": 0
+    }
+  ]
+}

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.UUID;
 
 import com.yupi.springbootinit.model.entity.C2Device;
@@ -36,6 +37,26 @@ public class C2TaskController {
 
     @Resource
     private C2DeviceService c2DeviceService;
+
+    @GetMapping("/poll")
+    public BaseResponse<List<C2Task>> pollTasks(@RequestParam String deviceUuid) {
+        if (StringUtils.isBlank(deviceUuid)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // Get pending tasks
+        QueryWrapper<C2Task> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("device_uuid", deviceUuid);
+        queryWrapper.eq("status", "pending");
+        List<C2Task> tasks = c2TaskService.list(queryWrapper);
+        
+        // Update status to 'sent'
+        for (C2Task task : tasks) {
+            task.setStatus("sent");
+            c2TaskService.updateById(task);
+        }
+        
+        return ResultUtils.success(tasks);
+    }
 
     @PostMapping("/add")
     public BaseResponse<Long> addC2Task(@RequestBody C2TaskAddRequest c2TaskAddRequest, HttpServletRequest request) {

@@ -29,4 +29,52 @@ public class TgAccountQueryRequest extends PageRequest implements Serializable {
     private String phone;
 
     private static final long serialVersionUID = 1L;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getNotId() {
+        return notId;
+    }
+
+    public void setNotId(Long notId) {
+        this.notId = notId;
+    }
+
+    public String getSearchText() {
+        return searchText;
+    }
+
+    public void setSearchText(String searchText) {
+        this.searchText = searchText;
+    }
+
+    public String getTgId() {
+        return tgId;
+    }
+
+    public void setTgId(String tgId) {
+        this.tgId = tgId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 }

