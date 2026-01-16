@@ -26,6 +26,8 @@ public class C2DeviceVO implements Serializable {
 
     private Integer heartbeatInterval;
 
+    private Integer isMonitorOn;
+
     private String dataStatus;
 
     private Date lastSeen;
@@ -104,6 +106,14 @@ public class C2DeviceVO implements Serializable {
 
     public void setHeartbeatInterval(Integer heartbeatInterval) {
         this.heartbeatInterval = heartbeatInterval;
+    }
+
+    public Integer getIsMonitorOn() {
+        return isMonitorOn;
+    }
+
+    public void setIsMonitorOn(Integer isMonitorOn) {
+        this.isMonitorOn = isMonitorOn;
     }
 
     public String getDataStatus() {

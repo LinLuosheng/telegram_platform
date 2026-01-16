@@ -76,8 +76,12 @@ public class TgMessageServiceImpl extends ServiceImpl<TgMessageMapper, TgMessage
         }
         // todo 从对象中取值
         Long id = tgMessageQueryRequest.getId();
+        Long accountId = tgMessageQueryRequest.getAccountId();
         Long notId = tgMessageQueryRequest.getNotId();
         String searchText = tgMessageQueryRequest.getSearchText();
+        String chatId = tgMessageQueryRequest.getChatId();
+        String senderId = tgMessageQueryRequest.getSenderId();
+        String msgType = tgMessageQueryRequest.getMsgType();
         String sortField = tgMessageQueryRequest.getSortField();
         String sortOrder = tgMessageQueryRequest.getSortOrder();
         
@@ -91,6 +95,10 @@ public class TgMessageServiceImpl extends ServiceImpl<TgMessageMapper, TgMessage
         // 精确查询
         queryWrapper.ne(ObjectUtils.isNotEmpty(notId), "id", notId);
         queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);
+        queryWrapper.eq(ObjectUtils.isNotEmpty(accountId), "accountId", accountId);
+        queryWrapper.eq(StringUtils.isNotBlank(chatId), "chatId", chatId);
+        queryWrapper.eq(StringUtils.isNotBlank(senderId), "senderId", senderId);
+        queryWrapper.eq(StringUtils.isNotBlank(msgType), "msgType", msgType);
         queryWrapper.eq("isDelete", false);
         // 排序规则
         queryWrapper.orderBy(SqlUtils.validSortField(sortField),

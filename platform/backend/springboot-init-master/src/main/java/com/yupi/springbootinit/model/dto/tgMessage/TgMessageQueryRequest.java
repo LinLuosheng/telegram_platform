@@ -18,6 +18,8 @@ public class TgMessageQueryRequest extends PageRequest implements Serializable {
 
     private Long id;
 
+    private Long accountId;
+
     private Long notId;
 
     private String searchText;
@@ -36,6 +38,14 @@ public class TgMessageQueryRequest extends PageRequest implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 
     public Long getNotId() {

