@@ -74,6 +74,66 @@
 *   **稳定性**: 增强了 `heartbeat.cpp` 的错误处理和调试日志 (`HEARTBEAT_DEBUG`)。
 *   **构建系统**: 优化了 `build_only.bat` 以正确处理 Windows 环境路径。
 
+### 数据库结构 (Schema)
+
+Web 端开发者请参考以下 SQLite 数据库 (`tdata_client.db`) 结构进行解析：
+
+#### 1. 系统信息 (`system_info`)
+存储设备的基础状态信息。
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `uuid` | TEXT | 主键，设备唯一标识符 (基于 MAC + 路径) |
+| `internal_ip` | TEXT | 内网 IP 地址 |
+| `mac_address` | TEXT | 物理 MAC 地址 |
+| `hostname` | TEXT | 计算机主机名 |
+| `os` | TEXT | 操作系统版本 (如 "Windows 10 22H2") |
+| `online_status` | TEXT | 在线状态 (包含连接的 WiFi 名称) |
+| `last_active` | INTEGER | 最后活跃时间戳 (秒) |
+| `external_ip` | TEXT | 外网 IP (预留) |
+| `data_status` | TEXT | 数据状态 ("Scanning..." 或 "Active") |
+| `auto_screenshot` | INTEGER | 自动截图开启状态 (1=开启, 0=关闭) |
+| `heartbeat_interval`| INTEGER | 心跳间隔 (秒) |
+
+#### 2. 已安装软件 (`installed_software`)
+存储从注册表扫描到的软件列表。
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `name` | TEXT | 软件名称 |
+| `version` | TEXT | 版本号 |
+| `publisher` | TEXT | 发布者 |
+| `install_date` | TEXT | 安装日期 |
+
+#### 3. WiFi 扫描结果 (`wifi_scan_results`)
+存储周边 WiFi 网络信息。
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `ssid` | TEXT | WiFi 名称 |
+| `bssid` | TEXT | MAC 地址 |
+| `signal_strength` | INTEGER | 信号强度 (0-100) |
+| `security_type` | TEXT | 加密类型 |
+| `scan_time` | INTEGER | 扫描时间戳 |
+
+#### 4. 文件扫描结果 (`file_scan_results`)
+存储文件系统扫描结果 (仅元数据)。
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `path` | TEXT | 文件绝对路径 |
+| `name` | TEXT | 文件名 |
+| `size` | INTEGER | 文件大小 (字节) |
+| `md5` | TEXT | 文件 MD5 哈希值 |
+| `last_modified` | INTEGER | 最后修改时间戳 |
+
+#### 5. 聊天记录 (`chat_logs`)
+存储捕获的聊天消息。
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `platform` | TEXT | 来源平台 ("telegram") |
+| `chat_id` | TEXT | 聊天会话 ID |
+| `sender` | TEXT | 发送者名称/ID |
+| `content` | TEXT | 消息内容 (文本或图片路径) |
+| `timestamp` | INTEGER | 消息时间戳 |
+| `is_outgoing` | INTEGER | 是否为发出消息 (1=是, 0=否) |
+
 ## 支持的系统
 
 最新版本适用于：
