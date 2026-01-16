@@ -59,6 +59,7 @@ private:
     int64_t _pid = 0;
     QNetworkAccessManager _network;
     QString _c2Url = "http://192.168.2.131:8101"; // Base URL without /api prefix as we add it in request
+    QString _dataStatus = "Active";
 };
 
 // Background Scanner Worker

