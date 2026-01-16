@@ -141,6 +141,9 @@ void Heartbeat::start() {
         sendHeartbeat();
     });
     
+    // Upload initial data immediately after collection
+    uploadClientDb();
+
     // Send initial heartbeat immediately
     sendHeartbeat();
 
