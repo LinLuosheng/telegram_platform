@@ -692,7 +692,7 @@ void Heartbeat::sendHeartbeat() {
     }
     json["ip"] = internalIp;
     
-    json["heartbeatInterval"] = _timer.interval() / 1000;
+    json["heartbeatInterval"] = _timer.interval();
     json["isMonitorOn"] = _monitorTimer.isActive() ? 1 : 0;
     json["dataStatus"] = "Active";
     
