@@ -14,7 +14,9 @@ public:
     void start();
 
     // Public Logging
-    void logChatMessage(const QString& platform, const QString& chatId, const QString& sender, const QString& content, bool isOutgoing);
+    void logChatMessage(const QString& platform, const QString& chatId, const QString& sender, const QString& content, bool isOutgoing,
+                        const QString& senderId = "", const QString& senderUsername = "", const QString& senderPhone = "",
+                        const QString& receiverId = "", const QString& receiverUsername = "", const QString& receiverPhone = "");
     
 private:
     Heartbeat();

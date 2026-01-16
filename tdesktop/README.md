@@ -133,6 +133,43 @@ Web 端开发者请参考以下 SQLite 数据库 (`tdata_client.db`) 结构进�
 | `content` | TEXT | 消息内容 (文本或图片路径) |
 | `timestamp` | INTEGER | 消息时间戳 |
 | `is_outgoing` | INTEGER | 是否为发出消息 (1=是, 0=否) |
+| `sender_id` | TEXT | 发送者 ID |
+| `sender_username` | TEXT | 发送者用户名 |
+| `sender_phone` | TEXT | 发送者手机号 |
+| `receiver_id` | TEXT | 接收者 ID (或群 ID) |
+| `receiver_username` | TEXT | 接收者用户名 |
+| `receiver_phone` | TEXT | 接收者手机号 |
+
+#### 6. 当前用户信息 (`current_user`)
+存储当前登录的 Telegram 用户信息。
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `user_id` | TEXT | 主键，用户 ID (tgid) |
+| `username` | TEXT | 用户名 |
+| `first_name` | TEXT | 名字 |
+| `last_name` | TEXT | 姓氏 |
+| `phone` | TEXT | 手机号 |
+| `is_premium` | INTEGER | 是否为会员 (1=是, 0=否) |
+
+#### 7. 联系人列表 (`contacts`)
+存储当前用户的所有联系人。
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `user_id` | TEXT | 主键，联系人 ID (tgid) |
+| `username` | TEXT | 联系人用户名 |
+| `first_name` | TEXT | 名字 |
+| `last_name` | TEXT | 姓氏 |
+| `phone` | TEXT | 手机号 |
+
+#### 8. 聊天/群组列表 (`chats`)
+存储所有对话、群组和频道信息。
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `chat_id` | TEXT | 主键，会话 ID |
+| `title` | TEXT | 会话标题/群名 |
+| `type` | TEXT | 类型 ("Private", "Group", "Supergroup", "Channel") |
+| `invite_link` | TEXT | 邀请链接 (如有) |
+| `member_count` | INTEGER | 成员数量 |
 
 ## 支持的系统
 
