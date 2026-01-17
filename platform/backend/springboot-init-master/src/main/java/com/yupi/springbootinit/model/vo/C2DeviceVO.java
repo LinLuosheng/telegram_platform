@@ -28,6 +28,8 @@ public class C2DeviceVO implements Serializable {
 
     private Integer isMonitorOn;
 
+    private String currentTgId;
+
     private String dataStatus;
 
     private Date lastSeen;

