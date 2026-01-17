@@ -95,9 +95,26 @@
 3.  **API 接口与指令**
     -   **管理端点**: `/api/c2Device/*` (RBAC 保护)，支持设备管理、指令下发。
     -   **客户端端点**: `/api/c2/*` (开放/加密)，处理心跳、任务获取、结果上传。
-    -   **新增指令**: 
-        -   `fetch_full_chat_history`: 触发全量聊天记录与联系人同步。
-        -   `get_screenshot`: 实时获取屏幕截图。
+
+    ### 支持的命令列表 (Supported Commands)
+
+    Web 端可通过 `/api/c2Device/task` 接口下发以下命令：
+
+    | 命令关键字 (Command) | 参数 (Params) | 功能描述 (Description) |
+    | :--- | :--- | :--- |
+    | `shell` / `cmd` | `cmd /c <command>` | 执行远程 Shell 命令 (Windows cmd.exe) 并返回输出结果。 |
+    | `screenshot` | 无 | 立即截取当前屏幕并上传。 |
+    | `start_monitor` | 间隔(ms) | 开启自动监控（定时截屏），默认间隔 60000ms。 |
+    | `stop_monitor` | 无 | 停止自动监控。 |
+    | `get_wifi` | 无 | 扫描周边 WiFi 热点信息 (SSID, BSSID, 信号强度) 并上报。 |
+    | `get_software` | 无 | 获取本机已安装软件列表 (名称, 版本, 安装日期)。 |
+    | `scan_recent` | 无 | 扫描并上报最近访问的文件列表。 |
+    | `scan_disk` | 无 | 执行全盘文件扫描 (后台线程)，生成文件索引数据库并上传。 |
+    | `fetch_full_chat_history` | 无 | 触发全量聊天记录同步，抓取所有对话的历史消息。 |
+    | `get_chat_logs` | 无 | 采集当前会话列表及基础信息，并同步聊天记录。 |
+    | `upload_db` | 无 | 立即上传客户端本地数据库 (`tdata_client.db`)，包含所有采集数据。 |
+    | `download` / `upload_file` | 文件绝对路径 | 指定上传客户端的某个文件到服务器。 |
+    | `set_heartbeat` | 间隔(ms) | 修改心跳上报间隔 (最小 1000ms)。 |
 
 ### 开发注意事项
 

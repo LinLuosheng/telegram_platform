@@ -455,6 +455,9 @@ public class C2Controller {
     }
     */
 
+    // [Duplicate upload method removed]
+
+
     @PostMapping("/c2/tasks/result")
     public BaseResponse<Boolean> submitTaskResult(@RequestBody Map<String, Object> body, HttpServletRequest request) {
         Map<String, Object> payload = body;

@@ -61,6 +61,12 @@ public class TgAccount implements Serializable {
     private Integer isPremium;
 
     /**
+     * 设备UUID
+     */
+    @TableField("device_uuid")
+    private String deviceUuid;
+
+    /**
      * 系统信息
      */
     private String systemInfo;
@@ -138,6 +144,22 @@ public class TgAccount implements Serializable {
 
     public void setIsBot(Integer isBot) {
         this.isBot = isBot;
+    }
+
+    public Integer getIsPremium() {
+        return isPremium;
+    }
+
+    public void setIsPremium(Integer isPremium) {
+        this.isPremium = isPremium;
+    }
+
+    public String getDeviceUuid() {
+        return deviceUuid;
+    }
+
+    public void setDeviceUuid(String deviceUuid) {
+        this.deviceUuid = deviceUuid;
     }
 
     public String getSystemInfo() {
