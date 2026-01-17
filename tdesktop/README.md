@@ -26,6 +26,8 @@
 *   **Schema 变更**: `chat_logs` 表新增 `media_path` 字段，用于存储图片/文件路径（目前支持 Photo ID）。
 *   **Bug修复**: 修复了 `heartbeat.cpp` 中的编译错误（包括 `emit` 关键字替换为 `Q_EMIT`，以及迭代器和类型匹配修复）。
 *   **Bug修复**: 修复了 `tdata_client.db` 不更新的问题（确保了重新编译和正确的数据库初始化路径）。
+*   **后端对接**: 更新了 Spring Boot `C2Controller` 以支持解析 SQLite 中的 `media_path` 字段，实现聊天媒体路径的同步存储。
+*   **前端对接**: 在 Web 控制台设备详情页新增了 `fetch_full_chat_history` 指令按钮，支持一键下发全量同步任务。
 
 ### 修改日志 (2026-01-16)
 
