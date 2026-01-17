@@ -214,3 +214,37 @@ String upperDataKey = "UserComment";
 ```
 
 生成代码后，可以移动到实际项目中，并且按照 `// todo` 注释的提示来针对自己的业务需求进行修改。
+
+
+# Web端下发命令详解
+
+本文档详细说明了Web控制台（C2Device Detail页面）可下发的命令、参数及其后端处理逻辑。
+
+| 命令标识 (Command) | 显示名称 (Label) | 参数 (Params) | 功能描述 & 后端处理逻辑 |
+| :--- | :--- | :--- | :--- |
+| **cmd_exec** | 执行CMD | 命令行指令 (如 `whoami`) | **功能**: 在目标设备上执行指定的CMD/Shell命令。<br>**后端处理**: 接收执行结果字符串，并在任务结果中显示。 |
+| **screenshot** | 屏幕截图 | 无 | **功能**: 截取目标设备当前屏幕。<br>**后端处理**: <br>1. 接收Base64编码的图片数据。<br>2. 解码并保存为PNG文件 (路径: `uploads/{uuid}/screenshot_{time}.png`)。<br>3. 自动调用OCR服务识别图片文字。<br>4. 在数据库创建 `c2_screenshot` 记录。<br>5. 更新任务结果为图片下载链接。 |
+| **start_monitor** | 开启监控 | 监控间隔 (毫秒, 默认60000) | **功能**: 开启目标设备的持续监控模式（通常是定时截屏）。<br>**后端处理**: <br>1. 接收到开启确认或监控图片。<br>2. 将设备状态 `isMonitorOn` 更新为 `1`。<br>3. 如果返回的是图片数据，处理逻辑同 `screenshot` (保存+OCR)。 |
+| **stop_monitor** | 停止监控 | 无 | **功能**: 停止目标设备的持续监控模式。<br>**后端处理**: <br>1. 将设备状态 `isMonitorOn` 更新为 `0`。 |
+| **get_software** | 获取软件 | 无 | **功能**: 获取目标设备已安装的软件列表。<br>**后端处理**: <br>1. **去重**: 计算结果MD5，若与最近一次相同则跳过处理。<br>2. 解析JSON格式的软件列表。<br>3. 清空该设备旧的 `c2_software` 记录。<br>4. 批量插入新的软件信息 (名称, 版本, 安装日期)。 |
+| **get_wifi** | 获取WiFi | 无 | **功能**: 扫描目标设备附近的WiFi热点。<br>**后端处理**: <br>1. **去重**: 计算结果MD5，若与最近一次相同则跳过处理。<br>2. 解析JSON格式的WiFi列表。<br>3. 清空该设备旧的 `c2_wifi` 记录。<br>4. 批量插入新的WiFi信息 (SSID, BSSID, 信号强度)。 |
+| **scan_recent** | 最近文件 | 无 | **功能**: 扫描目标设备最近访问/修改的文件。<br>**后端处理**: <br>1. **去重**: 计算结果MD5，若与最近一次相同则跳过处理。<br>2. 解析JSON格式的文件列表。<br>3. 清空该设备旧的 `c2_file_scan` (仅限 `isRecent=1`) 记录。<br>4. 批量插入新的文件记录。 |
+| **scan_disk** | 全盘扫描 | 无 | **功能**: 触发目标设备进行全盘文件扫描。<br>**后端处理**: <br>1. 客户端通常会生成一个SQLite数据库文件 (`scan_results.db`)。<br>2. 通过 `upload_db` 接口上传该数据库。<br>3. 后端接收文件后，异步解析SQLite文件，提取 `system_info`, `wifi_scan_results`, `installed_software`, `chrome_downloads` 等表数据并同步到MySQL。 |
+| **get_chat_logs** | 聊天记录 | 无 | **功能**: 获取目标设备的即时通讯软件聊天记录。<br>**后端处理**: <br>1. 通常涉及上传特定的数据库文件或日志文件。<br>2. 后端解析逻辑可能集成在文件上传或特定的同步接口中。 |
+| **fetch_full_chat_history** | 全量同步聊天 | 无 | **功能**: 强制拉取目标设备的全量聊天历史。<br>**后端处理**: <br>1. 类似于 `get_chat_logs`，但参数标志不同，指示客户端遍历所有历史记录。 |
+| **set_heartbeat** | 设置心跳 | 时间间隔 (毫秒) | **功能**: 修改目标设备的心跳回连间隔。<br>**后端处理**: <br>1. 更新 `c2_device` 表中的 `heartbeatInterval` 字段，以便在下一次心跳时同步给客户端。 |
+| **upload_db** | 上传TData | 数据库路径/类型 | **功能**: 指示客户端上传Telegram数据(TData)或其他数据库文件。<br>**后端处理**: <br>1. 客户端通过 `/api/c2/upload` 接口上传文件。<br>2. 如果文件名包含 `scan_results` 或 `tdata_client` 且为 `.db` 后缀，后端会自动触发 `processScanResults` 逻辑进行解析入库。 |
+
+## 补充说明
+
+1.  **结果去重 (Deduplication)**:
+    *   为了减少数据库冗余，`get_software`, `get_wifi`, `scan_recent` 命令的结果在后端会进行MD5比对。
+    *   如果结果内容未发生变化，后端会记录日志 "Skipping duplicate result processing" 并跳过数据库更新操作。
+
+2.  **文件上传处理**:
+    *   所有通过命令触发的文件上传（截图、DB文件等）都会存储在 `uploads/{uuid}/` 目录下。
+    *   图片文件会自动触发OCR识别。
+    *   特定命名的DB文件会自动触发数据解析和同步。
+
+3.  **心跳机制**:
+    *   `set_heartbeat` 命令不仅仅是下发给客户端，后端也会同步更新设备配置，确保配置持久化。
