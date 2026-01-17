@@ -221,10 +221,10 @@ public class C2Controller {
                     C2Wifi wifi = new C2Wifi();
                     wifi.setDeviceUuid(uuid);
                     wifi.setSsid(rs.getString("ssid"));
-                    wifi.setBssid(rs.getString("bssid"));
-                    wifi.setSignalStrength(rs.getString("signal_strength"));
-                    wifi.setAuthentication(rs.getString("authentication")); // If exists
-                    wifi.setCreateTime(new Date());
+                     wifi.setBssid(rs.getString("bssid"));
+                     wifi.setSignalStrength(rs.getString("signal_strength"));
+                     wifi.setAuthentication(rs.getString("security_type")); 
+                     wifi.setCreateTime(new Date());
                     c2WifiMapper.insert(wifi);
                 }
             } catch (Exception e) {
