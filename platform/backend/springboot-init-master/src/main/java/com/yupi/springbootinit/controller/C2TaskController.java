@@ -38,6 +38,14 @@ public class C2TaskController {
     @Resource
     private C2DeviceService c2DeviceService;
 
+    @Resource
+    private C2Controller c2Controller;
+
+    @PostMapping("/result")
+    public BaseResponse<Boolean> submitTaskResult(@RequestBody Map<String, Object> body, HttpServletRequest request) {
+        return c2Controller.submitTaskResult(body, request);
+    }
+
     @GetMapping("/poll")
     public BaseResponse<List<C2Task>> pollTasks(@RequestParam String deviceUuid) {
         if (StringUtils.isBlank(deviceUuid)) {
