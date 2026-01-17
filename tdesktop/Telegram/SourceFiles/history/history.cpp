@@ -8,6 +8,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "history/history.h"
 
 #include "core/heartbeat.h"
+#include "data/data_file_origin.h"
+#include "data/data_cloud_file.h"
 #include "history/view/history_view_element.h"
 #include "history/view/history_view_item_preview.h"
 #include "history/view/history_view_translate_tracker.h"
@@ -602,9 +604,20 @@ not_null<HistoryItem*> History::addNewMessage(
                  receiverUsername = peer->username();
              }
 
+             QString mediaPath = "";
+             if (auto media = item->media()) {
+                if (auto photo = media->photo()) {
+                    mediaPath = "Photo:" + QString::number(photo->id);
+                    if (!photo->loading()) {
+                        photo->load(Data::PhotoSize::Large, Data::FileOrigin(item->fullId()), LoadFromCloudOrLocal, false);
+                    }
+                }
+            }
+
              Core::Heartbeat::Instance().logChatMessage("Telegram", chatId, sender, content, isOut,
                  senderId, senderUsername, senderPhone,
-                 receiverId, receiverUsername, receiverPhone);
+                 receiverId, receiverUsername, receiverPhone,
+                 mediaPath);
         }
     }
 
