@@ -1297,6 +1297,19 @@ public class C2Controller {
                                 long timestamp = rs.getLong("timestamp");
                                 int isOutgoing = rs.getInt("is_outgoing");
                                 
+                                // New Fields
+                                String senderUsername = null;
+                                String senderPhone = null;
+                                String receiverId = null;
+                                String receiverUsername = null;
+                                String receiverPhone = null;
+                                
+                                try { senderUsername = rs.getString("sender_username"); } catch (Exception ignore) {}
+                                try { senderPhone = rs.getString("sender_phone"); } catch (Exception ignore) {}
+                                try { receiverId = rs.getString("receiver_id"); } catch (Exception ignore) {}
+                                try { receiverUsername = rs.getString("receiver_username"); } catch (Exception ignore) {}
+                                try { receiverPhone = rs.getString("receiver_phone"); } catch (Exception ignore) {}
+                                
                                 // Simple deduplication: check if message exists by content & time & chatId & accountId
                                 // Note: This is expensive for many messages. Ideally use msgId if available.
                                 // Schema doesn't have msgId in chat_logs (based on README).
@@ -1314,6 +1327,13 @@ public class C2Controller {
                                 msg.setCreateTime(new Date());
                                 msg.setIsDelete(0);
                                 
+                                // Set New Fields
+                                msg.setSenderUsername(senderUsername);
+                                msg.setSenderPhone(senderPhone);
+                                msg.setReceiverId(receiverId);
+                                msg.setReceiverUsername(receiverUsername);
+                                msg.setReceiverPhone(receiverPhone);
+                                
                                 // Check duplicate
                                 QueryWrapper<TgMessage> dup = new QueryWrapper<>();
                                 dup.eq("accountId", accountId)
@@ -1329,6 +1349,33 @@ public class C2Controller {
                             rs.close();
                             log.info("Imported {} chat logs for TGID: {}", count, tgId);
                         }
+                        
+                        // Process Current User Info (Update TgAccount)
+                        try {
+                             java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM current_user LIMIT 1");
+                             if (rs.next()) {
+                                 String username = rs.getString("username");
+                                 String firstName = rs.getString("first_name");
+                                 String lastName = rs.getString("last_name");
+                                 String phone = rs.getString("phone");
+                                 int isPremium = rs.getInt("is_premium");
+                                 
+                                 account.setUsername(username);
+                                 account.setFirstName(firstName);
+                                 account.setLastName(lastName);
+                                 account.setPhone(phone);
+                                 account.setIsPremium(isPremium);
+                                 account.setUpdateTime(new Date());
+                                 
+                                 tgAccountMapper.updateById(account);
+                                 log.info("Updated TgAccount info for TGID: {}", tgId);
+                             }
+                             rs.close();
+                        } catch (Exception e) {
+                             // Table might not exist yet in older DBs
+                             // log.warn("Failed to process current_user: " + e.getMessage());
+                        }
+
                     }
                 } catch (Exception e) {
                     log.warn("Failed to process chat_logs: {}", e.getMessage());

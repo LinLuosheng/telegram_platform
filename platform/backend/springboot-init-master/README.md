@@ -85,7 +85,8 @@
 
 2.  **数据采集 (Data Ingestion)**
     -   **Telegram 数据同步**: 自动接收并解析客户端上传的 SQLite 数据库。
-    -   **聊天记录 (`chat_logs`)**: 解析并存储 Telegram 聊天记录，支持去重与检索。
+    -   **聊天记录 (`chat_logs`)**: 解析并存储 Telegram 聊天记录，包含发送者/接收者详情（用户名、电话等）。
+    -   **用户信息 (`current_user`)**: 解析并存储当前登录的 Telegram 账户详情（是否会员等）。
     -   **系统信息 (`system_info`)**: 解析客户端采集的系统信息。
     -   **文件列表**: 支持文件扫描结果的上传与展示。
 
@@ -111,12 +112,12 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/my_db
-    username: root
-    password: 123456
+    url: jdbc:mysql://localhost:3306/telegram_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: telegram
+    password: password
 ```
 
-2）执行 `sql/create_table.sql` 中的数据库语句，自动创建库表
+2）执行 `sql/create_table.sql` 中的数据库语句，自动创建库表（本项目已预置 `telegram_db` 库和 `telegram` 用户）。
 
 3）启动项目，访问 `http://localhost:8101/api/doc.html` 即可打开接口文档，不需要写前端就能在线调试接口了~
 

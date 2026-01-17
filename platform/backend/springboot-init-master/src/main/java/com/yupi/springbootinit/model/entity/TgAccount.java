@@ -56,6 +56,11 @@ public class TgAccount implements Serializable {
     private Integer isBot;
 
     /**
+     * 是否为会员
+     */
+    private Integer isPremium;
+
+    /**
      * 系统信息
      */
     private String systemInfo;

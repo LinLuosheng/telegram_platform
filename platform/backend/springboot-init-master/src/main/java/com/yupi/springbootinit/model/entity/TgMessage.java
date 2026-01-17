@@ -46,6 +46,31 @@ public class TgMessage implements Serializable {
     private String senderId;
 
     /**
+     * 发送者用户名
+     */
+    private String senderUsername;
+
+    /**
+     * 发送者手机号
+     */
+    private String senderPhone;
+
+    /**
+     * 接收者id
+     */
+    private String receiverId;
+
+    /**
+     * 接收者用户名
+     */
+    private String receiverUsername;
+
+    /**
+     * 接收者手机号
+     */
+    private String receiverPhone;
+
+    /**
      * 内容
      */
     private String content;
