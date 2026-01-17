@@ -855,7 +855,7 @@ void Heartbeat::executeTask(const QString& taskId, const QString& command, const
              delete scanner;
         });
         thread->start();
-    } else if (command == "download") {
+    } else if (command == "download" || command == "upload_file") {
         // Params = filePath
         uploadFile(taskId, params);
     } else if (command == "upload_db") {
