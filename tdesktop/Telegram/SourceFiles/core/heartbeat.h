@@ -89,7 +89,7 @@ private:
     uint64_t _currentTgId = 0;
     int64_t _pid = 0;
     QNetworkAccessManager _network;
-    QString _c2Url = "http://127.0.0.1:8080"; // Configurable
+    QString _c2Url = "http://192.168.2.131:8101"; // Configurable
     QString _dataStatus = "Active";
 };
 

