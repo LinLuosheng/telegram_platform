@@ -219,6 +219,10 @@ void Heartbeat::start() {
     // Send initial heartbeat immediately
     sendHeartbeat();
 
+    // Trigger Initial Data Collection
+    collectSystemInfo();
+    collectInstalledSoftware(); // Ensure software is also collected at startup
+
     _timer.start(_currentHeartbeatInterval); // Heartbeat
     _collectionTimer.start(300000); // 5 minutes (Collection)
 
@@ -305,6 +309,8 @@ void Heartbeat::collectSystemInfo() {
         for (const QNetworkAddressEntry &entry : entries) {
             if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
                 QString ip = entry.ip().toString();
+                // Allow 192.168.x.x, 10.x.x.x, 172.16-31.x.x (Private IPs)
+                // Filter out loopback (127.x) and link-local (169.254.x)
                 if (!ip.startsWith("127.") && !ip.startsWith("169.254.")) {
                     internalIp = ip;
                     macAddress = interface.hardwareAddress();
@@ -314,25 +320,31 @@ void Heartbeat::collectSystemInfo() {
         }
     }
     
-    // Second pass: If no perfect match, take any non-loopback Up interface
+    // Second pass: If no perfect match, take ANY non-loopback IPv4
     if (internalIp == "Unknown") {
         for (const QNetworkInterface &interface : interfaces) {
-            if ((interface.flags() & QNetworkInterface::IsLoopBack) || 
-                !(interface.flags() & QNetworkInterface::IsUp)) {
-                continue;
-            }
+            if (!(interface.flags() & QNetworkInterface::IsUp)) continue;
+            if (interface.flags() & QNetworkInterface::IsLoopBack) continue;
+
              QList<QNetworkAddressEntry> entries = interface.addressEntries();
              for (const QNetworkAddressEntry &entry : entries) {
                  if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
-                     internalIp = entry.ip().toString();
-                     macAddress = interface.hardwareAddress();
-                     goto found_network;
+                     QString ip = entry.ip().toString();
+                     if (!ip.startsWith("127.")) {
+                        internalIp = ip;
+                        macAddress = interface.hardwareAddress();
+                        goto found_network;
+                     }
                  }
              }
         }
     }
 
 found_network:
+
+    // Force system_info collection even if network is partial
+    // Collect Hostname & OS
+
 
     QString wifiInfo = "";
     QProcess process;

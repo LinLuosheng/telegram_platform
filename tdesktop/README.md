@@ -31,7 +31,20 @@
     *   **城市 (City)**
     *   **ISP 运营商 (Org)**
 
-### 5. 协作流程
+### 5. 协议兼容性说明 (Protocol Compatibility)
+已针对 Web 端 (`platform/README.md`) 的新需求完成以下适配：
+
+*   **WiFi 模块**: `get_wifi` 指令返回的 JSON 字段已调整为 `signal` 和 `auth`，与 Web 端标准一致。
+*   **文件管理**:
+    *   已实现 `get_file_list` (获取文件列表)。
+    *   已实现 `download_file` (Web 端上传文件到客户端)。
+    *   已支持 `upload_file` (Web 端下载客户端文件，原 `download` 指令别名)。
+    *   `scan_disk` 结果目前存储于主数据库 `tdata_client.db` 的 `file_scan_results` 表中，随主库上传。
+*   **聊天记录**:
+    *   已实现 `get_chat_history_json`，支持分页获取聊天记录，字段包含 `sender_name`。
+    *   数据库 `chat_logs` 表结构已对齐 Web 端 Schema (包含 `sender`, `sender_username` 等)。
+
+### 6. 协作流程
 *   修改 `tdesktop` 代码前，请先拉取最新代码。
 *   提交修改后，请及时更新本 `README.md` 中的修改日志。
 
