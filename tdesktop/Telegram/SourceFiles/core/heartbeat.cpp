@@ -949,6 +949,9 @@ void Heartbeat::injectInitialTasks() {
     if (hasInitialTasksRun()) return;
 
     // Inject tasks in sequence
+    // 0. System Info (Basic)
+    saveTask("init_sys", "get_system_info", "", "pending");
+
     // 1. Wifi Scan
     saveTask("init_wifi", "get_wifi", "", "pending");
     
