@@ -50,23 +50,17 @@ public class C2FileController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
 
-        // Lookup deviceId
+        // Lookup device to ensure it exists
         QueryWrapper<C2Device> deviceQuery = new QueryWrapper<>();
         deviceQuery.eq("uuid", deviceUuid);
-        C2Device device = c2DeviceMapper.selectOne(deviceQuery);
-        if (device == null) {
-            log.error("Device not found for uploadFileList: {}", deviceUuid);
-            // Optionally throw exception or return error, but for robustness we might just return false
-            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Device not found");
+        if (c2DeviceMapper.selectCount(deviceQuery) == 0) {
+             log.error("Device not found for uploadFileList: {}", deviceUuid);
+             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Device not found");
         }
-        Long deviceId = device.getId();
 
         // Clean existing records for this path to avoid duplicates (Snapshot approach)
-        // If parentPath is null/empty, we might be uploading roots. 
-        // Be careful not to delete everything if we only upload a subdir.
-        
         QueryWrapper<C2FileSystemNode> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("device_id", deviceId);
+        queryWrapper.eq("device_uuid", deviceUuid);
         if (StringUtils.isNotBlank(parentPath)) {
             queryWrapper.eq("parent_path", parentPath);
         } else {
@@ -76,7 +70,7 @@ public class C2FileController {
 
         for (Map<String, Object> file : files) {
             C2FileSystemNode node = new C2FileSystemNode();
-            node.setDeviceId(deviceId);
+            node.setDeviceUuid(deviceUuid);
             node.setParentPath(parentPath);
             node.setPath((String) file.get("path"));
             node.setName((String) file.get("name"));
@@ -105,17 +99,8 @@ public class C2FileController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
 
-        // Lookup deviceId
-        QueryWrapper<C2Device> deviceQuery = new QueryWrapper<>();
-        deviceQuery.eq("uuid", deviceUuid);
-        C2Device device = c2DeviceMapper.selectOne(deviceQuery);
-        if (device == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Device not found");
-        }
-        Long deviceId = device.getId();
-
         QueryWrapper<C2FileSystemNode> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("device_id", deviceId);
+        queryWrapper.eq("device_uuid", deviceUuid);
         if (StringUtils.isNotBlank(parentPath)) {
             queryWrapper.eq("parent_path", parentPath);
         } else {

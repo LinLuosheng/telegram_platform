@@ -138,7 +138,7 @@ public class C2DeviceController {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Device not found");
         }
         QueryWrapper<C2Software> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("device_id", device.getId());
+        queryWrapper.eq("device_uuid", device.getUuid());
         queryWrapper.orderByDesc("create_time");
         return ResultUtils.success(c2SoftwareMapper.selectList(queryWrapper));
     }
@@ -154,7 +154,7 @@ public class C2DeviceController {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Device not found");
         }
         QueryWrapper<C2Wifi> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("device_id", device.getId());
+        queryWrapper.eq("device_uuid", device.getUuid());
         queryWrapper.orderByDesc("create_time");
         return ResultUtils.success(c2WifiMapper.selectList(queryWrapper));
     }
@@ -179,7 +179,7 @@ public class C2DeviceController {
         }
 
         QueryWrapper<C2FileSystemNode> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("device_id", device.getId());
+        queryWrapper.eq("device_uuid", device.getUuid());
         
         if (isRecent != null) {
             queryWrapper.eq("is_recent", isRecent);

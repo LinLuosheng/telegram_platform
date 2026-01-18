@@ -17,10 +17,10 @@ public class C2Device implements Serializable {
     @TableField("uuid")
     private String uuid;
 
-    @TableField("internal_ip")
+    @TableField("internalIp")
     private String internalIp;
 
-    @TableField("external_ip")
+    @TableField("externalIp")
     private String externalIp;
 
     @TableField("country")
@@ -35,16 +35,16 @@ public class C2Device implements Serializable {
     @TableField("isp")
     private String isp;
 
-    @TableField("mac_address")
+    @TableField("macAddress")
     private String macAddress;
 
-    @TableField("host_name")
+    @TableField("hostName")
     private String hostName;
 
     @TableField("os")
     private String os;
 
-    @TableField("heartbeat_interval")
+    @TableField("heartbeatInterval")
     private Integer heartbeatInterval;
 
     /**
@@ -65,17 +65,17 @@ public class C2Device implements Serializable {
     @TableField("data_status")
     private String dataStatus;
 
-    @TableField("last_seen")
+    @TableField("lastSeen")
     private Date lastSeen;
 
-    @TableField("create_time")
+    @TableField("createTime")
     private Date createTime;
 
-    @TableField("update_time")
+    @TableField("updateTime")
     private Date updateTime;
 
     @TableLogic
-    @TableField("is_delete")
+    @TableField("isDelete")
     private Integer isDelete;
 
     @TableField(exist = false)
