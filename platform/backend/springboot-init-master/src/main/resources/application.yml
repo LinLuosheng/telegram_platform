@@ -72,7 +72,7 @@ server:
         max-age: 2592000
 mybatis-plus:
   configuration:
-    map-underscore-to-camel-case: false
+    map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
@@ -108,6 +108,10 @@ cos:
     secretKey: xxx
     region: xxx
     bucket: xxx
+# OCR 配置
+ocr:
+  provider: tesseract # tesseract or deepseek
+
 # 接口文档配置
 knife4j:
   enable: true

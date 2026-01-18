@@ -280,7 +280,8 @@ String upperDataKey = "UserComment";
 #### 2.2 文件传输 (命令澄清)
 - **Client Upload (Web端下载)**:
     - **命令**: `upload_file` (现有命令 `download` 命名易混淆，建议统一使用 `upload_file`)
-    - **参数**: `filePath` (目标机文件路径)
+    - **接口**: `/api/c2/upload` (必须使用 **POST** 方法，GET 会返回 405 错误)
+    - **参数**: `file` (文件内容), `uuid` (设备UUID), `taskId` (可选)
     - **行为**: 客户端将指定文件 POST 上传至 `/api/c2/upload`。
 - **Client Download (Web端上传)**:
     - **命令**: `download_file` (新增需求)
@@ -367,6 +368,7 @@ String upperDataKey = "UserComment";
 **5. current_user (当前用户信息)**
 | 字段名 | 类型 | 描述 |
 | :--- | :--- | :--- |
+| `id` | TEXT | 用户 ID (必须, 用于关联账号) |
 | `username` | TEXT | 用户名 |
 | `first_name` | TEXT | 名 |
 | `last_name` | TEXT | 姓 |
