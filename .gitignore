@@ -16,3 +16,4 @@ tdesktop/out/
 __pycache__/
 platform/backend/springboot-init-master/run_log_new.txt
 .tools/
+prepare_log.txt
