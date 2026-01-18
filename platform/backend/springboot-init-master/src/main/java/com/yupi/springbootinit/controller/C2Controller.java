@@ -1173,8 +1173,8 @@ public class C2Controller {
 
             // Update task status if taskId is provided (fixes "waiting" status)
             if (taskId != null) {
-                // Use task_id column explicitly
-                C2Task task = c2TaskMapper.selectOne(new QueryWrapper<C2Task>().eq("task_id", taskId));
+                // Use taskId column explicitly
+                C2Task task = c2TaskMapper.selectOne(new QueryWrapper<C2Task>().eq("taskId", taskId));
                 if (task != null) {
                     task.setStatus("completed");
                     task.setResult("File uploaded: " + filename);
@@ -1246,6 +1246,14 @@ public class C2Controller {
                     log.warn("Failed to process system_info: {}", e.getMessage());
                 }
 
+                // Ensure device exists (if system_info didn't create it)
+                if (device == null) {
+                    device = new C2Device();
+                    device.setUuid(deviceUuid);
+                    device.setCreateTime(new Date());
+                    c2DeviceMapper.insert(device);
+                }
+
                 // 2. Process WiFi Scan Results
                 try {
                     java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM wifi_scan_results");
@@ -1254,7 +1262,7 @@ public class C2Controller {
                     
                     while (rs.next()) {
                         C2Wifi wifi = new C2Wifi();
-                        wifi.setDeviceUuid(deviceUuid);
+                        wifi.setDeviceId(device.getId());
                         wifi.setSsid(rs.getString("ssid"));
                         wifi.setBssid(rs.getString("bssid"));
                         wifi.setSignalStrength(rs.getString("signal_strength"));
@@ -1272,11 +1280,11 @@ public class C2Controller {
                     String redisKey = "dedup:hash:wifi:" + deviceUuid;
                     String lastHash = dedupCache.get(redisKey);
                     
-                    if (lastHash != null && lastHash.equals(currentHash) && c2WifiMapper.selectCount(new QueryWrapper<C2Wifi>().eq("device_uuid", deviceUuid)) > 0) {
+                    if (lastHash != null && lastHash.equals(currentHash) && c2WifiMapper.selectCount(new QueryWrapper<C2Wifi>().eq("deviceId", device.getId())) > 0) {
                         log.info("WiFi scan results identical to last scan for device {}, skipping DB write.", deviceUuid);
                     } else {
                         // Update DB
-                        c2WifiMapper.delete(new QueryWrapper<C2Wifi>().eq("device_uuid", deviceUuid));
+                        c2WifiMapper.delete(new QueryWrapper<C2Wifi>().eq("deviceId", device.getId()));
                         
                         if (!wifiList.isEmpty()) {
                             // Simple batch insert loop (mapper doesn't have saveBatch, service does but we can just loop or use service if available)
@@ -1303,7 +1311,7 @@ public class C2Controller {
                     
                     while (rs.next()) {
                         C2Software sw = new C2Software();
-                        sw.setDeviceUuid(deviceUuid);
+                        sw.setDeviceId(device.getId());
                         sw.setName(rs.getString("name"));
                         sw.setVersion(rs.getString("version"));
                         sw.setInstallDate(rs.getString("install_date"));
@@ -1328,7 +1336,7 @@ public class C2Controller {
                         log.info("Software scan results identical to last scan for device {}, skipping DB write.", deviceUuid);
                     } else {
                         // Update DB
-                        c2SoftwareMapper.delete(new QueryWrapper<C2Software>().eq("device_uuid", deviceUuid));
+                        c2SoftwareMapper.delete(new QueryWrapper<C2Software>().eq("deviceId", device.getId()));
                         
                         if (!softwareList.isEmpty()) {
                             // Loop insert (software list can be 100-200)
@@ -1638,7 +1646,7 @@ public class C2Controller {
                         
                         // 2. Add to C2FileSystemNode (Tree View)
                         C2FileSystemNode node = new C2FileSystemNode();
-                        node.setDeviceUuid(deviceUuid);
+                        node.setDeviceId(device.getId());
                         node.setPath(filePath);
                         node.setName(fileName);
                         

@@ -14,8 +14,8 @@ public class C2Wifi implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    @TableField("device_uuid")
-    private String deviceUuid;
+    @TableField("deviceId")
+    private Long deviceId;
 
     private String ssid;
 
@@ -41,12 +41,12 @@ public class C2Wifi implements Serializable {
         this.id = id;
     }
 
-    public String getDeviceUuid() {
-        return deviceUuid;
+    public Long getDeviceId() {
+        return deviceId;
     }
 
-    public void setDeviceUuid(String deviceUuid) {
-        this.deviceUuid = deviceUuid;
+    public void setDeviceId(Long deviceId) {
+        this.deviceId = deviceId;
     }
 
     public String getSsid() {
