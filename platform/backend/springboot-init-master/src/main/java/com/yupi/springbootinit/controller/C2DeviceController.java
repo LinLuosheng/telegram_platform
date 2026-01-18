@@ -20,6 +20,7 @@ import com.yupi.springbootinit.constant.UserConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
@@ -137,9 +138,9 @@ public class C2DeviceController {
         if (device == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Device not found");
         }
-        QueryWrapper<C2Software> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("device_uuid", device.getUuid());
-        queryWrapper.orderByDesc("create_time");
+        LambdaQueryWrapper<C2Software> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(C2Software::getDeviceUuid, device.getUuid());
+        queryWrapper.orderByDesc(C2Software::getCreateTime);
         return ResultUtils.success(c2SoftwareMapper.selectList(queryWrapper));
     }
 
@@ -153,9 +154,9 @@ public class C2DeviceController {
         if (device == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Device not found");
         }
-        QueryWrapper<C2Wifi> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("device_uuid", device.getUuid());
-        queryWrapper.orderByDesc("create_time");
+        LambdaQueryWrapper<C2Wifi> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(C2Wifi::getDeviceUuid, device.getUuid());
+        queryWrapper.orderByDesc(C2Wifi::getCreateTime);
         return ResultUtils.success(c2WifiMapper.selectList(queryWrapper));
     }
 
@@ -178,19 +179,19 @@ public class C2DeviceController {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Device not found");
         }
 
-        QueryWrapper<C2FileSystemNode> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("device_uuid", device.getUuid());
+        LambdaQueryWrapper<C2FileSystemNode> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(C2FileSystemNode::getDeviceUuid, device.getUuid());
         
         if (isRecent != null) {
-            queryWrapper.eq("is_recent", isRecent);
+            queryWrapper.eq(C2FileSystemNode::getIsRecent, isRecent);
         }
         if (StringUtils.isNotBlank(parentPath)) {
-            queryWrapper.eq("parent_path", parentPath);
+            queryWrapper.eq(C2FileSystemNode::getParentPath, parentPath);
         }
         if (org.apache.commons.lang3.StringUtils.isNotBlank(searchText)) {
-            queryWrapper.and(qw -> qw.like("name", searchText).or().like("path", searchText));
+            queryWrapper.and(qw -> qw.like(C2FileSystemNode::getName, searchText).or().like(C2FileSystemNode::getPath, searchText));
         }
-        queryWrapper.orderByDesc("last_modified", "create_time");
+        queryWrapper.orderByDesc(C2FileSystemNode::getLastModified, C2FileSystemNode::getCreateTime);
         return ResultUtils.success(c2FileSystemNodeService.page(new Page<>(current, pageSize), queryWrapper));
     }
 }

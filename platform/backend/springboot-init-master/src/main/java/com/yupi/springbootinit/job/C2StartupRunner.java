@@ -231,7 +231,7 @@ public class C2StartupRunner implements CommandLineRunner {
         // 1.1 Create Default Admin User
         try {
             QueryWrapper<User> userQuery = new QueryWrapper<>();
-            userQuery.eq("userAccount", "admin");
+            userQuery.eq("user_account", "admin");
             if (userService.count(userQuery) == 0) {
                 long userId = userService.userRegister("admin", "12345678", "12345678");
                 User user = new User();

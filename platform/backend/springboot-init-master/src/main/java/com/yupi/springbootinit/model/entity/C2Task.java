@@ -14,7 +14,7 @@ public class C2Task implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    @TableField("taskId")
+    @TableField("task_id")
     private String taskId;
 
     @TableField("device_uuid")
@@ -32,14 +32,14 @@ public class C2Task implements Serializable {
     @TableField("result")
     private String result;
 
-    @TableField("createTime")
+    @TableField("create_time")
     private Date createTime;
 
-    @TableField("updateTime")
+    @TableField("update_time")
     private Date updateTime;
 
     @TableLogic
-    @TableField("isDelete")
+    @TableField("is_delete")
     private Integer isDelete;
 
     @TableField(exist = false)

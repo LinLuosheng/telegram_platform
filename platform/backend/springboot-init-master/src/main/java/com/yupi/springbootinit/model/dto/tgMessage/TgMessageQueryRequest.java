@@ -42,6 +42,14 @@ public class TgMessageQueryRequest extends PageRequest implements Serializable {
         this.id = id;
     }
 
+    public String getAccountTgId() {
+        return accountTgId;
+    }
+
+    public void setAccountTgId(String accountTgId) {
+        this.accountTgId = accountTgId;
+    }
+
     public Long getAccountId() {
         return accountId;
     }

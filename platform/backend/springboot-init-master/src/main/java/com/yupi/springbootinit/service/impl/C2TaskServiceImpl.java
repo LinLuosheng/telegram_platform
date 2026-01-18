@@ -52,7 +52,7 @@ public class C2TaskServiceImpl extends ServiceImpl<C2TaskMapper, C2Task> impleme
         queryWrapper.like(StringUtils.isNotBlank(command), "command", command);
         queryWrapper.eq(StringUtils.isNotBlank(status), "status", status);
         queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);
-        queryWrapper.eq("isDelete", false);
+        queryWrapper.eq("is_delete", false);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;

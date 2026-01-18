@@ -50,12 +50,11 @@ public class C2DeviceServiceImpl extends ServiceImpl<C2DeviceMapper, C2Device> i
         String sortOrder = c2DeviceQueryRequest.getSortOrder();
 
         if (StringUtils.isNotBlank(searchText)) {
-            queryWrapper.and(qw -> qw.like("internalIp", searchText).or().like("externalIp", searchText).or().like("hostName", searchText));
+            queryWrapper.and(qw -> qw.like("internal_ip", searchText).or().like("external_ip", searchText).or().like("host_name", searchText));
         }
-        queryWrapper.like(StringUtils.isNotBlank(ip), "externalIp", ip);
+        queryWrapper.like(StringUtils.isNotBlank(ip), "external_ip", ip);
         queryWrapper.like(StringUtils.isNotBlank(os), "os", os);
         queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);
-        queryWrapper.eq("isDelete", false);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;

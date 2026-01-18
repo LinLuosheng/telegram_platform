@@ -23,17 +23,17 @@ public class C2Wifi implements Serializable {
     @TableField("bssid")
     private String bssid;
 
-    @TableField("signalStrength")
+    @TableField("signal_strength")
     private String signalStrength;
 
     @TableField("authentication")
     private String authentication;
 
-    @TableField("createTime")
+    @TableField("create_time")
     private Date createTime;
 
     @TableLogic
-    @TableField("isDelete")
+    @TableField("is_delete")
     private Integer isDelete;
 
     @TableField(exist = false)

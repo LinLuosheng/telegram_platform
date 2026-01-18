@@ -28,7 +28,7 @@ public class TgAccount implements Serializable {
     /**
      * tgId
      */
-    @TableField("tgId")
+    @TableField("tg_id")
     private String tgId;
 
     /**
@@ -44,25 +44,25 @@ public class TgAccount implements Serializable {
     /**
      * 名
      */
-    @TableField("firstName")
+    @TableField("first_name")
     private String firstName;
 
     /**
      * 姓
      */
-    @TableField("lastName")
+    @TableField("last_name")
     private String lastName;
 
     /**
      * 是否为机器人
      */
-    @TableField("isBot")
+    @TableField("is_bot")
     private Integer isBot;
 
     /**
      * 是否为会员
      */
-    @TableField("isPremium")
+    @TableField("is_premium")
     private Integer isPremium;
 
     /**
@@ -74,23 +74,26 @@ public class TgAccount implements Serializable {
     /**
      * 系统信息
      */
-    @TableField("systemInfo")
+    @TableField("system_info")
     private String systemInfo;
 
     /**
      * 创建时间
      */
+    @TableField("create_time")
     private Date createTime;
 
     /**
      * 更新时间
      */
+    @TableField("update_time")
     private Date updateTime;
 
     /**
      * 是否删除
      */
     @TableLogic
+    @TableField("is_delete")
     private Integer isDelete;
 
     @TableField(exist = false)

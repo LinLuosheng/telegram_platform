@@ -20,16 +20,6 @@ public class UserQueryRequest extends PageRequest implements Serializable {
     private Long id;
 
     /**
-     * 开放平台id
-     */
-    private String unionId;
-
-    /**
-     * 公众号openId
-     */
-    private String mpOpenId;
-
-    /**
      * 用户昵称
      */
     private String userName;
@@ -52,22 +42,6 @@ public class UserQueryRequest extends PageRequest implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getUnionId() {
-        return unionId;
-    }
-
-    public void setUnionId(String unionId) {
-        this.unionId = unionId;
-    }
-
-    public String getMpOpenId() {
-        return mpOpenId;
-    }
-
-    public void setMpOpenId(String mpOpenId) {
-        this.mpOpenId = mpOpenId;
     }
 
     public String getUserName() {

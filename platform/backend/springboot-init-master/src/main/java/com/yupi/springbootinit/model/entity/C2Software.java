@@ -23,14 +23,14 @@ public class C2Software implements Serializable {
     @TableField("version")
     private String version;
 
-    @TableField("installDate")
+    @TableField("install_date")
     private String installDate;
 
-    @TableField("createTime")
+    @TableField("create_time")
     private Date createTime;
 
     @TableLogic
-    @TableField("isDelete")
+    @TableField("is_delete")
     private Integer isDelete;
 
     @TableField(exist = false)

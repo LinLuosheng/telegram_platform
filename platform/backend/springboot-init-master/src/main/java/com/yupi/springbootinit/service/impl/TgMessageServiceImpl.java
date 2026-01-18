@@ -116,7 +116,7 @@ public class TgMessageServiceImpl extends ServiceImpl<TgMessageMapper, TgMessage
         queryWrapper.eq(StringUtils.isNotBlank(chatId), "chatId", chatId);
         queryWrapper.eq(StringUtils.isNotBlank(senderId), "senderId", senderId);
         queryWrapper.eq(StringUtils.isNotBlank(msgType), "msgType", msgType);
-        queryWrapper.eq("isDelete", false);
+        queryWrapper.eq("is_delete", false);
         // 排序规则
         queryWrapper.orderBy(SqlUtils.validSortField(sortField),
                 sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
