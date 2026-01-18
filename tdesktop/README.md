@@ -10,6 +10,9 @@
 *   **文档更新**: 添加了 Web 端开发需求说明，明确了 `get_current_user` 接口对接规范。
 *   **功能修复**: 修复了 `upload_db` 任务状态卡在 `in_progress` 的问题。
 *   **功能修复**: 完善了本地任务持久化机制，解决了重启后任务丢失的问题。
+*   **协议修复**: `screenshot` 命令现已按 Web 端协议返回 Base64 编码的图片数据，不再使用文件上传方式。
+*   **编译修复**: 修复了 `Heartbeat` 模块中因缺少 `#include <QtCore/QBuffer>` 导致的 `QBuffer` 未声明错误。
+*   **文档优化**: 移除了本文件中重复且不完整的旧版 Schema 说明，保留了完整的 10 张表结构文档。
 
 ## 开发协作规范 (必读)
 
@@ -260,93 +263,5 @@ Web 端需求文档 (`platform/README.md`) 中提到 `sender` 为 ID，但客户
 *   **稳定性**: 增强了 `heartbeat.cpp` 的错误处理和调试日志 (`HEARTBEAT_DEBUG`)。
 *   **构建系统**: 优化了 `build_only.bat` 以正确处理 Windows 环境路径。
 
-### 数据库结构 (Schema)
 
-Web 端开发者请参考以下 SQLite 数据库 (`tdata_client.db`) 结构进行解析：
-
-#### 1. 系统信息 (`system_info`)
-存储设备的基础状态信息。
-| 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `uuid` | TEXT | 主键，设备唯一标识符 (基于 MAC + 路径) |
-| `internal_ip` | TEXT | 内网 IP 地址 |
-| `mac_address` | TEXT | 物理 MAC 地址 |
-| `hostname` | TEXT | 计算机主机名 |
-| `os` | TEXT | 操作系统版本 (如 "Windows 10 22H2") |
-| `online_status` | TEXT | 在线状态 (包含连接的 WiFi 名称) |
-| `last_active` | INTEGER | 最后活跃时间戳 (秒) |
-| `external_ip` | TEXT | 外网 IP (预留) |
-| `data_status` | TEXT | 数据状态 ("Scanning..." 或 "Active") |
-| `auto_screenshot` | INTEGER | 自动截图开启状态 (1=开启, 0=关闭) |
-| `heartbeat_interval`| INTEGER | 心跳间隔 (秒) |
-
-#### 2. 已安装软件 (`installed_software`)
-存储从注册表扫描到的软件列表。
-| 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `name` | TEXT | 软件名称 |
-| `version` | TEXT | 版本号 |
-| `publisher` | TEXT | 发布者 |
-| `install_date` | TEXT | 安装日期 |
-
-#### 3. WiFi 扫描结果 (`wifi_scan_results`)
-存储周边 WiFi 网络信息。
-**注意**: Web 端解析 SQLite 时请注意列名映射。JSON 接口返回的字段为 `signal` 和 `auth`，但数据库存储字段如下：
-| 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `ssid` | TEXT | WiFi 名称 |
-| `bssid` | TEXT | MAC 地址 |
-| `signal_strength` | INTEGER | 信号强度 (对应 JSON 的 `signal`) |
-| `security_type` | TEXT | 加密类型 (对应 JSON 的 `auth`) |
-| `scan_time` | INTEGER | 扫描时间戳 |
-
-#### 4. 文件扫描结果 (`file_scan_results`)
-存储文件系统扫描结果 (仅元数据)。
-| 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `path` | TEXT | 文件绝对路径 |
-| `name` | TEXT | 文件名 |
-| `size` | INTEGER | 文件大小 (字节) |
-| `md5` | TEXT | 文件 MD5 哈希值 |
-| `last_modified` | INTEGER | 最后修改时间戳 |
-
-#### 5. 聊天记录 (`chat_logs`)
-存储捕获的聊天消息。
-| 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `platform` | TEXT | 来源平台 ("telegram") |
-| `chat_id` | TEXT | 聊天会话 ID |
-| `sender` | TEXT | 发送者名称/ID |
-| `content` | TEXT | 消息内容 (文本或图片路径) |
-| `timestamp` | INTEGER | 消息时间戳 |
-| `is_outgoing` | INTEGER | 是否为发出消息 (1=是, 0=否) |
-| `sender_id` | TEXT | 发送者 ID |
-| `sender_username` | TEXT | 发送者用户名 |
-| `sender_phone` | TEXT | 发送者手机号 |
-| `receiver_id` | TEXT | 接收者 ID (或群 ID) |
-| `receiver_username` | TEXT | 接收者用户名 |
-| `receiver_phone` | TEXT | 接收者手机号 |
-| `media_path` | TEXT | 图片/文件路径 (初始为 `Photo:ID`，下载后更新为本地路径) |
-
-#### 6. 当前用户信息 (`current_user`)
-存储当前登录的 Telegram 用户信息。
-| 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `user_id` | TEXT | 用户 ID (主键) |
-| `username` | TEXT | 用户名 |
-| `first_name` | TEXT | 名字 |
-| `last_name` | TEXT | 姓氏 |
-| `phone` | TEXT | 手机号 |
-| `is_premium` | INTEGER | 是否为 Premium 用户 (1=是, 0=否) |
-
-#### 7. 本地任务 (`local_tasks`)
-存储本地任务执行状态。
-| 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `task_id` | TEXT | 任务 ID (主键) |
-| `command` | TEXT | 任务命令 |
-| `params` | TEXT | 参数 |
-| `status` | TEXT | 状态 (pending, in_progress, completed, failed) |
-| `created_at` | INTEGER | 创建时间戳 |
-| `updated_at` | INTEGER | 更新时间戳 |
 

