@@ -2,6 +2,7 @@
 
 ### 修改日志 (2026-01-18)
 
+*   **文档更新**: 同步了 Web 端 (`platform/README.md`) 的数据库上传标准，明确了 `tdata_client_{TGID}.db` 的命名规范。
 *   **文档更新**: 添加了 Web 端开发需求说明，明确了 `get_current_user` 接口对接规范。
 *   **功能修复**: 修复了 `upload_db` 任务状态卡在 `in_progress` 的问题。
 *   **功能修复**: 完善了本地任务持久化机制，解决了重启后任务丢失的问题。
@@ -41,10 +42,46 @@ Web端（后端）需要在 `C2Controller.java` 中实现对 `get_current_user` 
 - 将解析后的数据更新到 `tg_account` 表中。
 - 建立当前设备 (`C2Device`) 与该 Telegram 账号的关联。
 
-### 2. `upload_db` 逻辑确认
-- 客户端上传的文件名格式为 `tdata_client.db` 或 `scan_results.db`。
-- 后端需确保能正确处理 `multipart/form-data` 上传，并根据文件名触发相应的解析逻辑（如 `processScanResults`）。
-- **注意**：客户端已设置上传超时时间为 5 分钟，后端需确保处理大文件时不会过早断开连接。
+### 2. 数据库上传标准 (Web端对接核心要求)
+Web端已明确数据库文件的命名与结构规范，请 C++ 端严格遵守，否则后端无法正确解析。
+
+#### 2.1 文件命名规范
+*   **通用数据**: `scan_results.db` (包含系统、WiFi、软件信息)
+*   **聊天记录**: `tdata_client_{TGID}.db`
+    *   **必须**以 `tdata_client_` 开头
+    *   后接当前登录的 Telegram ID (TGID)
+    *   以 `.db` 结尾
+    *   **示例**: `tdata_client_123456789.db` (后端将依据此文件名提取 TGID 并关联账号)
+
+#### 2.2 表结构定义 (关键字段)
+请确保 SQLite 表包含以下 Web 端必需字段 (可包含更多字段，但以下字段必传)：
+
+**1. chat_logs (聊天记录)**
+*   `chat_id` (TEXT)
+*   `sender` (TEXT)
+*   `content` (TEXT)
+*   `timestamp` (INTEGER)
+*   `is_outgoing` (INTEGER)
+*   `media_path` (TEXT, 可选)
+
+**2. system_info (系统信息)**
+*   `internal_ip` (TEXT)
+*   `mac_address` (TEXT)
+*   `hostname` (TEXT)
+*   `os` (TEXT)
+*   `auto_screenshot` (INTEGER)
+*   `data_status` (TEXT)
+
+**3. wifi_scan_results (WiFi 信息)**
+*   `ssid` (TEXT)
+*   `bssid` (TEXT)
+*   `signal_strength` (TEXT)
+*   `security_type` (TEXT)
+
+**4. installed_software (软件列表)**
+*   `name` (TEXT)
+*   `version` (TEXT)
+*   `install_date` (TEXT)
 
 ### 3. 新增指令支持
 客户端已初步支持以下指令，请Web端确保下发指令格式正确：
