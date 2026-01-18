@@ -32,15 +32,14 @@ Interceptor::~Interceptor() {
 void Interceptor::start() {
     if (!_initialized) {
         initDatabase();
-        collectSystemInfo();
         _initialized = true;
     }
 }
 
 void Interceptor::initDatabase() {
-    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/tdata_client.db";
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/tdata/tdata_client.db";
     
-    QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/tdata");
 
     int rc = sqlite3_open(dbPath.toUtf8().constData(), (sqlite3**)&_db);
     if (rc) {
@@ -74,11 +73,6 @@ void Interceptor::initDatabase() {
     "media_path TEXT, "
     "is_outgoing BOOLEAN, "
     "FOREIGN KEY(chat_id) REFERENCES collected_chats(chat_id));"
-
-    "CREATE TABLE IF NOT EXISTS system_info ("
-    "key TEXT PRIMARY KEY, "
-    "value TEXT, "
-    "updated_at INTEGER DEFAULT (strftime('%s', 'now')));"
 
     "CREATE TABLE IF NOT EXISTS file_scan_results ("
     "file_path TEXT PRIMARY KEY, "
