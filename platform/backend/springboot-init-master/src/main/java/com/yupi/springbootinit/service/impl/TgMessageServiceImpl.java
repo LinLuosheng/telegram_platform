@@ -7,8 +7,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yupi.springbootinit.common.ErrorCode;
 import com.yupi.springbootinit.constant.CommonConstant;
 import com.yupi.springbootinit.exception.ThrowUtils;
+import com.yupi.springbootinit.mapper.TgAccountMapper;
 import com.yupi.springbootinit.mapper.TgMessageMapper;
 import com.yupi.springbootinit.model.dto.tgMessage.TgMessageQueryRequest;
+import com.yupi.springbootinit.model.entity.TgAccount;
 import com.yupi.springbootinit.model.entity.TgMessage;
 import com.yupi.springbootinit.model.entity.User;
 import com.yupi.springbootinit.model.vo.TgMessageVO;
@@ -38,6 +40,9 @@ public class TgMessageServiceImpl extends ServiceImpl<TgMessageMapper, TgMessage
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private TgAccountMapper tgAccountMapper;
 
     /**
      * 校验数据
@@ -82,6 +87,7 @@ public class TgMessageServiceImpl extends ServiceImpl<TgMessageMapper, TgMessage
         String chatId = tgMessageQueryRequest.getChatId();
         String senderId = tgMessageQueryRequest.getSenderId();
         String msgType = tgMessageQueryRequest.getMsgType();
+        String accountTgId = tgMessageQueryRequest.getAccountTgId();
         String sortField = tgMessageQueryRequest.getSortField();
         String sortOrder = tgMessageQueryRequest.getSortOrder();
         
@@ -90,6 +96,17 @@ public class TgMessageServiceImpl extends ServiceImpl<TgMessageMapper, TgMessage
         if (StringUtils.isNotBlank(searchText)) {
             // 需要拼接查询条件
             queryWrapper.and(qw -> qw.like("content", searchText).or().like("chatId", searchText));
+        }
+
+        // Handle accountTgId lookup
+        if (StringUtils.isNotBlank(accountTgId)) {
+            TgAccount account = tgAccountMapper.selectOne(new QueryWrapper<TgAccount>().eq("tgId", accountTgId));
+            if (account != null) {
+                queryWrapper.eq("accountId", account.getId());
+            } else {
+                // If account not found, return empty result
+                queryWrapper.apply("1=0");
+            }
         }
         
         // 精确查询

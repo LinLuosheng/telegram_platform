@@ -363,3 +363,30 @@ String upperDataKey = "UserComment";
 | `name` | TEXT | 软件名称 |
 | `version` | TEXT | 版本号 |
 | `install_date` | TEXT | 安装日期 |
+
+**5. current_user (当前用户信息)**
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `username` | TEXT | 用户名 |
+| `first_name` | TEXT | 名 |
+| `last_name` | TEXT | 姓 |
+| `phone` | TEXT | 电话 |
+| `is_premium` | INTEGER | 是否会员 |
+
+**6. contacts (联系人列表)**
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `user_id` | TEXT | 联系人 ID |
+| `username` | TEXT | 用户名 |
+| `first_name` | TEXT | 名 |
+| `last_name` | TEXT | 姓 |
+| `phone` | TEXT | 电话 |
+
+**7. 通用表同步 (Generic Table Sync)**
+- **机制**: 后端会自动扫描并同步 SQLite 数据库中除上述标准表以外的其他所有表。
+- **自动建表**: 若 MySQL 中不存在对应表，系统会根据 SQLite 字段类型自动创建同名表，并添加 `device_uuid` 和 `create_time` 字段。
+- **排除列表 (Excluded)**: 以下表**不会**被同步：
+    - `chat_sync_state`: 客户端本地同步状态记录。
+    - `local_tasks`: 客户端本地任务队列。
+    - `android_metadata`: 安卓元数据（如存在）。
+    - 以及上述已专门处理的标准表 (`system_info`, `wifi_scan_results`, `installed_software`, `chat_logs` 等)。
