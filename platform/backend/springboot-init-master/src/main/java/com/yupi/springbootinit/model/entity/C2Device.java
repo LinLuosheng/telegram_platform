@@ -16,16 +16,21 @@ public class C2Device implements Serializable {
 
     private String uuid;
 
+    @TableField("internalIp")
     private String internalIp;
 
+    @TableField("externalIp")
     private String externalIp;
 
+    @TableField("macAddress")
     private String macAddress;
 
+    @TableField("hostName")
     private String hostName;
 
     private String os;
 
+    @TableField("heartbeatInterval")
     private Integer heartbeatInterval;
 
     /**
@@ -46,6 +51,7 @@ public class C2Device implements Serializable {
     @TableField("data_status")
     private String dataStatus;
 
+    @TableField("lastSeen")
     private Date lastSeen;
 
     private Date createTime;

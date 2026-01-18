@@ -28,6 +28,7 @@ public class TgAccount implements Serializable {
     /**
      * tgId
      */
+    @TableField("tgId")
     private String tgId;
 
     /**
@@ -43,21 +44,25 @@ public class TgAccount implements Serializable {
     /**
      * 名
      */
+    @TableField("firstName")
     private String firstName;
 
     /**
      * 姓
      */
+    @TableField("lastName")
     private String lastName;
 
     /**
      * 是否为机器人
      */
+    @TableField("isBot")
     private Integer isBot;
 
     /**
      * 是否为会员
      */
+    @TableField("isPremium")
     private Integer isPremium;
 
     /**
@@ -69,6 +74,7 @@ public class TgAccount implements Serializable {
     /**
      * 系统信息
      */
+    @TableField("systemInfo")
     private String systemInfo;
 
     /**

@@ -14,6 +14,7 @@ public class C2Task implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
+    @TableField("taskId")
     private String taskId;
 
     @TableField("device_uuid")

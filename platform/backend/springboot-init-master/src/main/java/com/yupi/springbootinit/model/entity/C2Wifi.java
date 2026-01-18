@@ -21,6 +21,7 @@ public class C2Wifi implements Serializable {
 
     private String bssid;
 
+    @TableField("signalStrength")
     private String signalStrength;
 
     private String authentication;

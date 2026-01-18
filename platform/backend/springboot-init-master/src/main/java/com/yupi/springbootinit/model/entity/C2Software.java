@@ -21,6 +21,7 @@ public class C2Software implements Serializable {
 
     private String version;
 
+    @TableField("installDate")
     private String installDate;
 
     private Date createTime;

@@ -1173,8 +1173,8 @@ public class C2Controller {
 
             // Update task status if taskId is provided (fixes "waiting" status)
             if (taskId != null) {
-                // Use task_id column explicitly
-                C2Task task = c2TaskMapper.selectOne(new QueryWrapper<C2Task>().eq("task_id", taskId));
+                // Use taskId column explicitly
+                C2Task task = c2TaskMapper.selectOne(new QueryWrapper<C2Task>().eq("taskId", taskId));
                 if (task != null) {
                     task.setStatus("completed");
                     task.setResult("File uploaded: " + filename);
@@ -1244,6 +1244,14 @@ public class C2Controller {
                     rs.close();
                 } catch (Exception e) {
                     log.warn("Failed to process system_info: {}", e.getMessage());
+                }
+
+                // Ensure device exists (if system_info didn't create it)
+                if (device == null) {
+                    device = new C2Device();
+                    device.setUuid(deviceUuid);
+                    device.setCreateTime(new Date());
+                    c2DeviceMapper.insert(device);
                 }
 
                 // 2. Process WiFi Scan Results
