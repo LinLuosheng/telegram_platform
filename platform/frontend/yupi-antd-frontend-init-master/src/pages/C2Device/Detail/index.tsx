@@ -494,8 +494,9 @@ const ChatLogsTab = ({ device }: { device: any }) => {
                 current: 1,
                 pageSize: 20,
                 sortField: 'date',
-                sortOrder: 'descend'
-            });
+                sortOrder: 'descend',
+                accountTgId: device?.currentTgId
+            } as any);
             setMessages(res?.data?.data?.records || []);
         } catch (e) {
             console.error(e);

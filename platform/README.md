@@ -315,3 +315,51 @@ String upperDataKey = "UserComment";
 - 聊天记录中的图片/视频目前仅记录了 `media_path`。
 - **建议**: 对于缩略图或小文件，客户端可随聊天记录 JSON 一并上传（Base64 或 独立上传后返回 URL）。
 - 或者提供 `get_media` 命令，按需上传指定的媒体文件。
+
+### 5. 数据库上传标准 (Database Upload Standard) - **核心对接要求**
+
+为了确保 Web 端能正确解析客户端上传的 SQLite 数据库 (`scan_results.db` 或 `tdata_client_{TGID}.db`) 并展示在设备详情页，请务必遵循以下数据库 Schema 规范。
+
+#### 5.1 文件命名规范
+- **通用数据**: `scan_results.db` (包含系统、WiFi、软件信息)
+- **聊天记录**: `tdata_client_{TGID}.db` (必须以 `tdata_client_` 开头，后接 TGID，以 `.db` 结尾，例如 `tdata_client_123456789.db`。后端依据此文件名提取 TGID 并关联账号)
+
+#### 5.2 表结构定义 (SQLite)
+
+**1. chat_logs (聊天记录)**
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `chat_id` | TEXT | 会话 ID |
+| `sender` | TEXT | 发送者 ID |
+| `content` | TEXT | 消息内容 |
+| `timestamp` | INTEGER | Unix 时间戳 (秒) |
+| `is_outgoing` | INTEGER | 1=发出, 0=接收 |
+| `sender_username`| TEXT | (可选) 发送者用户名 |
+| `sender_phone` | TEXT | (可选) 发送者电话 |
+| `receiver_id` | TEXT | (可选) 接收者 ID |
+| `media_path` | TEXT | (可选) 媒体文件本地路径 |
+
+**2. system_info (系统信息)**
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `internal_ip` | TEXT | 内网 IP |
+| `mac_address` | TEXT | MAC 地址 |
+| `hostname` | TEXT | 主机名 |
+| `os` | TEXT | 操作系统名称 |
+| `auto_screenshot`| INTEGER | 监控状态 (0/1) |
+| `data_status` | TEXT | 数据状态 |
+
+**3. wifi_scan_results (WiFi 信息)**
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `ssid` | TEXT | WiFi 名称 |
+| `bssid` | TEXT | MAC 地址 |
+| `signal_strength`| TEXT | 信号强度 |
+| `security_type` | TEXT | 认证方式 |
+
+**4. installed_software (软件列表)**
+| 字段名 | 类型 | 描述 |
+| :--- | :--- | :--- |
+| `name` | TEXT | 软件名称 |
+| `version` | TEXT | 版本号 |
+| `install_date` | TEXT | 安装日期 |
