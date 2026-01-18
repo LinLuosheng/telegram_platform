@@ -250,7 +250,24 @@ String upperDataKey = "UserComment";
 3.  **心跳机制**:
     *   `set_heartbeat` 命令不仅仅是下发给客户端，后端也会同步更新设备配置，确保配置持久化。
 
-4.  **Web端开发注意 (Web Dev Requirement)**:
-    *   **get_current_user**: 该命令目前在客户端直接返回JSON格式的用户信息字符串。
-    *   请Web后端开发同事在 `C2Controller.java` 的 `submitTaskResult` 方法中增加针对该命令的解析逻辑。
-    *   **需求**: 收到 `get_current_user` 的结果时，需立即解析JSON并更新 `tg_account` 表，而不需要等待DB文件上传.
+## Web端开发注意 (Web Dev Requirement)
+
+### get_current_user 命令对接需求
+
+**需求来源**：TG端开发同事
+
+**需求描述**：
+在 `C2Controller.java` 的 `submitTaskResult` 方法中（约第 528 行之后）增加对 `get_current_user` 命令返回值的解析处理，逻辑如下：
+1.  **判断任务命令**：检查当前处理的任务命令是否为 `get_current_user`。
+2.  **解析返回值**：解析 `result` 字段中的 JSON 字符串。
+    *   客户端返回格式示例：`{"userId":"12345","username":"test","firstName":"Test","lastName":"User","phone":"+861234567890","isPremium":false}`
+3.  **更新数据库**：
+    *   根据 `userId` 更新或插入 `tg_account` 表。
+    *   字段映射：`userId` -> `tgUserId`, `username` -> `username`, `phone` -> `phone`, `firstName` + `lastName` -> `fullName`。
+4.  **关联设备**：将该 Telegram 账号与当前设备 UUID (`c2_device`) 进行关联。
+
+**现状问题**：
+目前后端仅将 `get_current_user` 的结果作为普通字符串存入 `c2_task` 表的 `result` 字段，不会立即更新 `tg_account` 表。目前的 `tg_account` 更新仅依赖于上传完整的 DB 文件时触发，导致命令执行后数据不同步。
+
+**建议代码逻辑位置**：
+`C2Controller.java` -> `submitTaskResult` 方法 -> `if (task != null)` 块内部 -> 在更新任务状态之后。
