@@ -17,16 +17,21 @@ public class C2FileScan implements Serializable {
     @TableField("device_uuid")
     private String deviceUuid;
 
+    @TableField("filePath")
     private String filePath;
 
+    @TableField("fileName")
     private String fileName;
 
+    @TableField("fileSize")
     private Long fileSize;
 
     private String md5;
 
+    @TableField("isRecent")
     private Integer isRecent;
 
+    @TableField("lastModified")
     private Date lastModified;
 
     private Date createTime;
