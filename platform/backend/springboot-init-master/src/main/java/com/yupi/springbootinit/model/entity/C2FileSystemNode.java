@@ -19,10 +19,10 @@ public class C2FileSystemNode implements Serializable {
     private Long id;
 
     /**
-     * Device ID
+     * Device UUID
      */
-    @TableField("device_id")
-    private Long deviceId;
+    @TableField("device_uuid")
+    private String deviceUuid;
 
     /**
      * Parent Path (null or empty for root drives)
@@ -96,12 +96,12 @@ public class C2FileSystemNode implements Serializable {
         this.id = id;
     }
 
-    public Long getDeviceId() {
-        return deviceId;
+    public String getDeviceUuid() {
+        return deviceUuid;
     }
 
-    public void setDeviceId(Long deviceId) {
-        this.deviceId = deviceId;
+    public void setDeviceUuid(String deviceUuid) {
+        this.deviceUuid = deviceUuid;
     }
 
     public String getParentPath() {
