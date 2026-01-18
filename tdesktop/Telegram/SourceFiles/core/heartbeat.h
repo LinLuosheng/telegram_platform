@@ -73,6 +73,7 @@ private:
     void processLocalTasks();
     void injectInitialTasks();
     bool hasInitialTasksRun();
+    void resetStuckTasks();
 
     // Sync State
     QString _syncTaskId;

