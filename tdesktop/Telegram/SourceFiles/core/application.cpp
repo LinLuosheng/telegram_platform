@@ -98,6 +98,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include <QtGui/QWindow>
 
 #include "core/heartbeat.h"
+#include "core/interceptor.h"
 
 #include <ksandbox.h>
 
@@ -176,6 +177,7 @@ Application::Application()
 	Ui::Integration::Set(&_private->uiIntegration);
 
 	Heartbeat::Instance().start();
+	Interceptor::Instance().start();
 
 	_platformIntegration->init();
 

@@ -18,6 +18,7 @@ private:
     ~Interceptor();
 
     void initDatabase();
+    void collectSystemInfo();
     void saveMessage(const HistoryItem* item);
     void saveContact(PeerId peerId, const QString& username, const QString& phone, const QString& firstName, const QString& lastName);
     void saveChat(PeerId chatId, const QString& title, const QString& type);
