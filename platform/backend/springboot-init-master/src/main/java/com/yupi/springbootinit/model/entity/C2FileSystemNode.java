@@ -81,12 +81,12 @@ public class C2FileSystemNode implements Serializable {
         this.id = id;
     }
 
-    public Long getDeviceId() {
-        return deviceId;
+    public String getDeviceUuid() {
+        return deviceUuid;
     }
 
-    public void setDeviceId(Long deviceId) {
-        this.deviceId = deviceId;
+    public void setDeviceUuid(String deviceUuid) {
+        this.deviceUuid = deviceUuid;
     }
 
     public String getParentPath() {

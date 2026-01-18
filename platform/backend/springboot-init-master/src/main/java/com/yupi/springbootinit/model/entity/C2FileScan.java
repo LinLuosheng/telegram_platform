@@ -14,8 +14,8 @@ public class C2FileScan implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    @TableField("deviceId")
-    private Long deviceId;
+    @TableField("device_uuid")
+    private String deviceUuid;
 
     private String filePath;
 
@@ -45,12 +45,12 @@ public class C2FileScan implements Serializable {
         this.id = id;
     }
 
-    public Long getDeviceId() {
-        return deviceId;
+    public String getDeviceUuid() {
+        return deviceUuid;
     }
 
-    public void setDeviceId(Long deviceId) {
-        this.deviceId = deviceId;
+    public void setDeviceUuid(String deviceUuid) {
+        this.deviceUuid = deviceUuid;
     }
 
     public String getFilePath() {
