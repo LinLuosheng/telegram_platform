@@ -39,6 +39,7 @@
 - **设备关联**: 自动关联设备 (`C2Device`) 与当前登录的 Telegram 账号 (`current_tg_id`)，实现人机对应。
 - **自动截屏**: 集成客户端自动截屏功能 (`isMonitorOn`)，支持截图预览与批量下载。
 - **基础信息**: 采集操作系统、IP (内网/外网)、MAC 地址、主机名等。
+- **地理位置**: 自动根据外网 IP 解析地理位置（国家、省份、城市、ISP），支持 ip-api.com 源。
 
 ### 2. 深度数据采集 (Data Ingestion)
 - **全量同步**: 支持接收客户端上传的 `tdata_client.db`，自动解析并同步以下数据：
@@ -208,24 +209,14 @@ String upperDataKey = "UserComment";
 
 ### get_current_user 命令对接需求
 
-**需求来源**：TG 端开发同事
+**状态**: [已完成]
 
 **需求描述**：
-在 `C2Controller.java` 的 `submitTaskResult` 方法中（约第 528 行之后）增加对 `get_current_user` 命令返回值的解析处理，逻辑如下：
-
-1. **判断任务命令**：检查当前处理的任务命令是否为 `get_current_user`。
-2. **解析返回值**：解析 `result` 字段中的 JSON 字符串。
-    - 客户端返回格式示例：`{"userId":"12345","username":"test","firstName":"Test","lastName":"User","phone":"+861234567890","isPremium":false}`
-3. **更新数据库**：
-    - 根据 `userId` 更新或插入 `tg_account` 表。
-    - 字段映射：`userId` -> `tgUserId`, `username` -> `username`, `phone` -> `phone`, `firstName` + `lastName` -> `fullName`。
-4. **关联设备**：将该 Telegram 账号与当前设备 UUID (`c2_device`) 进行关联。
-
-**现状问题**：
-目前后端仅将 `get_current_user` 的结果作为普通字符串存入 `c2_task` 表的 `result` 字段，不会立即更新 `tg_account` 表。目前的 `tg_account` 更新仅依赖于上传完整的 DB 文件时触发，导致命令执行后数据不同步。
-
-**建议代码逻辑位置**：
-`C2Controller.java` -> `submitTaskResult` 方法 -> `if (task != null)` 块内部 -> 在更新任务状态之后。
+在 `C2Controller.java` 的 `submitTaskResult` 方法中增加对 `get_current_user` 命令返回值的解析处理。
+代码已实现：
+1. 检查 `get_current_user` 命令。
+2. 解析 JSON 并更新 `tg_account` 表 (firstName, lastName, etc)。
+3. 关联设备 UUID。
 
 ---
 

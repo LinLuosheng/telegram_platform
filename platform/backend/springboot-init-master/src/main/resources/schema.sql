@@ -58,19 +58,21 @@ create table if not exists c2_software
     isDelete       tinyint      default 0             not null
 );
 
--- C2 File Scan
-create table if not exists c2_file_scan
+-- C2 File System Node
+create table if not exists c2_file_system_node
 (
-    id             bigint auto_increment primary key,
-    device_uuid    varchar(64)                        not null,
-    fileName       varchar(256)                       null,
-    filePath       varchar(512)                       null,
-    fileSize       bigint                             null,
-    md5            varchar(64)                        null,
-    lastModified   datetime                           null,
-    isRecent       tinyint      default 0             null,
-    createTime     datetime     default CURRENT_TIMESTAMP not null,
-    isDelete       tinyint      default 0             not null
+    id            bigint auto_increment primary key,
+    device_id     bigint                             not null,
+    parent_path   varchar(512)                       null,
+    path          varchar(512)                       null,
+    name          varchar(256)                       null,
+    is_directory  tinyint      default 0             null,
+    size          bigint                             null,
+    md5           varchar(64)                        null,
+    is_recent     tinyint      default 0             null,
+    last_modified datetime                           null,
+    create_time   datetime     default CURRENT_TIMESTAMP not null,
+    is_delete     tinyint      default 0             not null
 );
 
 -- C2 Screenshot

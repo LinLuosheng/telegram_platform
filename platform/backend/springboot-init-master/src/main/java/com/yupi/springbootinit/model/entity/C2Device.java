@@ -23,6 +23,18 @@ public class C2Device implements Serializable {
     @TableField("external_ip")
     private String externalIp;
 
+    @TableField("country")
+    private String country;
+
+    @TableField("region")
+    private String region;
+
+    @TableField("city")
+    private String city;
+
+    @TableField("isp")
+    private String isp;
+
     @TableField("mac_address")
     private String macAddress;
 

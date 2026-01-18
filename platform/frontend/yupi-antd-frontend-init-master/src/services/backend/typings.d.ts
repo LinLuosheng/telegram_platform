@@ -166,6 +166,10 @@ declare namespace API {
     ip?: string;
     internalIp?: string;
     externalIp?: string;
+    country?: string;
+    region?: string;
+    city?: string;
+    isp?: string;
     heartbeatInterval?: number;
     lastSeen?: string;
     os?: string;

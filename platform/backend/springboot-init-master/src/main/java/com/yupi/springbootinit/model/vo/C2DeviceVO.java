@@ -18,6 +18,14 @@ public class C2DeviceVO implements Serializable {
 
     private String externalIp;
 
+    private String country;
+
+    private String region;
+
+    private String city;
+
+    private String isp;
+
     private String macAddress;
 
     private String hostName;
@@ -76,6 +84,38 @@ public class C2DeviceVO implements Serializable {
 
     public void setExternalIp(String externalIp) {
         this.externalIp = externalIp;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getIsp() {
+        return isp;
+    }
+
+    public void setIsp(String isp) {
+        this.isp = isp;
     }
 
     public String getMacAddress() {
