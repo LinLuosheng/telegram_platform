@@ -2,6 +2,20 @@
 
 本项目已集成 Telegram Desktop 客户端的 C2 (Command & Control) 功能，实现了设备监控、数据采集与远程管理。
 
+## 协作与开发规范 (Collaboration Rules)
+
+本项目包含 Web 平台端 (`platform`) 与 Telegram 客户端 (`tdesktop`) 两部分。为了高效协作，请遵循以下规则：
+
+1.  **职责边界**:
+    -   我（Platform 开发者）负责 `platform` 目录下的 Web 前后端开发。
+    -   **严禁修改** `tdesktop` 目录下的任何代码。
+2.  **需求传递**:
+    -   **Platform -> Client**: 我对 TG 客户端的功能需求（如新增数据采集、协议变更），将记录在本文档（`platform/README.md`）的 [TG 客户端对接协议与开发建议](#tg-客户端对接协议与开发建议-protocol--suggestions-for-tg-client) 章节中。
+    -   **Client -> Platform**: TG 客户端同事对我（Web 端）的接口或功能要求，请查阅 `tdesktop/README.md`。
+3.  **沟通机制**:
+    -   双方通过 README 文档进行异步需求确认。
+    -   代码提交前请确保文档已同步更新。
+
 ## 目录
 
 - [核心特性](#核心特性)
