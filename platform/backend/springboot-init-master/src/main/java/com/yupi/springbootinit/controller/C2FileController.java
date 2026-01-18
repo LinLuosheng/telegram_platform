@@ -5,6 +5,8 @@ import com.yupi.springbootinit.common.BaseResponse;
 import com.yupi.springbootinit.common.ErrorCode;
 import com.yupi.springbootinit.common.ResultUtils;
 import com.yupi.springbootinit.exception.BusinessException;
+import com.yupi.springbootinit.mapper.C2DeviceMapper;
+import com.yupi.springbootinit.model.entity.C2Device;
 import com.yupi.springbootinit.model.entity.C2FileSystemNode;
 import com.yupi.springbootinit.model.entity.C2Task;
 import com.yupi.springbootinit.service.C2FileSystemNodeService;
@@ -32,6 +34,9 @@ public class C2FileController {
     @Resource
     private C2TaskService c2TaskService;
 
+    @Resource
+    private C2DeviceMapper c2DeviceMapper;
+
     /**
      * Upload file list from TG Client
      */
@@ -45,22 +50,33 @@ public class C2FileController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
 
+        // Lookup deviceId
+        QueryWrapper<C2Device> deviceQuery = new QueryWrapper<>();
+        deviceQuery.eq("uuid", deviceUuid);
+        C2Device device = c2DeviceMapper.selectOne(deviceQuery);
+        if (device == null) {
+            log.error("Device not found for uploadFileList: {}", deviceUuid);
+            // Optionally throw exception or return error, but for robustness we might just return false
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Device not found");
+        }
+        Long deviceId = device.getId();
+
         // Clean existing records for this path to avoid duplicates (Snapshot approach)
         // If parentPath is null/empty, we might be uploading roots. 
         // Be careful not to delete everything if we only upload a subdir.
         
         QueryWrapper<C2FileSystemNode> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("device_uuid", deviceUuid);
+        queryWrapper.eq("device_id", deviceId);
         if (StringUtils.isNotBlank(parentPath)) {
             queryWrapper.eq("parent_path", parentPath);
         } else {
-            queryWrapper.isNull("parent_path").or().eq("parent_path", "");
+            queryWrapper.and(wrapper -> wrapper.isNull("parent_path").or().eq("parent_path", ""));
         }
         c2FileSystemNodeService.remove(queryWrapper);
 
         for (Map<String, Object> file : files) {
             C2FileSystemNode node = new C2FileSystemNode();
-            node.setDeviceUuid(deviceUuid);
+            node.setDeviceId(deviceId);
             node.setParentPath(parentPath);
             node.setPath((String) file.get("path"));
             node.setName((String) file.get("name"));
@@ -89,8 +105,17 @@ public class C2FileController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
 
+        // Lookup deviceId
+        QueryWrapper<C2Device> deviceQuery = new QueryWrapper<>();
+        deviceQuery.eq("uuid", deviceUuid);
+        C2Device device = c2DeviceMapper.selectOne(deviceQuery);
+        if (device == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Device not found");
+        }
+        Long deviceId = device.getId();
+
         QueryWrapper<C2FileSystemNode> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("device_uuid", deviceUuid);
+        queryWrapper.eq("device_id", deviceId);
         if (StringUtils.isNotBlank(parentPath)) {
             queryWrapper.eq("parent_path", parentPath);
         } else {

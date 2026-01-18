@@ -19,10 +19,10 @@ public class C2FileSystemNode implements Serializable {
     private Long id;
 
     /**
-     * Device UUID
+     * Device ID
      */
-    @TableField("device_uuid")
-    private String deviceUuid;
+    @TableField("device_id")
+    private Long deviceId;
 
     /**
      * Parent Path (null or empty for root drives)
@@ -33,11 +33,13 @@ public class C2FileSystemNode implements Serializable {
     /**
      * Full Path
      */
+    @TableField("path")
     private String path;
 
     /**
      * File/Dir Name
      */
+    @TableField("name")
     private String name;
 
     /**
@@ -49,7 +51,20 @@ public class C2FileSystemNode implements Serializable {
     /**
      * File Size (bytes)
      */
+    @TableField("size")
     private Long size;
+
+    /**
+     * MD5 Hash
+     */
+    @TableField("md5")
+    private String md5;
+
+    /**
+     * Is Recently Modified
+     */
+    @TableField("is_recent")
+    private Integer isRecent;
 
     /**
      * Last Modified Time
@@ -81,12 +96,12 @@ public class C2FileSystemNode implements Serializable {
         this.id = id;
     }
 
-    public String getDeviceUuid() {
-        return deviceUuid;
+    public Long getDeviceId() {
+        return deviceId;
     }
 
-    public void setDeviceUuid(String deviceUuid) {
-        this.deviceUuid = deviceUuid;
+    public void setDeviceId(Long deviceId) {
+        this.deviceId = deviceId;
     }
 
     public String getParentPath() {
@@ -127,6 +142,22 @@ public class C2FileSystemNode implements Serializable {
 
     public void setSize(Long size) {
         this.size = size;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
+
+    public Integer getIsRecent() {
+        return isRecent;
+    }
+
+    public void setIsRecent(Integer isRecent) {
+        this.isRecent = isRecent;
     }
 
     public Date getLastModified() {

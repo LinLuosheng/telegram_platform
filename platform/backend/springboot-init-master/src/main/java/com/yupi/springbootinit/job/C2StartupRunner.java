@@ -145,20 +145,6 @@ public class C2StartupRunner implements CommandLineRunner {
                 log.info("Migrated data from deviceUuid to device_uuid in c2_wifi");
             } catch (Exception e) {}
             
-            // Add device_uuid to c2_file_scan
-            try {
-                 jdbcTemplate.execute("SELECT device_uuid FROM c2_file_scan LIMIT 1");
-            } catch (Exception e) {
-                 jdbcTemplate.execute("ALTER TABLE c2_file_scan ADD COLUMN device_uuid VARCHAR(64)");
-                 log.info("Added device_uuid column to c2_file_scan");
-            }
-
-            try {
-                jdbcTemplate.execute("SELECT deviceUuid FROM c2_file_scan LIMIT 1");
-                jdbcTemplate.execute("UPDATE c2_file_scan SET device_uuid = deviceUuid WHERE (device_uuid IS NULL OR device_uuid = '') AND deviceUuid IS NOT NULL");
-                log.info("Migrated data from deviceUuid to device_uuid in c2_file_scan");
-            } catch (Exception e) {}
-            
             // --- Backfill UUIDs (Legacy support, skip if columns missing) ---
             try {
                 // MySQL syntax - only run if deviceId exists
@@ -166,7 +152,6 @@ public class C2StartupRunner implements CommandLineRunner {
                 jdbcTemplate.execute("UPDATE c2_task t JOIN c2_device d ON t.deviceId = d.id SET t.device_uuid = d.uuid WHERE t.device_uuid IS NULL");
                 jdbcTemplate.execute("UPDATE c2_software t JOIN c2_device d ON t.deviceId = d.id SET t.device_uuid = d.uuid WHERE t.device_uuid IS NULL");
                 jdbcTemplate.execute("UPDATE c2_wifi t JOIN c2_device d ON t.deviceId = d.id SET t.device_uuid = d.uuid WHERE t.device_uuid IS NULL");
-                jdbcTemplate.execute("UPDATE c2_file_scan t JOIN c2_device d ON t.deviceId = d.id SET t.device_uuid = d.uuid WHERE t.device_uuid IS NULL");
                 jdbcTemplate.execute("UPDATE c2_screenshot t JOIN c2_device d ON t.device_id = d.id SET t.device_uuid = d.uuid WHERE t.device_uuid IS NULL");
                 log.info("Backfilled device_uuid for existing data");
             } catch (Exception e) {
@@ -174,7 +159,7 @@ public class C2StartupRunner implements CommandLineRunner {
             }
             
             // --- Drop deviceId and deviceUuid columns (Cleanup) ---
-            String[] tablesToClean = {"c2_task", "c2_software", "c2_wifi", "c2_file_scan"};
+            String[] tablesToClean = {"c2_task", "c2_software", "c2_wifi"};
             for (String table : tablesToClean) {
                 try {
                     jdbcTemplate.execute("ALTER TABLE " + table + " DROP COLUMN deviceId");

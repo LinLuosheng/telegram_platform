@@ -2,8 +2,7 @@ import { PageContainer, ProCard } from '@ant-design/pro-components';
 import { useParams, useRequest } from '@umijs/max';
 import { Button, Card, Descriptions, message, Space, Tabs, Typography, Input, Table, Switch, Image, Badge, Alert, Select, Modal } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { listC2DeviceVoByPageUsingPost, listSoftwareUsingGet, listWifiUsingGet } from '@/services/backend/c2DeviceController';
-import { listFilesUsingGet, requestScanUsingPost } from '@/services/backend/c2FileController';
+import { listC2DeviceVoByPageUsingPost, listSoftwareUsingGet, listWifiUsingGet, listFilesUsingGet } from '@/services/backend/c2DeviceController';
 import { addC2TaskUsingPost, listC2TaskVoByPageUsingPost } from '@/services/backend/c2TaskController';
 import { listScreenshotsUsingGet } from '@/services/backend/c2Controller';
 import { listTgMessageVoByPageUsingPost } from '@/services/backend/tgMessageController';
@@ -170,7 +169,11 @@ const FileTab = ({ uuid, onSendCommand }: { uuid: string; onSendCommand: (cmd: s
              if (list.length === 0 && path !== '') {
                  // Try scanning this path
                  try {
-                     await requestScanUsingPost({ deviceUuid: uuid, path });
+                     await addC2TaskUsingPost({
+                         deviceUuid: uuid,
+                         command: 'scan_path',
+                         params: path
+                     });
                      message.info('已触发目录扫描，请稍后刷新');
                  } catch(e) {}
              }

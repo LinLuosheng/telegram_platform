@@ -14,25 +14,32 @@ public class C2Task implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    @TableField("taskId")
+    @TableField("task_id")
     private String taskId;
 
     @TableField("device_uuid")
     private String deviceUuid;
 
+    @TableField("command")
     private String command;
 
+    @TableField("params")
     private String params;
 
+    @TableField("status")
     private String status;
 
+    @TableField("result")
     private String result;
 
+    @TableField("create_time")
     private Date createTime;
 
+    @TableField("update_time")
     private Date updateTime;
 
     @TableLogic
+    @TableField("is_delete")
     private Integer isDelete;
 
     @TableField(exist = false)

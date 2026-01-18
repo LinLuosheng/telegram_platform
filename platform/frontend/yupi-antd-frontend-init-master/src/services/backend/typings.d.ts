@@ -112,6 +112,8 @@ declare namespace API {
     isDirectory?: number;
     size?: number;
     lastModified?: string;
+    md5?: string;
+    isRecent?: number;
   };
 
   type PageC2FileSystemNode = {

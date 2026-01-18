@@ -11,9 +11,10 @@ import com.yupi.springbootinit.model.dto.c2Device.C2DeviceQueryRequest;
 import com.yupi.springbootinit.model.entity.C2Device;
 import com.yupi.springbootinit.model.entity.C2Software;
 import com.yupi.springbootinit.model.entity.C2Wifi;
-import com.yupi.springbootinit.model.entity.C2FileScan;
+import com.yupi.springbootinit.model.entity.C2FileSystemNode;
 import com.yupi.springbootinit.model.vo.C2DeviceVO;
 import com.yupi.springbootinit.service.C2DeviceService;
+import com.yupi.springbootinit.service.C2FileSystemNodeService;
 import com.yupi.springbootinit.annotation.AuthCheck;
 import com.yupi.springbootinit.constant.UserConstant;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +45,7 @@ public class C2DeviceController {
     private C2ScreenshotMapper c2ScreenshotMapper;
 
     @Resource
-    private C2FileScanMapper c2FileScanMapper;
+    private C2FileSystemNodeService c2FileSystemNodeService;
 
     @Resource
     private C2WifiMapper c2WifiMapper;
@@ -107,7 +108,7 @@ public class C2DeviceController {
         
         c2TaskMapper.delete(new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>());
         c2ScreenshotMapper.delete(new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>());
-        c2FileScanMapper.delete(new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>());
+        c2FileSystemNodeService.remove(new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>());
         c2WifiMapper.delete(new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>());
         c2SoftwareMapper.delete(new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>());
         
@@ -132,9 +133,13 @@ public class C2DeviceController {
         if (StringUtils.isBlank(deviceUuid)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        C2Device device = c2DeviceService.getOne(new QueryWrapper<C2Device>().eq("uuid", deviceUuid));
+        if (device == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Device not found");
+        }
         QueryWrapper<C2Software> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("device_uuid", deviceUuid);
-        queryWrapper.orderByDesc("createTime");
+        queryWrapper.eq("device_id", device.getId());
+        queryWrapper.orderByDesc("create_time");
         return ResultUtils.success(c2SoftwareMapper.selectList(queryWrapper));
     }
 
@@ -144,17 +149,22 @@ public class C2DeviceController {
         if (StringUtils.isBlank(deviceUuid)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        C2Device device = c2DeviceService.getOne(new QueryWrapper<C2Device>().eq("uuid", deviceUuid));
+        if (device == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Device not found");
+        }
         QueryWrapper<C2Wifi> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("device_uuid", deviceUuid);
-        queryWrapper.orderByDesc("createTime");
+        queryWrapper.eq("device_id", device.getId());
+        queryWrapper.orderByDesc("create_time");
         return ResultUtils.success(c2WifiMapper.selectList(queryWrapper));
     }
 
     @GetMapping("/files/list")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Page<C2FileScan>> listFiles(
+    public BaseResponse<Page<C2FileSystemNode>> listFiles(
             @RequestParam(value = "deviceUuid", required = false) String deviceUuid,
             @RequestParam(value = "isRecent", required = false) Integer isRecent,
+            @RequestParam(value = "parentPath", required = false) String parentPath,
             @RequestParam(value = "pageSize", defaultValue = "20") long pageSize,
             @RequestParam(value = "current", defaultValue = "1") long current,
             @RequestParam(value = "searchText", required = false) String searchText) {
@@ -163,16 +173,24 @@ public class C2DeviceController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         
-        QueryWrapper<C2FileScan> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("device_uuid", deviceUuid);
+        C2Device device = c2DeviceService.getOne(new QueryWrapper<C2Device>().eq("uuid", deviceUuid));
+        if (device == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Device not found");
+        }
+
+        QueryWrapper<C2FileSystemNode> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("device_id", device.getId());
         
         if (isRecent != null) {
-            queryWrapper.eq("isRecent", isRecent);
+            queryWrapper.eq("is_recent", isRecent);
+        }
+        if (StringUtils.isNotBlank(parentPath)) {
+            queryWrapper.eq("parent_path", parentPath);
         }
         if (org.apache.commons.lang3.StringUtils.isNotBlank(searchText)) {
-            queryWrapper.and(qw -> qw.like("fileName", searchText).or().like("filePath", searchText));
+            queryWrapper.and(qw -> qw.like("name", searchText).or().like("path", searchText));
         }
-        queryWrapper.orderByDesc("lastModified", "createTime");
-        return ResultUtils.success(c2FileScanMapper.selectPage(new Page<>(current, pageSize), queryWrapper));
+        queryWrapper.orderByDesc("last_modified", "create_time");
+        return ResultUtils.success(c2FileSystemNodeService.page(new Page<>(current, pageSize), queryWrapper));
     }
 }

@@ -14,21 +14,26 @@ public class C2Wifi implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    @TableField("device_uuid")
-    private String deviceUuid;
+    @TableField("device_id")
+    private Long deviceId;
 
+    @TableField("ssid")
     private String ssid;
 
+    @TableField("bssid")
     private String bssid;
 
-    @TableField("signalStrength")
+    @TableField("signal_strength")
     private String signalStrength;
 
+    @TableField("authentication")
     private String authentication;
 
+    @TableField("create_time")
     private Date createTime;
 
     @TableLogic
+    @TableField("is_delete")
     private Integer isDelete;
 
     @TableField(exist = false)
@@ -42,12 +47,12 @@ public class C2Wifi implements Serializable {
         this.id = id;
     }
 
-    public String getDeviceUuid() {
-        return deviceUuid;
+    public Long getDeviceId() {
+        return deviceId;
     }
 
-    public void setDeviceUuid(String deviceUuid) {
-        this.deviceUuid = deviceUuid;
+    public void setDeviceId(Long deviceId) {
+        this.deviceId = deviceId;
     }
 
     public String getSsid() {

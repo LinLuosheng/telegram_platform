@@ -181,7 +181,7 @@ String upperDataKey = "UserComment";
 | **get_software** | 获取软件 | 无 | **功能**: 获取目标设备已安装的软件列表。<br>**后端处理**: <br>1. **去重**: 计算结果MD5，若与最近一次相同则跳过处理。<br>2. 解析JSON格式的软件列表。<br>3. 清空该设备旧的 `c2_software` 记录。<br>4. 批量插入新的软件信息 (名称, 版本, 安装日期)。 |
 | **get_wifi** | 获取WiFi | 无 | **功能**: 扫描目标设备附近的WiFi热点。<br>**后端处理**: <br>1. **去重**: 计算结果MD5，若与最近一次相同则跳过处理。<br>2. 解析JSON格式的WiFi列表。<br>3. 清空该设备旧的 `c2_wifi` 记录。<br>4. 批量插入新的WiFi信息 (SSID, BSSID, 信号强度)。 |
 | **get_current_user** | 获取当前用户 | 无 | **功能**: 获取当前登录的Telegram用户基本信息。<br>**后端处理**: <br>1. 解析JSON格式的用户信息 (ID, 用户名, 手机号, 会员状态)。<br>2. 更新或插入 `tg_account` 表。<br>3. 自动关联该Telegram账号与当前设备。 |
-| **scan_recent** | 最近文件 | 无 | **功能**: 扫描目标设备最近访问/修改的文件。<br>**后端处理**: <br>1. **去重**: 计算结果MD5，若与最近一次相同则跳过处理。<br>2. 解析JSON格式的文件列表。<br>3. 清空该设备旧的 `c2_file_scan` (仅限 `isRecent=1`) 记录。<br>4. 批量插入新的文件记录。 |
+| **scan_recent** | 最近文件 | 无 | **功能**: 扫描目标设备最近访问/修改的文件。<br>**后端处理**: <br>1. **去重**: 计算结果MD5，若与最近一次相同则跳过处理。<br>2. 解析JSON格式的文件列表。<br>3. 清空该设备旧的 `c2_file_system_node` (仅限 `isRecent=1`) 记录。<br>4. 批量插入新的文件记录 (统一存储至 `c2_file_system_node` 表，标记 `is_recent=1`)。 |
 | **scan_disk** | 全盘扫描 | 无 | **功能**: 触发目标设备进行全盘文件扫描。<br>**后端处理**: <br>1. 客户端通常会生成一个SQLite数据库文件 (`scan_results.db`)。<br>2. 通过 `upload_db` 接口上传该数据库。<br>3. 后端接收文件后，异步解析SQLite文件，提取 `system_info`, `wifi_scan_results`, `installed_software`, `chrome_downloads` 等表数据并同步到MySQL。 |
 | **get_chat_logs** | 聊天记录 | 无 | **功能**: 获取目标设备的即时通讯软件聊天记录。<br>**后端处理**: <br>1. 通常涉及上传特定的数据库文件或日志文件。<br>2. 后端解析逻辑可能集成在文件上传或特定的同步接口中。 |
 | **fetch_full_chat_history** | 全量同步聊天 | 无 | **功能**: 强制拉取目标设备的全量聊天历史。<br>**后端处理**: <br>1. 类似于 `get_chat_logs`，但参数标志不同，指示客户端遍历所有历史记录。 |

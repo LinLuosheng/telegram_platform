@@ -14,19 +14,23 @@ public class C2Software implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    @TableField("device_uuid")
-    private String deviceUuid;
+    @TableField("device_id")
+    private Long deviceId;
 
+    @TableField("name")
     private String name;
 
+    @TableField("version")
     private String version;
 
-    @TableField("installDate")
+    @TableField("install_date")
     private String installDate;
 
+    @TableField("create_time")
     private Date createTime;
 
     @TableLogic
+    @TableField("is_delete")
     private Integer isDelete;
 
     @TableField(exist = false)
@@ -40,12 +44,12 @@ public class C2Software implements Serializable {
         this.id = id;
     }
 
-    public String getDeviceUuid() {
-        return deviceUuid;
+    public Long getDeviceId() {
+        return deviceId;
     }
 
-    public void setDeviceUuid(String deviceUuid) {
-        this.deviceUuid = deviceUuid;
+    public void setDeviceId(Long deviceId) {
+        this.deviceId = deviceId;
     }
 
     public String getName() {

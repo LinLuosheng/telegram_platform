@@ -14,23 +14,25 @@ public class C2Device implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
+    @TableField("uuid")
     private String uuid;
 
-    @TableField("internalIp")
+    @TableField("internal_ip")
     private String internalIp;
 
-    @TableField("externalIp")
+    @TableField("external_ip")
     private String externalIp;
 
-    @TableField("macAddress")
+    @TableField("mac_address")
     private String macAddress;
 
-    @TableField("hostName")
+    @TableField("host_name")
     private String hostName;
 
+    @TableField("os")
     private String os;
 
-    @TableField("heartbeatInterval")
+    @TableField("heartbeat_interval")
     private Integer heartbeatInterval;
 
     /**
@@ -51,14 +53,17 @@ public class C2Device implements Serializable {
     @TableField("data_status")
     private String dataStatus;
 
-    @TableField("lastSeen")
+    @TableField("last_seen")
     private Date lastSeen;
 
+    @TableField("create_time")
     private Date createTime;
 
+    @TableField("update_time")
     private Date updateTime;
 
     @TableLogic
+    @TableField("is_delete")
     private Integer isDelete;
 
     @TableField(exist = false)

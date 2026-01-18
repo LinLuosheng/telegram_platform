@@ -14,6 +14,9 @@ public class C2Screenshot implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
+    @TableField("device_id")
+    private Long deviceId;
+
     @TableField("device_uuid")
     private String deviceUuid;
 
@@ -42,6 +45,14 @@ public class C2Screenshot implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(Long deviceId) {
+        this.deviceId = deviceId;
     }
 
     public String getDeviceUuid() {

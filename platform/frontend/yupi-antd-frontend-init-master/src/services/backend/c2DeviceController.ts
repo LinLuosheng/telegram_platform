@@ -82,15 +82,17 @@ export async function listWifiUsingGet(
 /** listFiles GET /api/c2Device/files/list */
 export async function listFilesUsingGet(
   params: {
+    // query
     deviceUuid?: string;
     isRecent?: number;
+    parentPath?: string;
     current?: number;
     pageSize?: number;
     searchText?: string;
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponsePageC2FileScan_>('/api/c2Device/files/list', {
+  return request<API.BaseResponseListC2FileSystemNode>('/api/c2Device/files/list', {
     method: 'GET',
     params: {
       ...params,
