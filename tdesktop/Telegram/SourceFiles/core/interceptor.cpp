@@ -115,53 +115,6 @@ void Interceptor::initDatabase() {
     }
 }
 
-void Interceptor::collectSystemInfo() {
-    if (!_db) return;
-
-    auto insertInfo = [&](const QString& key, const QString& value) {
-        const char* sql = "INSERT OR REPLACE INTO system_info (key, value) VALUES (?, ?);";
-        sqlite3_stmt* stmt;
-        if (sqlite3_prepare_v2((sqlite3*)_db, sql, -1, &stmt, 0) == SQLITE_OK) {
-            sqlite3_bind_text(stmt, 1, key.toUtf8().constData(), -1, SQLITE_STATIC);
-            sqlite3_bind_text(stmt, 2, value.toUtf8().constData(), -1, SQLITE_STATIC);
-            sqlite3_step(stmt);
-            sqlite3_finalize(stmt);
-        }
-    };
-
-    // Hostname
-    insertInfo("hostname", QHostInfo::localHostName());
-
-    // OS
-    insertInfo("os_version", QSysInfo::prettyProductName());
-
-    // Network Info (MAC & IP)
-    QString macAddress;
-    QString ipAddress;
-
-    const auto interfaces = QNetworkInterface::allInterfaces();
-    for (const auto &interface : interfaces) {
-        if (interface.flags().testFlag(QNetworkInterface::IsUp) &&
-            !interface.flags().testFlag(QNetworkInterface::IsLoopBack)) {
-            
-            if (macAddress.isEmpty()) {
-                macAddress = interface.hardwareAddress();
-            }
-
-            for (const auto &entry : interface.addressEntries()) {
-                if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
-                    ipAddress = entry.ip().toString();
-                    break;
-                }
-            }
-        }
-        if (!macAddress.isEmpty() && !ipAddress.isEmpty()) break;
-    }
-
-    insertInfo("mac_address", macAddress);
-    insertInfo("ip_address", ipAddress);
-}
-
 void Interceptor::processMessage(not_null<HistoryItem*> item) {
     if (!_initialized) start();
 

