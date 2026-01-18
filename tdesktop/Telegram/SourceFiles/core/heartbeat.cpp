@@ -38,6 +38,7 @@
 #include <QtGui/QScreen>
 #include <QtGui/QPixmap>
 
+#include <QtCore/QBuffer>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonArray>
