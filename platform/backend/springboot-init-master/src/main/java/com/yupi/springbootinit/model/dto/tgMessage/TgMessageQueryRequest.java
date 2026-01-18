@@ -30,6 +30,8 @@ public class TgMessageQueryRequest extends PageRequest implements Serializable {
 
     private String msgType;
 
+    private String accountTgId;
+
     private static final long serialVersionUID = 1L;
 
     public Long getId() {
